@@ -9,15 +9,22 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Lidar;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private CANSparkMax mShooter;
-    private WPI_VictorSPX mFeeder;
-    private DoubleSolenoid mElevationSolenoid;
+
+    private static ShooterSubsystem mInstance;
+    
+    private final CANSparkMax mShooter;
+    private final WPI_VictorSPX mFeeder;
+    private final DoubleSolenoid mElevationSolenoid;
+    private final Lidar mLidar;
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
@@ -31,6 +38,8 @@ public class ShooterSubsystem extends SubsystemBase {
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
 
         mFeeder = new WPI_VictorSPX(Constants.kFeederMotorId);
+
+        mLidar = new Lidar(new DigitalInput(Constants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 
@@ -74,9 +83,16 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             default:
                 mElevationSolenoid.set(Value.kReverse);
-                System.out.println("ERROR: SHOOTER ELEVATION VALUE INVALID");
+                DriverStation.reportError("ERROR: SHOOTER ELEVATION VALUE INVALID", false);
                 break;
         }
-	}
+    }
+    
+    public static ShooterSubsystem getInstance() {
+        if(mInstance == null) {
+            mInstance = new ShooterSubsystem();
+        }
+        return mInstance;
+    }
 }
 

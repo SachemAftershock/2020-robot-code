@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class PID {
 
     private final double kEpsilon;
+    private boolean mPaused;
     private double mIntegral, mDerivative, mError, mPreviousError;
     private double[] mGains;
     private Timer mTimer;
@@ -15,6 +16,8 @@ public class PID {
         mDerivative = 0.0;
         mError = 0.0;
         mPreviousError = 0.0;
+
+        mPaused = false;
 
         kEpsilon = epsilon;
 
@@ -57,6 +60,22 @@ public class PID {
         mPreviousError = 0.0;
         mTimer.start();
     }
+
+    public void pausePID() {
+        mIntegral = 0.0;
+        mDerivative = 0.0;
+        mPaused = true;
+    }
+
+    public void resumePID() {
+        mTimer.reset();
+        mPaused = false;
+    }
+
+    public boolean isPaused() {
+        return mPaused;
+    }
+
 
     public double getError() {
         return mError;

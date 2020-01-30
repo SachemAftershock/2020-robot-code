@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class RunIntakeEjectCommand extends CommandBase  {
+    
     private IntakeSubsystem mIntake;
 
     public RunIntakeEjectCommand(IntakeSubsystem intake) {

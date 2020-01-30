@@ -15,6 +15,8 @@ import frc.robot.Constants;
 
 public class WheelControllerSubsystem extends SubsystemBase {
 
+    private static WheelControllerSubsystem mInstance;
+
     private final TalonSRX mWheelSpinner;
     private final ColorSensorV3 mColorSensor;
     private final AnalogInput mUltrasonic;
@@ -27,7 +29,6 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
     private final int kRobotReadingVarianceIndex = 2;
-    private final double kUltrasonicValueToInches = 0.125;
     private final double kWheelSpinSpeed = 0.4;
 
 
@@ -209,7 +210,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     //TODO: Have to implement safe driving features to use
     private double getUltrasonicDistance() {
-        return mUltrasonic.getValue() * kUltrasonicValueToInches;
+        return mUltrasonic.getValue() * Constants.kUltrasonicValueToInches;
     }
 
     private enum ColorLUT {
@@ -286,5 +287,12 @@ public class WheelControllerSubsystem extends SubsystemBase {
             DriverStation.reportError("ERROR: COLOR NOT FOUND IN CIRCULAR ARRAY", false);
             return 0;
         }
+    }
+
+    public static WheelControllerSubsystem getInstance() {
+        if(mInstance == null) {
+            mInstance = new WheelControllerSubsystem();
+        }
+        return mInstance;
     }
 }

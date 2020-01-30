@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.sensors.PigeonIMU;
-import com.revrobotics.CANDigitalInput.LimitSwitch;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -13,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class TurretSubsystem extends SubsystemBase {
+
+    private static TurretSubsystem mInstance;
 
     private WPI_VictorSPX mTurret;
     private DutyCycleEncoder mEncoder;
@@ -44,6 +44,13 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void turnToDegree(double theta) {
         
+    }
+
+    public static TurretSubsystem getInstance() {
+        if(mInstance == null) {
+            mInstance = new TurretSubsystem();
+        }
+        return mInstance;
     }
 
 }

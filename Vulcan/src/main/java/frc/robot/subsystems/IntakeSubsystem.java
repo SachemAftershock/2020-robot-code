@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 public class IntakeSubsystem extends SubsystemBase {
 
+    private static IntakeSubsystem mInstance;
+
     private DoubleSolenoid mIntakeExtender;
     private WPI_VictorSPX mIntakeMotor;
 
@@ -48,6 +50,13 @@ public class IntakeSubsystem extends SubsystemBase {
         } else {
             mIntakeExtender.set(Value.kForward);
         }
+    }
+
+    public static IntakeSubsystem getInstance() {
+        if(mInstance == null) {
+            mInstance = new IntakeSubsystem();
+        }
+        return mInstance;
     }
 }
 

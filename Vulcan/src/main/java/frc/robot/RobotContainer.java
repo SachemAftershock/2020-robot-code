@@ -12,19 +12,20 @@ public class RobotContainer {
     private final XboxController mXboxControllerPrimary = new XboxController(Constants.kControllerPrimaryId);
     private final XboxController mXboxControllerSecondary = new XboxController(Constants.kControllerSecondaryId);
 
-    private final AbsoluteFieldPositionDeviceSubsystem mAbsoluteFieldPosition = new AbsoluteFieldPositionDeviceSubsystem();
-    private final IntakeSubsystem mIntake = new IntakeSubsystem();
-    private final CameraDriverSubsystem mDriverCamera = new CameraDriverSubsystem();
-    private final ClimberSubsystem mClimber = new ClimberSubsystem();
-    private final CollisionAvoidanceSubsystem mCollisionAvoidanceSubsystem = new CollisionAvoidanceSubsystem();
-    private final WheelControllerSubsystem mColorWheelController = new WheelControllerSubsystem();
-    private final DriveSubsystem mDrive = new DriveSubsystem();
-    private final PowerSubsystem mPower = new PowerSubsystem();
-    private final ShooterSubsystem mShooter =  new ShooterSubsystem();
-    private final TurretSubsystem mTurret = new TurretSubsystem();
-    private final VisionAlignmentSubsystem mVisionAlignment = new VisionAlignmentSubsystem();
+    private final AbsoluteFieldPositionDeviceSubsystem mAbsoluteFieldPosition = AbsoluteFieldPositionDeviceSubsystem.getInstance();
+    private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
+    private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
+    private final ClimberSubsystem mClimber = ClimberSubsystem.getInstance();
+    private final CollisionAvoidanceSubsystem mCollisionAvoidanceSubsystem = CollisionAvoidanceSubsystem.getInstance();
+    private final WheelControllerSubsystem mColorWheelController = WheelControllerSubsystem.getInstance();
+    private final DriveSubsystem mDrive = DriveSubsystem.getInstance();
+    private final PowerSubsystem mPower = PowerSubsystem.getInstance();
+    private final ShooterSubsystem mShooter =  ShooterSubsystem.getInstance();
+    private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
+    private final VisionAlignmentSubsystem mVisionAlignment = VisionAlignmentSubsystem.getInstance();
 
     private JoystickButton bToggleDriveGear;
+    private JoystickButton bToggleCollisionAvoidance;
     private JoystickButton bToggleShooterElevation;
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
@@ -47,6 +48,10 @@ public class RobotContainer {
 
         bTogglePrecisionDrive = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kB.value);
         bTogglePrecisionDrive.whenPressed(new TogglePrecisionDrivingCommand(mDrive));
+
+        bToggleCollisionAvoidance = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBack.value);
+        bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mXboxControllerPrimary));
+        
         //Not sure if I want primary driver to have this, but maybe it'll be better?
         bIngestIntake = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBumperRight.value);
         bIngestIntake.whileHeld(new RunIntakeIngestCommand(mIntake));
@@ -67,12 +72,12 @@ public class RobotContainer {
         bStartWheelColorTargeting = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kB.value);
         bStartWheelColorTargeting.whenPressed(new WheelColorControlCommand(mColorWheelController));
 
-        bStartShooter = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftTrigger.value);
-        bStartShooter.whileHeld(new ReachTargetRPM(mShooter));
+        //bStartShooter = new (mXboxControllerSecondary, XboxController.Axis.kLeftTrigger.value);
+        //bStartShooter.whileHeld(new ReachTargetRPM(mShooter));
 
-        //TODO: Not sure if this will work as intended
-        jTurret = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftX.value);
-        jTurret.whileActiveContinuous(new DriveTurretCommand(mTurret, mXboxControllerSecondary));
+        //TODO: Find how to use Joysticks like this
+        //jTurret = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftX.value);
+        //jTurret.whileActiveContinuous(new DriveTurretCommand(mTurret, mXboxControllerSecondary));
 
         SmartDashboard.putData("Autonomous Command", new AutonomousCommand());
         SmartDashboard.putData("Toggle Drivebase Gearing", new ToggleDrivebaseGearingCommand(mDrive, mXboxControllerPrimary));

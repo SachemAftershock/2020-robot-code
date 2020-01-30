@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.WheelControllerSubsystem;
@@ -30,7 +31,7 @@ public class WheelPositionControlCommand extends CommandBase {
     @Override
     public boolean isFinished() {
         if(mTimer.hasPeriodPassed(kTimeoutInSeconds)) {
-            System.out.println("ERROR: WHEEL POSITION COMMAND TIMED OUT");
+            DriverStation.reportError("ERROR: WHEEL POSITION COMMAND TIMED OUT", false);
             return true;
         } else if(mWheelController.isPositionConditionMet()) {
             return true;

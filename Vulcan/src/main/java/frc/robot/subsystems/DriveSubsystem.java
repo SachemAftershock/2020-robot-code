@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -20,6 +21,8 @@ import frc.robot.PID;
 import frc.robot.Util;
 
 public class DriveSubsystem extends SubsystemBase {
+
+    private static DriveSubsystem mInstance;
 
     private final CANSparkMax mDriveMotorPortA, mDriveMotorPortB, mDriveMotorPortC;
     private final SpeedControllerGroup mDriveGroupPort;
@@ -36,11 +39,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     private Pose2d mPose;
 
-    private double mLeftTarget, mRightTarget, mRotateSetpoint;
+    private double mLeft, mRight, mLeftTarget, mRightTarget, mRotateSetpoint;
+    private final double kSlowdownProportion = 0.6;
     private final double kDriveEpsilon = 2.0; //TODO: Find a good value for this
     private final double kRotateEpsilon = 3.0;
     private final double[] mLinearGains = {0.0, 0.0, 0.0};
     private final double[] mRotationalGains = {0.0, 0.0, 0.0};
+    private final double kRampRateToMaxSpeed = 1.5;
 
     private double mSelectedMaxSpeedProportion;
     private final double kRegularMaxSpeed = 1.0;
@@ -50,25 +55,31 @@ public class DriveSubsystem extends SubsystemBase {
 
         mDriveMotorPortA = new CANSparkMax(Constants.kDriveMotorPortAId, MotorType.kBrushless);
         mDriveMotorPortA.setInverted(false);
+        mDriveMotorPortA.setOpenLoopRampRate(kRampRateToMaxSpeed);
                 
         mDriveMotorPortB = new CANSparkMax(Constants.kDriveMotorPortBId, MotorType.kBrushless);
         mDriveMotorPortB.setInverted(false);
+        mDriveMotorPortB.setOpenLoopRampRate(kRampRateToMaxSpeed);
                 
         mDriveMotorPortC = new CANSparkMax(Constants.kDriveMotorPortCId, MotorType.kBrushless);
         mDriveMotorPortC.setInverted(false);
+        mDriveMotorPortC.setOpenLoopRampRate(kRampRateToMaxSpeed);
                 
         mDriveGroupPort = new SpeedControllerGroup(mDriveMotorPortA, mDriveMotorPortB, mDriveMotorPortC);
         addChild("Speed Controller Group Port Side",mDriveGroupPort);
                 
         mDriveMotorStarboardA = new CANSparkMax(Constants.kDriveMotorStarboardAId, MotorType.kBrushless);
         mDriveMotorStarboardA.setInverted(true);
+        mDriveMotorStarboardA.setOpenLoopRampRate(kRampRateToMaxSpeed);
                 
         mDriveMotorStarboardB = new CANSparkMax(Constants.kDriveMotorStarboardBId, MotorType.kBrushless);
         mDriveMotorStarboardB.setInverted(true);
-                
+        mDriveMotorStarboardB.setOpenLoopRampRate(kRampRateToMaxSpeed);
+
         mDriveMotorStarboardC = new CANSparkMax(Constants.kDriveMotorStarboardCId, MotorType.kBrushless);
         mDriveMotorStarboardC.setInverted(true);
-        
+        mDriveMotorStarboardC.setOpenLoopRampRate(kRampRateToMaxSpeed);
+
         mDriveGroupStarboard = new SpeedControllerGroup(mDriveMotorStarboardA, mDriveMotorStarboardB, mDriveMotorStarboardC  );
                 
         mDifferentialDrive = new DifferentialDrive(mDriveGroupPort, mDriveGroupStarboard);
@@ -100,6 +111,8 @@ public class DriveSubsystem extends SubsystemBase {
 
         mSelectedMaxSpeedProportion = kRegularMaxSpeed;
 
+        mLeft = 0.0;
+        mRight = 0.0;
         mLeftTarget = 0.0;
         mRightTarget = 0.0;
         mRotateSetpoint = 0.0;
@@ -116,16 +129,28 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void startAutoDrive(double setpoint) {
-        mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint);
+        mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint); //Idk if this is right at all
         mRightTarget = mStarboardEncoder.getPosition() + getEncoderCount(setpoint);
         mPortPid.start(mLinearGains);
         mStarboardPid.start(mLinearGains);
     }
 
     public void runAutoDrive() {
-        double left = mPortPid.update(mPortEncoder.getPosition(), mLeftTarget);
-        double right = mStarboardPid.update(mStarboardEncoder.getPosition(), mRightTarget);
-        mDifferentialDrive.tankDrive(left, right);
+        double scaleFactor = CollisionAvoidanceSubsystem.getInstance().getSlowdownScaleFactor();
+        if(scaleFactor < 1.0) {
+            mLeft *= scaleFactor;
+            mRight *= scaleFactor;
+            mPortPid.pausePID();
+            mStarboardPid.pausePID();
+        } else {
+            if(mPortPid.isPaused() || mStarboardPid.isPaused()) {
+                mPortPid.resumePID();
+                mStarboardPid.resumePID();
+            }
+            mLeft = mPortPid.update(mPortEncoder.getPosition(), mLeftTarget);
+            mRight = mStarboardPid.update(mStarboardEncoder.getPosition(), mRightTarget);
+        }
+        mDifferentialDrive.tankDrive(mLeft, mRight);
         //If when driving staright, the robot is turning, add gyro-based correction
     }
 
@@ -167,7 +192,7 @@ public class DriveSubsystem extends SubsystemBase {
                 break;
             default :
                 mGearShifter.set(Value.kReverse);
-                System.out.println("ERROR: GEAR SHIFT VALUE INVALID");
+                DriverStation.reportError("ERROR: GEAR SHIFT VALUE INVALID", false);
                 break;
         }
     }
@@ -215,6 +240,13 @@ public class DriveSubsystem extends SubsystemBase {
     public void resetEncoders() {
         mPortEncoder.setPosition(0.0);
         mStarboardEncoder.setPosition(0.0);
+    }
+
+    public static DriveSubsystem getInstance() {
+        if(mInstance == null) {
+            mInstance = new DriveSubsystem();
+        }
+        return mInstance;
     }
 }
 

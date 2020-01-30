@@ -8,9 +8,9 @@ public class LinearDriveCommand extends CommandBase {
     private DriveSubsystem mDrive;
     private double mSetpoint;
 
-    public LinearDriveCommand(DriveSubsystem drive, double setpointInches) {
+    public LinearDriveCommand(DriveSubsystem drive, double setpoint) {
         mDrive = drive;
-        mSetpoint = setpointInches;
+        mSetpoint = setpoint;
     }   
 
     @Override

@@ -12,6 +12,11 @@ public final class Constants {
 
     public static final double kDeadbandTolerance = 0.05;
 
+    // Collision Avoidance Constants
+    public static final int kCollisionUltrasonicId = 1;
+
+    public static final double kUltrasonicValueToInches = 0.125;
+
     // Drivebase Subsystem Constants
     public static final int kDriveMotorPortAId = 1;
     public static final int kDriveMotorPortBId = 2;
@@ -32,6 +37,8 @@ public final class Constants {
     // Shooter Subsystem Constants
     public static final int kLauncherMotorId = 7;
     public static final int kFeederMotorId = 8;
+
+    public static final int kLidarId = 0;
 
     public static final int kPidId = 0;
 

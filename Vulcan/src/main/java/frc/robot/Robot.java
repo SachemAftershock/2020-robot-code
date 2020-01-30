@@ -4,9 +4,6 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.*;
 
 public class Robot extends TimedRobot {
 
@@ -14,7 +11,8 @@ public class Robot extends TimedRobot {
     private RobotContainer mRobotContainer;
     private Compressor mCompressor;
 
-    private SendableChooser<Command> mAutoChooser = new SendableChooser<>();
+    private AutoSelector mAutoSelector;
+
 
     @Override
     public void robotInit() {
@@ -24,8 +22,7 @@ public class Robot extends TimedRobot {
         mCompressor.setClosedLoopControl(true);
         mCompressor.start();
 
-        mAutoChooser.setDefaultOption("Autonomous Command", new AutonomousCommand());
-        SmartDashboard.putData("Auto mode", mAutoChooser);
+        mAutoSelector.selectAuto();
     }
 
     @Override
@@ -40,15 +37,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        CommandScheduler.getInstance().run();
+        mAutoSelector.selectAuto();
     }
 
     @Override
     public void autonomousInit() {
-        //TODO: reconcile chooser vs. container- keep old style chooser, but do new way.
-        //m_autonomousCommand = chooser.getSelected();
-        //mAutonomousCommand = mRobotContainer.getAutonomousCommand();
-
+        mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
         if (mAutonomousCommand != null) {
           mAutonomousCommand.schedule();
         }
