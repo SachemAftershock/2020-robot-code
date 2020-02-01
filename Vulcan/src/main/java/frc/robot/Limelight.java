@@ -9,7 +9,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * @author Dan Waxman
  */
 public class Limelight {
+
 	private static NetworkTableInstance table = null;
+
+	public final static double kDefaultTxMeansNoTargetObserved = 9999.0;
 
 	/**
 	 * Light modes for Limelight.
@@ -44,7 +47,7 @@ public class Limelight {
 	 * @return tx as reported by the Limelight.
 	 */
 	public static double getTx() {
-		return getValue("tx").getDouble(999.9);
+		return getValue("tx").getDouble(kDefaultTxMeansNoTargetObserved);
 	}
 
 	/**

@@ -20,13 +20,12 @@ public class TurretSubsystem extends SubsystemBase {
     private DutyCycleEncoder mEncoder;
     private PID mPid;
 
-    private boolean mAutoTargetingEnabled, mNewTargetFound, mCurrentTargetExists;
+    private boolean mAutoTargetingEnabled;
 
     private final double kManualControlScaleFactor = 0.25;
     private final double[] mGains = {0.0, 0.0, 0.0};
     private final double kTurretEpsilon = 4.0; //TODO: Find the right value
     private final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
-    private final double kRequiredHeadingToTarget = 180.0; //If the start position is angled in any way this will have to change
 
     public TurretSubsystem() {
         mTurret = new WPI_VictorSPX(Constants.kTurretMotorId);
@@ -37,10 +36,10 @@ public class TurretSubsystem extends SubsystemBase {
         mEncoder.reset();
 
         mPid = new PID(kTurretEpsilon);
+        mPid.start(mGains);
 
         mAutoTargetingEnabled = true;
-        mNewTargetFound = false;
-        mCurrentTargetExists = false;
+    
     }
     //TODO: Guard against over rotating
 
@@ -48,26 +47,23 @@ public class TurretSubsystem extends SubsystemBase {
     public void periodic() {
         if(DriverStation.getInstance().isAutonomous() || mAutoTargetingEnabled) {
             final double tx = Limelight.getTx();
-            final boolean isTargetFound = tx < 999.0;
+            final double robotAziumth = DriveSubsystem.getInstance().getHeading();  // TODO: make sure zero means heading is downfield.
+            final double turretAzimuth = mEncoder.getDistance();  // Turret Azimuth in -180..180, zero is turrent inline robot forward.
+            double turretSetpointInDegrees = 0.0; 
+            // -180..180deg where 0deg is turret inline looking forward on robot.
+            // Simply change this setpoint at any time to redirect the turret.
 
-            if(isTargetFound && !mCurrentTargetExists) {
-                mNewTargetFound = true;
-            }
-            if(isTargetFound) {
-                if(mNewTargetFound) {
-                    mPid.start(mGains);
-                    mNewTargetFound = false;
-                }
-                mCurrentTargetExists = true;
-                final double output = mPid.update(tx, 0.0);
-                mTurret.set(ControlMode.PercentOutput, output);
-            } else if(mAutoTargetingEnabled) {
-                mNewTargetFound = false;
-                mCurrentTargetExists = false;
-                final double heading = DriveSubsystem.getInstance().getHeading();
-                final double pos = mEncoder.getDistance();
-                
-            }
+            boolean isLimelightAimedDownfield = ((robotAziumth + turretAzimuth) > -90.0) && ((robotAziumth + turretAzimuth) < 90.0);
+
+            if ((tx >= Limelight.kDefaultTxMeansNoTargetObserved) || !isLimelightAimedDownfield) {
+                // No tape in field of view of limelight, or we're seeing the wrong target,
+                // so make decisions based on robot orientation to field.
+                turretSetpointInDegrees = -robotAziumth;
+            } else {
+                turretSetpointInDegrees = turretAzimuth + tx;  
+            } 
+            double turretMotorSpeed = mPid.updateRotation(turretAzimuth, turretSetpointInDegrees);
+            mTurret.set(ControlMode.PercentOutput, turretMotorSpeed);                
         }
     }
 
