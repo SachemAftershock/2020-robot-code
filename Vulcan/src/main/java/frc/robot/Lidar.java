@@ -4,17 +4,17 @@ import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalSource;
 
 public class Lidar {
-    private Counter counter;
+    private Counter mCounter;
     
     public Lidar(DigitalSource port) {
-        counter = new Counter(port);
-        counter.setMaxPeriod(1.0);
-        counter.setSemiPeriodMode(true);
-        counter.reset();
+        mCounter = new Counter(port);
+        mCounter.setMaxPeriod(1.0);
+        mCounter.setSemiPeriodMode(true);
+        mCounter.reset();
     }
 
     public double getDistanceCm() {
-        return counter.getPeriod() * 1000000.0 / 10.0;
+        return mCounter.getPeriod() * 1000000.0 / 10.0;
     }
     public double getDistanceIn() {
         return getDistanceCm() * .393700787;

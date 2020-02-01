@@ -15,6 +15,7 @@ public class ToggleCollisionAvoidanceCommand extends CommandBase {
         mCollisionAvoidance = collisionAvoidance;
         mController = controller;
         mIsFinished = false;
+        addRequirements(mCollisionAvoidance);
     }
 
     @Override

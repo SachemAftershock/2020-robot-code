@@ -19,7 +19,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final double kIntakeSpeed = 0.5;
 
     public IntakeSubsystem() {
-        mIntakeExtender = new DoubleSolenoid(Constants.kPcmId, Constants.kIntakeExtenderForwardId, Constants.kIntakeExtenderReverseId);
+        mIntakeExtender = new DoubleSolenoid(Constants.kPcmBId, Constants.kIntakeExtenderForwardId, Constants.kIntakeExtenderReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
         mIntakeMotor = new WPI_VictorSPX(Constants.kIntakeMotorId);
@@ -52,7 +52,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public static IntakeSubsystem getInstance() {
+    public synchronized static IntakeSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new IntakeSubsystem();
         }

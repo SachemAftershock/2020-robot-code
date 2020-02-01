@@ -35,8 +35,4 @@ public class Util {
 
         return theta;
     }
-
-    public static double convertRPMToRadiansPerSecond(double speedInRPM) {
-        return speedInRPM / 60 * 2 * Math.PI;
-    }
 }

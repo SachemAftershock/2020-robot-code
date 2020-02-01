@@ -22,7 +22,6 @@ public class RobotContainer {
     private final PowerSubsystem mPower = PowerSubsystem.getInstance();
     private final ShooterSubsystem mShooter =  ShooterSubsystem.getInstance();
     private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
-    private final VisionAlignmentSubsystem mVisionAlignment = VisionAlignmentSubsystem.getInstance();
 
     private JoystickButton bToggleDriveGear;
     private JoystickButton bToggleCollisionAvoidance;

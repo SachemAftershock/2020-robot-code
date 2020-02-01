@@ -14,7 +14,7 @@ public class AbsoluteFieldPositionDeviceSubsystem extends SubsystemBase {
     public void periodic() {
     }
 
-    public static AbsoluteFieldPositionDeviceSubsystem getInstance() {
+    public synchronized static AbsoluteFieldPositionDeviceSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new AbsoluteFieldPositionDeviceSubsystem();
         }

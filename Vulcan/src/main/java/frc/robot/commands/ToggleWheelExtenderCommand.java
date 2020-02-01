@@ -1,15 +1,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.CollisionAvoidanceSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
 
 public class ToggleWheelExtenderCommand extends CommandBase {
 
     private WheelControllerSubsystem mWheelController;
+    private CollisionAvoidanceSubsystem mCollisionAvoidance;
     private boolean mIsFinished;
 
-    public ToggleWheelExtenderCommand(WheelControllerSubsystem wheelController) {
+    public ToggleWheelExtenderCommand(WheelControllerSubsystem wheelController, CollisionAvoidanceSubsystem collisionAvoidance) {
         mWheelController = wheelController;
+        mCollisionAvoidance = collisionAvoidance;
         addRequirements(mWheelController);
         mIsFinished = false;
     }
@@ -17,6 +20,7 @@ public class ToggleWheelExtenderCommand extends CommandBase {
     @Override
     public void execute() {
         mWheelController.toggleExtender();
+        mCollisionAvoidance.setColorWheelStandoff();
         mIsFinished = true;
     }
 

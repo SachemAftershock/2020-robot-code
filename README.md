@@ -6,11 +6,13 @@ All constants are as specified, unless stated otherwise:
  - Distance: Inches
  - Angle: Degrees
  - Time: Seconds
- - Speed: ft/s
+ - Speed: feet/second
+ - Angular Speed: radians/second
 
 ## Variable Naming Convention:
  - k Final Constants
  - m Private Instance Variables
  - b Joystick Buttons
+ - e Enums
 
 

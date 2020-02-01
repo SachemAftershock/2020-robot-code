@@ -76,7 +76,6 @@ public class PID {
         return mPaused;
     }
 
-
     public double getError() {
         return mError;
     }

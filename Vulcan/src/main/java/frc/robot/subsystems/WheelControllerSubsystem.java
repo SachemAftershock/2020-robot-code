@@ -38,17 +38,17 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
         mColorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
-        mExtender = new DoubleSolenoid(Constants.kPcmId, Constants.kExtenderForwardId, Constants.kExtenderReverseId);
+        mExtender = new DoubleSolenoid(Constants.kPcmAId, Constants.kExtenderForwardId, Constants.kExtenderReverseId);
         mExtender.set(Value.kReverse);
 
         mColors = new CircularColorArray();
 
         mUltrasonic = new AnalogInput(Constants.kUltrasonicId);
 
-        mFieldRelativeTargetColor = ColorLUT.UNKNOWN;
-        mRobotRelativeTargetColor = ColorLUT.UNKNOWN;
-        mCurrentDetectedColor = ColorLUT.UNKNOWN;
-        mStartColor = ColorLUT.UNKNOWN;
+        mFieldRelativeTargetColor = ColorLUT.eUnknown;
+        mRobotRelativeTargetColor = ColorLUT.eUnknown;
+        mCurrentDetectedColor = ColorLUT.eUnknown;
+        mStartColor = ColorLUT.eUnknown;
 
         mTimesPositionedToStartColor = 0;
         mPreviousExists = false;
@@ -58,22 +58,22 @@ public class WheelControllerSubsystem extends SubsystemBase {
     public void periodic() {
         ColorLUT mPreviousColor = mCurrentDetectedColor;
         if(!mPreviousExists)
-            mPreviousExists = mPreviousColor != ColorLUT.UNKNOWN;
+            mPreviousExists = mPreviousColor != ColorLUT.eUnknown;
         mCurrentDetectedColor = getCurrentColor();
         mTargetColorString = DriverStation.getInstance().getGameSpecificMessage();
         if(!mTargetColorString.equals("")) {
             switch(mTargetColorString.charAt(0)) {
                 case 'B':
-                    mFieldRelativeTargetColor = ColorLUT.BLUE;
+                    mFieldRelativeTargetColor = ColorLUT.eBlue;
                     break;
                 case 'Y':
-                    mFieldRelativeTargetColor = ColorLUT.YELLOW;
+                    mFieldRelativeTargetColor = ColorLUT.eYellow;
                     break;
                 case 'R':
-                    mFieldRelativeTargetColor = ColorLUT.RED;
+                    mFieldRelativeTargetColor = ColorLUT.eRed;
                     break;
                 case 'G':
-                    mFieldRelativeTargetColor = ColorLUT.GREEN;
+                    mFieldRelativeTargetColor = ColorLUT.eGreen;
                     break;
                 default:
                     DriverStation.reportError("ERROR: TARGET COLOR NOT DETECTED", false);
@@ -81,11 +81,11 @@ public class WheelControllerSubsystem extends SubsystemBase {
             }
             mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + kRobotReadingVarianceIndex);
         }
-        if(mStartColor != ColorLUT.UNKNOWN && mPreviousExists) {
+        if(mStartColor != ColorLUT.eUnknown && mPreviousExists) {
             if(mCurrentDetectedColor != mPreviousColor && mCurrentDetectedColor == mStartColor) {
                 mTimesPositionedToStartColor++;
             }
-            if(mCurrentDetectedColor != mPreviousColor && mPreviousColor != ColorLUT.UNKNOWN) {
+            if(mCurrentDetectedColor != mPreviousColor && mPreviousColor != ColorLUT.eUnknown) {
                 mNumberOfWedgesCrossed++;
             }
         }
@@ -95,7 +95,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
         mPreviousExists = false;
         mStartColor = mCurrentDetectedColor;
         mTimesPositionedToStartColor = 0;
-        if(mStartColor == ColorLUT.UNKNOWN) {
+        if(mStartColor == ColorLUT.eUnknown) {
             DriverStation.reportError("ERROR: COLOR UNKNOWN", false);
             //TODO: Add a loop to retry and timeout here if needed
         }
@@ -140,12 +140,15 @@ public class WheelControllerSubsystem extends SubsystemBase {
         switch (mExtender.get()) {
             case kForward : 
                 mExtender.set(Value.kReverse);
+                CollisionAvoidanceSubsystem.getInstance().setStandardStandoff();
                 break;
             case kReverse : 
                 mExtender.set(Value.kForward);
+                CollisionAvoidanceSubsystem.getInstance().setColorWheelStandoff();
                 break;
             default :
                 mExtender.set(Value.kReverse);
+                CollisionAvoidanceSubsystem.getInstance().setStandardStandoff();
                 DriverStation.reportError("ERROR: COLOR WHEEL EXTENDER VALUE INVALID", false);
                 break;
         }
@@ -181,16 +184,16 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     public ColorLUT getCurrentColor() {
         Color mColor = mColorSensor.getColor();
-        if(isColor(mColor, ColorLUT.BLUE)) {
-            return ColorLUT.BLUE;
-        } else if(isColor(mColor, ColorLUT.YELLOW)) {
-            return ColorLUT.YELLOW;
-        } else if(isColor(mColor, ColorLUT.RED)) {
-            return ColorLUT.RED;
-        } else if(isColor(mColor, ColorLUT.GREEN)) {
-            return ColorLUT.GREEN;
+        if(isColor(mColor, ColorLUT.eBlue)) {
+            return ColorLUT.eBlue;
+        } else if(isColor(mColor, ColorLUT.eYellow)) {
+            return ColorLUT.eYellow;
+        } else if(isColor(mColor, ColorLUT.eRed)) {
+            return ColorLUT.eRed;
+        } else if(isColor(mColor, ColorLUT.eGreen)) {
+            return ColorLUT.eGreen;
         } else {
-            return ColorLUT.UNKNOWN;
+            return ColorLUT.eUnknown;
         }
     }
 
@@ -214,7 +217,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
     }
 
     private enum ColorLUT {
-        BLUE(0.129, 0.429, 0.441), YELLOW(0.314, 0.564, 0.120), RED(0.462, 0.381, 0.157), GREEN(0.167, 0.581, 0.250), UNKNOWN(0,0,0);
+        eBlue(0.129, 0.429, 0.441), eYellow(0.314, 0.564, 0.120), eRed(0.462, 0.381, 0.157), eGreen(0.167, 0.581, 0.250), eUnknown(0,0,0);
 
         private final double mRed, mGreen, mBlue;
 
@@ -265,10 +268,10 @@ public class WheelControllerSubsystem extends SubsystemBase {
         public CircularColorArray() {
             mCircularArray = new ColorLUT[kListSize];
 
-            mCircularArray[0] = ColorLUT.BLUE;
-            mCircularArray[1] = ColorLUT.YELLOW;
-            mCircularArray[2] = ColorLUT.RED;
-            mCircularArray[3] = ColorLUT.GREEN;
+            mCircularArray[0] = ColorLUT.eBlue;
+            mCircularArray[1] = ColorLUT.eYellow;
+            mCircularArray[2] = ColorLUT.eRed;
+            mCircularArray[3] = ColorLUT.eGreen;
         }
 
         public ColorLUT getColor(int index) {
@@ -289,7 +292,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
         }
     }
 
-    public static WheelControllerSubsystem getInstance() {
+    public synchronized static WheelControllerSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new WheelControllerSubsystem();
         }

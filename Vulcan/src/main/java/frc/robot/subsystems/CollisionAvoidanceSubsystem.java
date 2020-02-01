@@ -11,18 +11,22 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
 
     private boolean mCollisionEnabled;
     private double mCurrentDistance;
+    private double mSelectedStandoffSlowdown;
 
     private final int kNumberOfDistanceSamples = 10;
+    //TODO: Find good values for the below
+    private final double kCollisionStandoffSlowdown = 18.0;
+    private final double kColorWheelStandoffSlowdown = 12.0;
+
 
     private final MedianFilter mMedianFilter = new MedianFilter(kNumberOfDistanceSamples);
     private final AnalogInput mUltrasonic;
 
-    private final double kCollisionStandoffSlowdown = 18.0;
-    private final double kCollisionStandoffStop = 6.0;
 
     public CollisionAvoidanceSubsystem() {
         mCollisionEnabled = true;
         mUltrasonic = new AnalogInput(Constants.kCollisionUltrasonicId);
+        mSelectedStandoffSlowdown = kCollisionStandoffSlowdown;
     }
 
     @Override
@@ -33,11 +37,18 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
     public double getSlowdownScaleFactor() {
         if(!mCollisionEnabled) {
             return 1.0;
-        } else if(getCurrentDistance() <= kCollisionStandoffSlowdown) {
-            return getCurrentDistance() / kCollisionStandoffSlowdown;
+        } else if(getCurrentDistance() <= mSelectedStandoffSlowdown) {
+            return getCurrentDistance() / mSelectedStandoffSlowdown;
         } else {
             return 1.0;
         }
+    }
+
+    public void setColorWheelStandoff() {
+        mSelectedStandoffSlowdown = kColorWheelStandoffSlowdown;
+    }
+    public void setStandardStandoff() {
+        mSelectedStandoffSlowdown = kCollisionStandoffSlowdown;
     }
 
     public void enableCollisionAvoidance() {
@@ -59,7 +70,7 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
         return mMedianFilter.calculate(mUltrasonic.getValue() * Constants.kUltrasonicValueToInches);
     }
 
-    public static CollisionAvoidanceSubsystem getInstance() {
+    public synchronized static CollisionAvoidanceSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new CollisionAvoidanceSubsystem();
         }

@@ -9,7 +9,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public ClimberSubsystem() {
     }
 
-    public static ClimberSubsystem getInstance() {
+    public synchronized static ClimberSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new ClimberSubsystem();
         }

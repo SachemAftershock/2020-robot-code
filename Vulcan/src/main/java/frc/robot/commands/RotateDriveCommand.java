@@ -12,6 +12,7 @@ public class RotateDriveCommand extends CommandBase {
     public RotateDriveCommand(DriveSubsystem drive, double thetaSetpoint) {
         mDrive = drive;
         mThetaSetpoint = thetaSetpoint;
+        addRequirements(mDrive);
     }
 
     @Override

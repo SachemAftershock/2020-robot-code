@@ -11,6 +11,7 @@ public class LinearDriveCommand extends CommandBase {
     public LinearDriveCommand(DriveSubsystem drive, double setpoint) {
         mDrive = drive;
         mSetpoint = setpoint;
+        addRequirements(mDrive);
     }   
 
     @Override

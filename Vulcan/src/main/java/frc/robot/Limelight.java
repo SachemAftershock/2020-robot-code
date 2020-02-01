@@ -40,11 +40,11 @@ public class Limelight {
 
 	/**
 	 * Horizontal offset from crosshair to target (-27 degrees to 27 degrees).
-	 * 
+	 * Default value is 999.9
 	 * @return tx as reported by the Limelight.
 	 */
 	public static double getTx() {
-		return getValue("tx").getDouble(0.00);
+		return getValue("tx").getDouble(999.9);
 	}
 
 	/**

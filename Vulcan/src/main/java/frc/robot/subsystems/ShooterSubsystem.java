@@ -22,7 +22,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private static ShooterSubsystem mInstance;
     
     private final CANSparkMax mShooter;
-    private final WPI_VictorSPX mFeeder;
     private final DoubleSolenoid mElevationSolenoid;
     private final Lidar mLidar;
 
@@ -37,8 +36,6 @@ public class ShooterSubsystem extends SubsystemBase {
         mShooter = new CANSparkMax(Constants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
 
-        mFeeder = new WPI_VictorSPX(Constants.kFeederMotorId);
-
         mLidar = new Lidar(new DigitalInput(Constants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
@@ -51,7 +48,7 @@ public class ShooterSubsystem extends SubsystemBase {
         mShooterPid.setFF(mGains[4], Constants.kPidId);
         mShooterPid.setOutputRange(-1.0, 1.0);
 
-        mElevationSolenoid = new DoubleSolenoid(Constants.kPcmId, Constants.kElevationForwardId, Constants.kElevationReverseId);
+        mElevationSolenoid = new DoubleSolenoid(Constants.kPcmAId, Constants.kElevationForwardId, Constants.kElevationReverseId);
     }
 
     @Override
@@ -64,13 +61,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
     public void stopShooter() {
         mShooter.set(0.0);
-    }
-
-    public void runFeeder() {
-        mFeeder.set(ControlMode.PercentOutput, kFeederSpeed);
-    }
-    public void stopFeeder() {
-        mFeeder.set(ControlMode.PercentOutput, 0.0);
     }
 
 	public void toggleElevation() {
@@ -88,7 +78,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
     
-    public static ShooterSubsystem getInstance() {
+    public synchronized static ShooterSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new ShooterSubsystem();
         }

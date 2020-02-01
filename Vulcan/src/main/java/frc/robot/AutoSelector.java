@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.auto.ComplexAutoPath;
 import frc.robot.auto.StraightThenRotateAutoPath;
 import frc.robot.commands.LinearDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -10,7 +11,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class AutoSelector {
 
     enum AutoPath {
-        NOTHING, STRAIGHT, STRAIGHT_THEN_TURN
+        eNothing, eStraight, eStraightThenTurn, eComplexPath
     }
 
     private AutoPath mSelectedAutoScenario, mPrevAutoScenario;
@@ -21,9 +22,10 @@ public class AutoSelector {
         mPrevAutoScenario = null;
 
         mAutoChooser = new SendableChooser<>();
-        mAutoChooser.setDefaultOption("No Path", AutoPath.NOTHING);
-        mAutoChooser.addOption("Straight", AutoPath.STRAIGHT);
-        mAutoChooser.addOption("Straight then Turn", AutoPath.STRAIGHT_THEN_TURN);
+        mAutoChooser.setDefaultOption("No Path", AutoPath.eNothing);
+        mAutoChooser.addOption("Straight", AutoPath.eStraight);
+        mAutoChooser.addOption("Straight then Turn", AutoPath.eStraightThenTurn);
+        mAutoChooser.addOption("Complex Path", AutoPath.eComplexPath);
 
         SmartDashboard.putData("Auto Path", mAutoChooser);
     }
@@ -38,11 +40,13 @@ public class AutoSelector {
 
     public Command getSelectedAutoCommand() {
         switch(mSelectedAutoScenario) {
-            case STRAIGHT:
+            case eStraight:
                 return new LinearDriveCommand(DriveSubsystem.getInstance(), 10);
-            case STRAIGHT_THEN_TURN:
+            case eStraightThenTurn:
                 return new StraightThenRotateAutoPath();
-            case NOTHING:
+            case eComplexPath:
+                return new ComplexAutoPath();
+            case eNothing:
             default:
                 return null;
         }

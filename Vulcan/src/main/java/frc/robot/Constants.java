@@ -1,10 +1,7 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.util.Units;
-
 public final class Constants {
-    //Throughout all code: All units are assumed to be in Inches, Seconds, and Degrees
-    //Unless otherwise specificed
+    //Throughout all code: All units are assumed to be in Inches, Seconds, and Degrees unless specified otherwise
 
     // XboxController Constants
     public static final int kControllerPrimaryId = 0;
@@ -17,7 +14,6 @@ public final class Constants {
 
     public static final double kUltrasonicValueToInches = 0.125;
 
-    // Drivebase Subsystem Constants
     public static final int kDriveMotorPortAId = 1;
     public static final int kDriveMotorPortBId = 2;
     public static final int kDriveMotorPortCId = 3;
@@ -28,15 +24,8 @@ public final class Constants {
     public static final int kGearShiftForwardId = 2;
     public static final int kGearShiftReverseId = 3;
 
-    public static final double kWheelDiameter = 6;
-    public static final double kWheelCircumference = kWheelDiameter * Math.PI;
-    public static final double kDriveEncoderPPR = 42.0;
-    public static final double kWheelRadiusMeters = Units.inchesToMeters(kWheelDiameter / 2.0);
-    public static final double kTrackWidthMeters = Units.inchesToMeters(19.125); //Distance in between wheels
-
     // Shooter Subsystem Constants
     public static final int kLauncherMotorId = 7;
-    public static final int kFeederMotorId = 8;
 
     public static final int kLidarId = 0;
 
@@ -51,6 +40,9 @@ public final class Constants {
     public static final int kTurretEncoderDioId = 0;
     public static final int kTurretLimitSwitchId = 1;
 
+    // Storage Subsystem Constants
+    public static final int kFeederMotorId = 8;
+    
     // Wheel Controller Constants
     public static final int kWheelControllerId = 3;
     public static final int kUltrasonicId = 0;
@@ -61,10 +53,11 @@ public final class Constants {
     // Intake Constants
     public static final int kIntakeMotorId = 9;
 
-    public static final int kIntakeExtenderForwardId = 8;
-    public static final int kIntakeExtenderReverseId = 9;
-    
+    public static final int kIntakeExtenderForwardId = 0;
+    public static final int kIntakeExtenderReverseId = 1; //PCM ID 1    
 
     //Pneumatic Constants
-    public static final int kPcmId = 0;
+    public static final int kPcmAId = 0;
+    public static final int kPcmBId = 1;
+
 }

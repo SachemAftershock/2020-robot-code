@@ -9,6 +9,7 @@ public class ReachTargetRPM extends CommandBase {
 
     public ReachTargetRPM(ShooterSubsystem shooter) {
         mShooter = shooter;
+        addRequirements(mShooter);
     }
 
     @Override

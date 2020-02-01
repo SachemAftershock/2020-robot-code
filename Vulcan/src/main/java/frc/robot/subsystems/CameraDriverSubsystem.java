@@ -9,7 +9,7 @@ public class CameraDriverSubsystem extends SubsystemBase {
     public CameraDriverSubsystem() {
     }
 
-    public static CameraDriverSubsystem getInstance() {
+    public synchronized static CameraDriverSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new CameraDriverSubsystem();
         }

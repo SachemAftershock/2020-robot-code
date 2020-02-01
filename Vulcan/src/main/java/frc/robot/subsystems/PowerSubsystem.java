@@ -14,7 +14,7 @@ public class PowerSubsystem extends SubsystemBase {
         addChild("PowerDistributionPanel",mPdp);
     }
 
-    public static PowerSubsystem getInstance() {
+    public synchronized static PowerSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new PowerSubsystem();
         }

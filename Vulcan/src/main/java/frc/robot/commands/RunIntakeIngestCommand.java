@@ -9,6 +9,7 @@ public class RunIntakeIngestCommand extends CommandBase  {
 
     public RunIntakeIngestCommand(IntakeSubsystem intake) {
         mIntake = intake;
+        addRequirements(mIntake);
     }
 
     @Override

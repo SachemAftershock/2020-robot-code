@@ -15,6 +15,7 @@ public class DriveTurretCommand extends CommandBase {
     public DriveTurretCommand(TurretSubsystem turret, XboxController controller) {
         mTurret = turret;
         mController = controller;
+        addRequirements(mTurret);
     }
 
     @Override
