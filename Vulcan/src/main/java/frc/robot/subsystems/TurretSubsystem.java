@@ -40,7 +40,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
     }
-    //TODO: Guard against over rotating
 
     @Override
     public void periodic() {
@@ -59,7 +58,17 @@ public class TurretSubsystem extends SubsystemBase {
                 // so make decisions based on robot orientation to field.
                 turretSetpointInDegrees = -robotAziumth;
             } else {
-                turretSetpointInDegrees = turretAzimuth + tx;  
+                // compute a value that may be out of -180..180 range
+                double interimTurretAzimuth = turretAzimuth + tx;
+                // Ensure shift it back to be within range, which also guards against 
+                // over rotating (will swing around thru zero). 
+                if (interimTurretAzimuth > 180.0) {
+                    turretSetpointInDegrees = interimTurretAzimuth - 360.0;  
+                } else if (interimTurretAzimuth < -180) {
+                    turretSetpointInDegrees = interimTurretAzimuth + 360.0;  
+                } else {
+                    turretSetpointInDegrees = interimTurretAzimuth;                     
+                }
             } 
             double turretMotorSpeed = mPid.updateRotation(turretAzimuth, turretSetpointInDegrees);
             mTurret.set(ControlMode.PercentOutput, turretMotorSpeed);                
