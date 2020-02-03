@@ -12,7 +12,7 @@ public class Limelight {
 
 	private static NetworkTableInstance table = null;
 
-	public final static double kDefaultTxMeansNoTargetObserved = 9999.0;
+	public final static double kDefaultTx = 9999.0;
 
 	/**
 	 * Light modes for Limelight.
@@ -47,7 +47,7 @@ public class Limelight {
 	 * @return tx as reported by the Limelight.
 	 */
 	public static double getTx() {
-		return getValue("tx").getDouble(kDefaultTxMeansNoTargetObserved);
+		return getValue("tx").getDouble(kDefaultTx);
 	}
 
 	/**

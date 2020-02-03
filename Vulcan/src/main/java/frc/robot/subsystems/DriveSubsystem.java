@@ -59,7 +59,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final double kWheelRadiusMeters = Units.inchesToMeters(kWheelDiameter / 2.0);
     private final double kTrackWidthMeters = Units.inchesToMeters(19.125); //Distance in between wheels
     private final double kLowGearRatio = 1.0;
-    private final double kHighGearRatio = 1.0;
+    private final double kHighGearRatio = 1.0; //TODO: If switched to Rev Through Bore Encoder, do not need this
     
     //Robot Characterization Variables Below
     private final double ksVolts = 1.0;

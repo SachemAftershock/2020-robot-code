@@ -1,11 +1,33 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.AutonomousCommand;
+import frc.robot.commands.drive.ManualDriveCommand;
+import frc.robot.commands.drive.ToggleCollisionAvoidanceCommand;
+import frc.robot.commands.drive.ToggleDrivebaseGearingCommand;
+import frc.robot.commands.drive.TogglePrecisionDrivingCommand;
+import frc.robot.commands.superstructure.SetArmedModeCommand;
+import frc.robot.commands.superstructure.SetIdleModeCommand;
+import frc.robot.commands.superstructure.intake.EjectIntakeCommand;
+import frc.robot.commands.superstructure.intake.IngestIntakeCommand;
+import frc.robot.commands.superstructure.shooter.AuthorizeShotCommand;
+import frc.robot.commands.superstructure.shooter.DeauthorizeShotCommand;
+import frc.robot.commands.wheelcontroller.WheelColorControlCommand;
+import frc.robot.commands.wheelcontroller.WheelPositionControlCommand;
+import frc.robot.subsystems.AbsoluteFieldPositionDeviceSubsystem;
+import frc.robot.subsystems.CameraDriverSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.CollisionAvoidanceSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PowerSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SuperstructureSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.WheelControllerSubsystem;
 
 public class RobotContainer {
 
@@ -22,17 +44,16 @@ public class RobotContainer {
     private final PowerSubsystem mPower = PowerSubsystem.getInstance();
     private final ShooterSubsystem mShooter =  ShooterSubsystem.getInstance();
     private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
+    private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
 
     private JoystickButton bToggleDriveGear;
     private JoystickButton bToggleCollisionAvoidance;
-    private JoystickButton bToggleShooterElevation;
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
     private JoystickButton bTogglePrecisionDrive;
-    private JoystickButton bToggleIntakeExtender;
-    private JoystickButton bIngestIntake;
     private JoystickButton bEjectIntake;
     private JoystickButton bStartShooter;
+    private JoystickButton bShooterAuthorized;
     private JoystickButton jTurret;
 
     public RobotContainer() {
@@ -51,28 +72,25 @@ public class RobotContainer {
         bToggleCollisionAvoidance = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBack.value);
         bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mXboxControllerPrimary));
         
-        //Not sure if I want primary driver to have this, but maybe it'll be better?
-        bIngestIntake = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBumperRight.value);
-        bIngestIntake.whileHeld(new RunIntakeIngestCommand(mIntake));
-
         bEjectIntake = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBumperLeft.value);
-        bEjectIntake.whileHeld(new RunIntakeEjectCommand(mIntake));
-
-        bToggleIntakeExtender = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kStart.value);
-        bToggleIntakeExtender.whenPressed(new ToggleIntakeExtenderCommand(mIntake));
+        bEjectIntake.whileHeld(new EjectIntakeCommand(mIntake));
         
         //SECONDARY CONTROLLER
-        bToggleShooterElevation = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kY.value);
-        bToggleShooterElevation.whenPressed(new ToggleShooterElevationCommand(mShooter, mXboxControllerSecondary));
-
         bStartWheelPositionControl = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kX.value);
         bStartWheelPositionControl.whenPressed(new WheelPositionControlCommand(mColorWheelController));
 
         bStartWheelColorTargeting = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kB.value);
         bStartWheelColorTargeting.whenPressed(new WheelColorControlCommand(mColorWheelController));
 
-        //bStartShooter = new (mXboxControllerSecondary, XboxController.Axis.kLeftTrigger.value);
-        //bStartShooter.whileHeld(new ReachTargetRPM(mShooter));
+        bStartShooter = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftTrigger.value);
+        bStartShooter
+        .whenReleased(new SetIdleModeCommand(mSuperstructure))
+        .whileActiveOnce(new SetArmedModeCommand(mSuperstructure));
+
+        bShooterAuthorized = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kRightTrigger.value);
+        bShooterAuthorized
+        .whenReleased(new DeauthorizeShotCommand(mSuperstructure))
+        .whileActiveOnce(new AuthorizeShotCommand(mSuperstructure));
 
         //TODO: Find how to use Joysticks like this
         //jTurret = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftX.value);

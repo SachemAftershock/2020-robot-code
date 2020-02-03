@@ -38,8 +38,7 @@ public class TurretSubsystem extends SubsystemBase {
         mPid = new PID(kTurretEpsilon);
         mPid.start(mGains);
 
-        mAutoTargetingEnabled = true;
-    
+        mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
     }
     //TODO: Guard against over rotating
 
@@ -53,9 +52,9 @@ public class TurretSubsystem extends SubsystemBase {
             // -180..180deg where 0deg is turret inline looking forward on robot.
             // Simply change this setpoint at any time to redirect the turret.
 
-            boolean isLimelightAimedDownfield = ((robotAziumth + turretAzimuth) > -90.0) && ((robotAziumth + turretAzimuth) < 90.0);
+            final boolean isLimelightAimedDownfield = ((robotAziumth + turretAzimuth) > -90.0) && ((robotAziumth + turretAzimuth) < 90.0);
 
-            if ((tx >= Limelight.kDefaultTxMeansNoTargetObserved) || !isLimelightAimedDownfield) {
+            if ((tx >= Limelight.kDefaultTx) || !isLimelightAimedDownfield) {
                 // No tape in field of view of limelight, or we're seeing the wrong target,
                 // so make decisions based on robot orientation to field.
                 turretSetpointInDegrees = -robotAziumth;
@@ -69,6 +68,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void manualControl(double pow) {
         mTurret.set(ControlMode.PercentOutput, pow * kManualControlScaleFactor);
+    }
+
+    public boolean isAimedAtTarget() {
+        return Math.abs(Limelight.getTx()) < kTurretEpsilon;
     }
 
     public synchronized static TurretSubsystem getInstance() {

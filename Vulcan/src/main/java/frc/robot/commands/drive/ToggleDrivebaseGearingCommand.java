@@ -1,27 +1,27 @@
-package frc.robot.commands;
+package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.ControllerRumble;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ToggleShooterElevationCommand extends CommandBase {
+public class ToggleDrivebaseGearingCommand extends CommandBase {
 
-    private ShooterSubsystem mShooter;
+    private DriveSubsystem mDrive;
     private XboxController mController;
     private boolean mIsFinished;
 
-    public ToggleShooterElevationCommand(ShooterSubsystem shooter, XboxController controller) {
-        mShooter = shooter;
+    public ToggleDrivebaseGearingCommand(DriveSubsystem drive, XboxController controller) {
+        mDrive = drive;
         mController = controller;
-        addRequirements(mShooter);
+        addRequirements(mDrive);
         mIsFinished = false;
     }
 
     @Override
     public void execute() {
-        mShooter.toggleElevation();
-        (new ControllerRumble(mController, 1)).start();;
+        mDrive.toggleDrivebaseGearing();
+        (new ControllerRumble(mController, 1, 0.25)).start();
         mIsFinished = true;
     }
 

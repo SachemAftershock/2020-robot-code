@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.superstructure.turret;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;

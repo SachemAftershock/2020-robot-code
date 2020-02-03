@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.ComplexAutoPath;
 import frc.robot.auto.StraightThenRotateAutoPath;
-import frc.robot.commands.LinearDriveCommand;
+import frc.robot.commands.drive.LinearDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class AutoSelector {

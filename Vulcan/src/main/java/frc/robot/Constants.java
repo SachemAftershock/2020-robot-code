@@ -21,8 +21,8 @@ public final class Constants {
     public static final int kDriveMotorStarboardBId = 5;
     public static final int kDriveMotorStarboardCId = 6;
 
-    public static final int kGearShiftForwardId = 2;
-    public static final int kGearShiftReverseId = 3;
+    public static final int kGearShiftForwardId = 1;
+    public static final int kGearShiftReverseId = 2;
 
     // Shooter Subsystem Constants
     public static final int kLauncherMotorId = 7;
@@ -31,8 +31,12 @@ public final class Constants {
 
     public static final int kPidId = 0;
 
-    public static final int kElevationForwardId = 4;
-    public static final int kElevationReverseId = 5;
+    public static final int kBallValveAForwardId = 3;
+    public static final int kBallValveAReverseId = 4;
+
+    public static final int kBallValveBForwardId = 5;
+    public static final int kBallValveBReverseId = 6;
+
     
     // Turret Subsystem Constants
     public static final int kTurretMotorId = 9;
@@ -42,19 +46,24 @@ public final class Constants {
 
     // Storage Subsystem Constants
     public static final int kFeederMotorId = 8;
+
+    public static final int kChamberDetectorId = 0;
+    public static final int kPreChamberDetectorId = 1;
+    public static final int kIntakeDetectorId = 2;
+    public static final int kEntryDetectorId = 3;
     
     // Wheel Controller Constants
     public static final int kWheelControllerId = 3;
     public static final int kUltrasonicId = 0;
 
-    public static final int kExtenderForwardId = 6;
-    public static final int kExtenderReverseId = 7;
+    public static final int kExtenderForwardId = 7;
+    public static final int kExtenderReverseId = 8;
 
     // Intake Constants
     public static final int kIntakeMotorId = 9;
 
     public static final int kIntakeExtenderForwardId = 0;
-    public static final int kIntakeExtenderReverseId = 1; //PCM ID 1    
+    public static final int kIntakeExtenderReverseId = 1; //PCM B    
 
     //Pneumatic Constants
     public static final int kPcmAId = 0;

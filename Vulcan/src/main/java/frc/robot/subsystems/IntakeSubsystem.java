@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     }
 
-    public void startIntakeMotor() {
+    public void runIntakeMotor() {
         mIntakeMotor.set(ControlMode.PercentOutput, kIntakeSpeed);
     }
 
@@ -44,12 +44,16 @@ public class IntakeSubsystem extends SubsystemBase {
         mIntakeMotor.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public void toggleIntakeExtender() {
-        if(mIntakeExtender.get() == Value.kForward) {
-            mIntakeExtender.set(Value.kReverse);
-        } else {
-            mIntakeExtender.set(Value.kForward);
-        }
+    public void deployIntake() {
+        mIntakeExtender.set(Value.kForward);
+    }
+
+    public void retractIntake() {
+        mIntakeExtender.set(Value.kReverse);
+    }
+
+    public boolean isIntakeDeployed() {
+        return mIntakeExtender.get() == Value.kForward;
     }
 
     public synchronized static IntakeSubsystem getInstance() {
