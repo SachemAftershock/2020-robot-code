@@ -15,11 +15,12 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PID;
 import frc.robot.Util;
+import frc.robot.Constants.DriveConstants;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -42,60 +43,36 @@ public class DriveSubsystem extends SubsystemBase {
     private double mLeftSpeed, mRightSpeed, mLeftTarget, mRightTarget, mRotateSetpoint;
     private boolean mIsHighGear;
 
-    //TODO: Find a good value for all constants below
-    private final double kDriveEpsilon = 2.0; 
-    private final double kRotateEpsilon = 3.0;
-    private final double[] mLinearGains = {0.0, 0.0, 0.0};
-    private final double[] mRotationalGains = {0.0, 0.0, 0.0};
-    private final double kRampRateToMaxSpeed = 1.0;
-
     private double mSelectedMaxSpeedProportion;
-    private final double kRegularMaxSpeed = 1.0;
-    private final double kPrecisionMaxSpeed = 0.5;
-
-    private final double kWheelDiameter = 6;
-    private final double kWheelCircumference = kWheelDiameter * Math.PI;
-    private final double kDriveEncoderPPR = 42.0;
-    private final double kWheelRadiusMeters = Units.inchesToMeters(kWheelDiameter / 2.0);
-    private final double kTrackWidthMeters = Units.inchesToMeters(19.125); //Distance in between wheels
-    private final double kLowGearRatio = 1.0;
-    private final double kHighGearRatio = 1.0; //TODO: If switched to Rev Through Bore Encoder, do not need this
-    
-    //Robot Characterization Variables Below
-    private final double ksVolts = 1.0;
-    private final double kvVoltSecondsPerMeter = 1.0;
-    private final double kaVoltSecondsSquaredPerMeter = 1.0;
-    //Tuned from above vales
-    private final double kP = 1.0;
 
     public DriveSubsystem() {
         //Differential Drive Class inverts right side
-        mDriveMotorPortA = new CANSparkMax(Constants.kDriveMotorPortAId, MotorType.kBrushless);
+        mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
         //mDriveMotorPortA.setInverted(false);
-        mDriveMotorPortA.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorPortA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
-        mDriveMotorPortB = new CANSparkMax(Constants.kDriveMotorPortBId, MotorType.kBrushless);
+        mDriveMotorPortB = new CANSparkMax(DriveConstants.kDriveMotorPortBId, MotorType.kBrushless);
         //mDriveMotorPortB.setInverted(false);
-        mDriveMotorPortB.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorPortB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
-        mDriveMotorPortC = new CANSparkMax(Constants.kDriveMotorPortCId, MotorType.kBrushless);
+        mDriveMotorPortC = new CANSparkMax(DriveConstants.kDriveMotorPortCId, MotorType.kBrushless);
         //mDriveMotorPortC.setInverted(false);
-        mDriveMotorPortC.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorPortC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
         mDriveGroupPort = new SpeedControllerGroup(mDriveMotorPortA, mDriveMotorPortB, mDriveMotorPortC);
         addChild("Speed Controller Group Port Side",mDriveGroupPort);
                 
-        mDriveMotorStarboardA = new CANSparkMax(Constants.kDriveMotorStarboardAId, MotorType.kBrushless);
+        mDriveMotorStarboardA = new CANSparkMax(DriveConstants.kDriveMotorStarboardAId, MotorType.kBrushless);
         //mDriveMotorStarboardA.setInverted(true);
-        mDriveMotorStarboardA.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorStarboardA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
-        mDriveMotorStarboardB = new CANSparkMax(Constants.kDriveMotorStarboardBId, MotorType.kBrushless);
+        mDriveMotorStarboardB = new CANSparkMax(DriveConstants.kDriveMotorStarboardBId, MotorType.kBrushless);
         //mDriveMotorStarboardB.setInverted(true);
-        mDriveMotorStarboardB.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorStarboardB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
 
-        mDriveMotorStarboardC = new CANSparkMax(Constants.kDriveMotorStarboardCId, MotorType.kBrushless);
+        mDriveMotorStarboardC = new CANSparkMax(DriveConstants.kDriveMotorStarboardCId, MotorType.kBrushless);
         //mDriveMotorStarboardC.setInverted(true);
-        mDriveMotorStarboardC.setOpenLoopRampRate(kRampRateToMaxSpeed);
+        mDriveMotorStarboardC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
 
         mDriveGroupStarboard = new SpeedControllerGroup(mDriveMotorStarboardA, mDriveMotorStarboardB, mDriveMotorStarboardC  );
                 
@@ -107,31 +84,32 @@ public class DriveSubsystem extends SubsystemBase {
 
         mNavx = new AHRS(Port.kMXP);
 
+        //TODO: Need to check over all encoder calculations, not sure I trust them
         mPortEncoder = mDriveMotorPortA.getEncoder();
         //Convert RPM to Rad/s
-        mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * kLowGearRatio);
+        mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         mStarboardEncoder = mDriveMotorStarboardA.getEncoder();
-        mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * kLowGearRatio);
+        mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         resetEncoders();
 
-        mKinematics = new DifferentialDriveKinematics(kTrackWidthMeters);
+        mKinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidth);
 
         //TODO: Find out if I need to change the range of degrees the Navx gives, currently [-180, 180]
         mOdometry = new DifferentialDriveOdometry(new Rotation2d(mNavx.getYaw()),
         new Pose2d(0, 0, new Rotation2d()));
         //TODO: the auto I choose is gonna have to change the above x, y, and theta values
                 
-        mGearShifter = new DoubleSolenoid(Constants.kPcmAId, Constants.kGearShiftForwardId, Constants.kGearShiftReverseId);
+        mGearShifter = new DoubleSolenoid(Constants.kPcmAId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
         addChild("Gear Shift Port Double Solenoid", mGearShifter);    
         mIsHighGear = false;
         mGearShifter.set(Value.kReverse); // TODO: Find out which side corresponds to which gearing
 
-        mPortPid = new PID(kDriveEpsilon);
-        mStarboardPid = new PID(kDriveEpsilon);
+        mPortPid = new PID(DriveConstants.kDriveEpsilon);
+        mStarboardPid = new PID(DriveConstants.kDriveEpsilon);
 
-        mRotatePid = new PID(kRotateEpsilon);
+        mRotatePid = new PID(DriveConstants.kRotateEpsilon);
 
-        mSelectedMaxSpeedProportion = kRegularMaxSpeed;
+        mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
 
         mLeftSpeed = 0.0;
         mRightSpeed = 0.0;
@@ -142,8 +120,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        //navx getYaw is negative because Navx gives clockwise as positive values, WPILIB uses opposite
-        mPose = mOdometry.update(Rotation2d.fromDegrees(-mNavx.getYaw()), getPortEncoderDistance(), getStarboardEncoderDistance());
+        mPose = mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistance(), getStarboardEncoderDistance());
     }
     
     public void manualDrive(double pow, double rot) {
@@ -151,10 +128,10 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void startAutoDrive(double setpoint) {
-        mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint); //Idk if this is right at all
+        mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint);
         mRightTarget = mStarboardEncoder.getPosition() + getEncoderCount(setpoint);
-        mPortPid.start(mLinearGains);
-        mStarboardPid.start(mLinearGains);
+        mPortPid.start(DriveConstants.kLinearGains);
+        mStarboardPid.start(DriveConstants.kLinearGains);
     }
 
     public void runAutoDrive() {
@@ -177,13 +154,13 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public boolean linearDriveTargetReached() {
-        return Math.abs(mPortPid.getError()) <= kDriveEpsilon &&
-             Math.abs(mStarboardPid.getError()) <= kDriveEpsilon;
+        return Math.abs(mPortPid.getError()) <= DriveConstants.kDriveEpsilon &&
+             Math.abs(mStarboardPid.getError()) <= DriveConstants.kDriveEpsilon;
     }
 
     public void startAutoRotate(double theta) {
         mRotateSetpoint = theta;
-        mRotatePid.start(mRotationalGains);
+        mRotatePid.start(DriveConstants.kRotationalGains);
     }
 
     public void runAutoRotate() {
@@ -193,14 +170,14 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public boolean rotateTargetReached() {
-        return Math.abs(mRotatePid.getError()) <= kRotateEpsilon;
+        return Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
     }
 
     public void togglePrecisionDriving() {
-        if(mSelectedMaxSpeedProportion == kRegularMaxSpeed) {
-            mSelectedMaxSpeedProportion = kPrecisionMaxSpeed;
+        if(mSelectedMaxSpeedProportion == DriveConstants.kRegularMaxSpeed) {
+            mSelectedMaxSpeedProportion = DriveConstants.kPrecisionMaxSpeed;
         } else {
-            mSelectedMaxSpeedProportion = kRegularMaxSpeed;
+            mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
         }
     }
 
@@ -222,28 +199,40 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
+    public void tankDriveVolts(double portVolts, double starboardVolts) {
+        mDriveGroupPort.setVoltage(portVolts);
+        mDriveGroupStarboard.setVoltage(-starboardVolts);
+        mDifferentialDrive.feed();
+    }
+
     private double getPortEncoderRotations() {
-        return mPortEncoder.getPosition() / kDriveEncoderPPR;
+        return mPortEncoder.getPosition() / DriveConstants.kDriveEncoderPPR;
     }
 
     private double getStarboardEncoderRotations() {
-        return mStarboardEncoder.getPosition() / kDriveEncoderPPR;
+        return mStarboardEncoder.getPosition() / DriveConstants.kDriveEncoderPPR;
     }
 
     private double rotationsToInches(double rotations) {
-        return rotations * kWheelCircumference;
+        return rotations * DriveConstants.kWheelCircumference;
     }
 
+    /**
+     * @return Port Side Distance Travelled in Inches
+     */
     private double getPortEncoderDistance() {
         return rotationsToInches(getPortEncoderRotations());
     }
 
+    /**
+     * @return Starboard Side Distance Travelled in Inches
+     */
     private double getStarboardEncoderDistance() {
         return rotationsToInches(getStarboardEncoderRotations());
     }
 
     private double getEncoderCount(double distance) {
-        return distance / kWheelCircumference * kDriveEncoderPPR;
+        return distance / DriveConstants.kWheelCircumference * DriveConstants.kDriveEncoderPPR; //TODO: have to factor in drive base gearing
     }
 
     /**
@@ -259,21 +248,47 @@ public class DriveSubsystem extends SubsystemBase {
         return mStarboardEncoder.getVelocity();
     }
 
-    private double getPortSpeedMetersPerSecond() {
-        return getPortAngularVelocity() * kWheelRadiusMeters;
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        return new DifferentialDriveWheelSpeeds(getPortSpeed(), getStarboardSpeed());
     }
 
-    private double getStarboardSpeedMetersPerSecond() {
-        return getStarboardAngularVelocity() * kWheelRadiusMeters;
+    /**
+     * @return Port Side Linear Speed in Meters/second
+     */
+    private double getPortSpeed() {
+        return getPortAngularVelocity() * DriveConstants.kWheelRadius;
     }
 
-    public void resetEncoders() {
+    /**
+     * @return Starboard Side Linear Speed in Meters/second
+     */
+    private double getStarboardSpeed() {
+        return getStarboardAngularVelocity() * DriveConstants.kWheelRadius;
+    }
+
+    private void resetEncoders() {
         mPortEncoder.setPosition(0.0);
         mStarboardEncoder.setPosition(0.0);
     }
 
+    /**
+     * Uses Right Hand Rule: Clockwise is negative, CCW is positive
+     * 
+     * @return the robot's heading in degrees, from [-180, 180]
+     */
     public double getHeading() {
-        return mNavx.getYaw();
+        return -mNavx.getYaw();
+    }
+
+    /**
+     * @return the robot's estimated pose
+     */
+    public Pose2d getPose() {
+        return mOdometry.getPoseMeters();
+    }
+
+    public DifferentialDriveKinematics getKinematics() {
+        return mKinematics;
     }
 
     public synchronized static DriveSubsystem getInstance() {

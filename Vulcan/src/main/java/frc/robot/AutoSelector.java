@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.auto.ComplexAutoPath;
+import frc.robot.auto.RamseteTestAutoPath;
 import frc.robot.auto.StraightThenRotateAutoPath;
 import frc.robot.commands.drive.LinearDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -11,7 +12,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class AutoSelector {
 
     enum AutoPath {
-        eNothing, eStraight, eStraightThenTurn, eComplexPath
+        eNothing, eStraight, eStraightThenTurn, eComplexPath, eRamseteTest
     }
 
     private AutoPath mSelectedAutoScenario, mPrevAutoScenario;
@@ -46,6 +47,8 @@ public class AutoSelector {
                 return new StraightThenRotateAutoPath();
             case eComplexPath:
                 return new ComplexAutoPath();
+            case eRamseteTest:
+                return (new RamseteTestAutoPath(DriveSubsystem.getInstance())).getCommand();
             case eNothing:
             default:
                 return null;

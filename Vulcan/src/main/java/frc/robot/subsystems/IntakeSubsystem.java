@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
@@ -19,10 +20,10 @@ public class IntakeSubsystem extends SubsystemBase {
     private final double kIntakeSpeed = 0.5;
 
     public IntakeSubsystem() {
-        mIntakeExtender = new DoubleSolenoid(Constants.kPcmBId, Constants.kIntakeExtenderForwardId, Constants.kIntakeExtenderReverseId);
+        mIntakeExtender = new DoubleSolenoid(Constants.kPcmAId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
-        mIntakeMotor = new WPI_VictorSPX(Constants.kIntakeMotorId);
+        mIntakeMotor = new WPI_VictorSPX(IntakeConstants.kIntakeMotorId);
 
         mIntakeExtender.set(Value.kReverse);
     }

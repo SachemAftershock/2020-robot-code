@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.CollisionAvoidanceConstants;
+import frc.robot.Constants.WheelControllerConstants;
 
 public class WheelControllerSubsystem extends SubsystemBase {
 
@@ -34,16 +36,16 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     public WheelControllerSubsystem() {
 
-        mWheelSpinner = new TalonSRX(Constants.kWheelControllerId);
+        mWheelSpinner = new TalonSRX(WheelControllerConstants.kWheelControllerId);
 
         mColorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
-        mExtender = new DoubleSolenoid(Constants.kPcmAId, Constants.kExtenderForwardId, Constants.kExtenderReverseId);
+        mExtender = new DoubleSolenoid(Constants.kPcmBId, WheelControllerConstants.kExtenderForwardId, WheelControllerConstants.kExtenderReverseId);
         mExtender.set(Value.kReverse);
 
         mColors = new CircularColorArray();
 
-        mUltrasonic = new AnalogInput(Constants.kUltrasonicId);
+        mUltrasonic = new AnalogInput(WheelControllerConstants.kUltrasonicId);
 
         mFieldRelativeTargetColor = ColorLUT.eUnknown;
         mRobotRelativeTargetColor = ColorLUT.eUnknown;
@@ -213,7 +215,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     //TODO: Have to implement safe driving features to use
     private double getUltrasonicDistance() {
-        return mUltrasonic.getValue() * Constants.kUltrasonicValueToInches;
+        return mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches;
     }
 
     private enum ColorLUT {

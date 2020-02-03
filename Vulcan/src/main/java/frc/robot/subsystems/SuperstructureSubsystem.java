@@ -17,7 +17,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
     private final IntakeSubsystem mIntake;
     private final StorageSubsystem mStorage;
 
-    private SuperstructureMode mCurrentMode;
+    private SuperstructureMode mSystemMode;
     private ShootingMode mShootingMode;
 
     private boolean mAuthorizedToShoot, mIsNewAutomaticMagazine;
@@ -28,7 +28,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
         mIntake = IntakeSubsystem.getInstance();
         mStorage = StorageSubsystem.getInstance();
 
-        mCurrentMode = SuperstructureMode.eIdle;
+        mSystemMode = SuperstructureMode.eIdle;
         mShootingMode = ShootingMode.eAuto;
 
         mAuthorizedToShoot = false;
@@ -37,7 +37,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        switch(mCurrentMode) {
+        switch(mSystemMode) {
             case eFeed:
                 if (mStorage.isNewBallInChamber()) {
                     setMode(SuperstructureMode.eArmed);
@@ -100,7 +100,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
             default:
                 DriverStation.reportError("ERROR: SUPERSTRUCTURE MODE NOT FOUND", false);
         }
-        mCurrentMode = mode;
+        mSystemMode = mode;
     }
 
     public void authorizeShot() {
@@ -112,7 +112,7 @@ public class SuperstructureSubsystem extends SubsystemBase {
     }
 
     public SuperstructureMode getCurrentMode() {
-        return mCurrentMode;
+        return mSystemMode;
     }
 
     public enum SuperstructureMode {

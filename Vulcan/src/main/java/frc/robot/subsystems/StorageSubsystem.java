@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
 public class StorageSubsystem extends SubsystemBase {
 
@@ -24,16 +25,16 @@ public class StorageSubsystem extends SubsystemBase {
     private boolean mPrevChamberLoaded, mPrevFrontMagazineLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
     public StorageSubsystem() {
-        mBeltDriver = new WPI_TalonSRX(Constants.kFeederMotorId);
+        mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
 
-        mBallValveA = new DoubleSolenoid(Constants.kPcmAId, Constants.kBallValveAForwardId, Constants.kBallValveAReverseId);
-        mBallValveB = new DoubleSolenoid(Constants.kPcmAId, Constants.kBallValveBForwardId, Constants.kBallValveBReverseId);
+        mBallValveA = new DoubleSolenoid(Constants.kPcmAId, StorageConstants.kBallValveAForwardId, StorageConstants.kBallValveAReverseId);
+        mBallValveB = new DoubleSolenoid(Constants.kPcmAId, StorageConstants.kBallValveBForwardId, StorageConstants.kBallValveBReverseId);
 
-        mChamberBallDetector = new DigitalInput(Constants.kChamberDetectorId);
-        mPreChamberBallDetector = new DigitalInput(Constants.kPreChamberDetectorId);
-        mIntakeBallDetector = new DigitalInput(Constants.kIntakeDetectorId);
-        mEntryBallDetector = new DigitalInput(Constants.kEntryDetectorId);
+        mChamberBallDetector = new DigitalInput(StorageConstants.kChamberDetectorId);
+        mPreChamberBallDetector = new DigitalInput(StorageConstants.kPreChamberDetectorId);
+        mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
+        mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
 
         mPrevChamberLoaded = true; //TODO: Should init to whatever it actually sees
         mPrevFrontMagazineLoaded = true;

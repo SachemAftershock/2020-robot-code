@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Lidar;
+import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -31,21 +32,21 @@ public class ShooterSubsystem extends SubsystemBase {
     private double mTargetRPM = 6000.0; //TODO: Get a way to calculate this value 
 
     public ShooterSubsystem() {
-        mShooter = new CANSparkMax(Constants.kLauncherMotorId, MotorType.kBrushless);
+        mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
 
-        mFeeder = new WPI_TalonSRX(Constants.kFeederMotorId);
+        mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
 
-        mLidar = new Lidar(new DigitalInput(Constants.kLidarId));
+        mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 
         mShooterPid = new CANPIDController(mShooter);
-        mShooterPid.setP(mGains[0], Constants.kPidId);
-        mShooterPid.setI(mGains[1], Constants.kPidId);
-        mShooterPid.setD(mGains[2], Constants.kPidId);
-        mShooterPid.setIZone(mGains[3], Constants.kPidId);
-        mShooterPid.setFF(mGains[4], Constants.kPidId);
+        mShooterPid.setP(mGains[0], ShooterConstants.kPidId);
+        mShooterPid.setI(mGains[1], ShooterConstants.kPidId);
+        mShooterPid.setD(mGains[2], ShooterConstants.kPidId);
+        mShooterPid.setIZone(mGains[3], ShooterConstants.kPidId);
+        mShooterPid.setFF(mGains[4], ShooterConstants.kPidId);
         mShooterPid.setOutputRange(-1.0, 1.0);
     }
 
@@ -55,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void reachCalculatedTargetRPM() {
-        mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, Constants.kPidId);
+        mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
     }
 
     public void stopShooter() {

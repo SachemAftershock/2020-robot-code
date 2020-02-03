@@ -3,10 +3,11 @@ Sachem Aftershock's Code for FRC 2020: Infinite Recharge
 
 # Unit Convention:
 All constants are as specified, unless stated otherwise:
- - Distance: Inches
+ - Distance: Meters
  - Angle: Degrees
  - Time: Seconds
- - Speed: feet/second
+ - Speed: Meters/second
+ - Acceleration: Meters/second^2
  - Angular Speed: radians/second
 
 ## Variable Naming Convention:

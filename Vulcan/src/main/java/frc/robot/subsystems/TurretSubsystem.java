@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Limelight;
 import frc.robot.PID;
+import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
 public class TurretSubsystem extends SubsystemBase {
 
@@ -28,10 +29,10 @@ public class TurretSubsystem extends SubsystemBase {
     private final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
 
     public TurretSubsystem() {
-        mTurret = new WPI_VictorSPX(Constants.kTurretMotorId);
+        mTurret = new WPI_VictorSPX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 
-        mEncoder = new DutyCycleEncoder(new DigitalInput(Constants.kTurretEncoderDioId));
+        mEncoder = new DutyCycleEncoder(new DigitalInput(TurretConstants.kTurretEncoderDioId));
         mEncoder.setDistancePerRotation(kTurretDegreesPerEncoderRotation);
         mEncoder.reset();
 
