@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
@@ -25,9 +24,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
-    private final double[] mGains = {0.0, 0.0, 0.0, 0.0, 0.0}; //P I D Iz FF
-    private final double kShooterSpeedEpsilon = 50.0;
-    private final double kFeederSpeed = 0.65;
 
     private double mTargetRPM = 6000.0; //TODO: Get a way to calculate this value 
 
@@ -42,11 +38,11 @@ public class ShooterSubsystem extends SubsystemBase {
         mShooterEncoder = mShooter.getEncoder();
 
         mShooterPid = new CANPIDController(mShooter);
-        mShooterPid.setP(mGains[0], ShooterConstants.kPidId);
-        mShooterPid.setI(mGains[1], ShooterConstants.kPidId);
-        mShooterPid.setD(mGains[2], ShooterConstants.kPidId);
-        mShooterPid.setIZone(mGains[3], ShooterConstants.kPidId);
-        mShooterPid.setFF(mGains[4], ShooterConstants.kPidId);
+        mShooterPid.setP(ShooterConstants.kGains[0], ShooterConstants.kPidId);
+        mShooterPid.setI(ShooterConstants.kGains[1], ShooterConstants.kPidId);
+        mShooterPid.setD(ShooterConstants.kGains[2], ShooterConstants.kPidId);
+        mShooterPid.setIZone(ShooterConstants.kGains[3], ShooterConstants.kPidId);
+        mShooterPid.setFF(ShooterConstants.kGains[4], ShooterConstants.kPidId);
         mShooterPid.setOutputRange(-1.0, 1.0);
     }
 
@@ -55,6 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
+    //TODO: Rumble / LEDs when at Target RPM
     public void reachCalculatedTargetRPM() {
         mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
     }
@@ -64,11 +61,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isAtTargetRPM() {
-        return Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < kShooterSpeedEpsilon;
+        return Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
     }
 
     public void startFeeder() {
-        mFeeder.set(ControlMode.PercentOutput, kFeederSpeed);
+        mFeeder.set(ControlMode.PercentOutput, ShooterConstants.kFeederSpeed);
     }
 
     public void stopFeeder() {

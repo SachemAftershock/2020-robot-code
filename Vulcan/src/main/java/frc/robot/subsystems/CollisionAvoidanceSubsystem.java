@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
 public class CollisionAvoidanceSubsystem extends SubsystemBase {
@@ -14,42 +13,36 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
     private double mCurrentDistance;
     private double mSelectedStandoffSlowdown;
 
-    private final int kNumberOfDistanceSamples = 10;
-    //TODO: Find good values for the below
-    private final double kCollisionStandoffSlowdown = 18.0;
-    private final double kColorWheelStandoffSlowdown = 12.0;
-
-
-    private final MedianFilter mMedianFilter = new MedianFilter(kNumberOfDistanceSamples);
+    private final MedianFilter mMedianFilter = new MedianFilter(CollisionAvoidanceConstants.kNumberOfDistanceSamples);
     private final AnalogInput mUltrasonic;
 
 
     public CollisionAvoidanceSubsystem() {
         mCollisionEnabled = true;
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
-        mSelectedStandoffSlowdown = kCollisionStandoffSlowdown;
+        mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }
 
     @Override
     public void periodic() {
-        mCurrentDistance = getUltrasonicDistance();
+        mCurrentDistance = getUltrasonicDistanceInches();
     }
 
     public double getSlowdownScaleFactor() {
         if(!mCollisionEnabled) {
             return 1.0;
-        } else if(getCurrentDistance() <= mSelectedStandoffSlowdown) {
-            return getCurrentDistance() / mSelectedStandoffSlowdown;
+        } else if(getCurrentDistanceInches() <= mSelectedStandoffSlowdown) {
+            return getCurrentDistanceInches() / mSelectedStandoffSlowdown;
         } else {
             return 1.0;
         }
     }
 
     public void setColorWheelStandoff() {
-        mSelectedStandoffSlowdown = kColorWheelStandoffSlowdown;
+        mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kColorWheelStandoffSlowdownInches;
     }
     public void setStandardStandoff() {
-        mSelectedStandoffSlowdown = kCollisionStandoffSlowdown;
+        mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }
 
     public void enableCollisionAvoidance() {
@@ -63,11 +56,11 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
         return mCollisionEnabled;
     }
 
-    public double getCurrentDistance() {
+    public double getCurrentDistanceInches() {
         return mCurrentDistance;
     }
 
-    private double getUltrasonicDistance() {
+    private double getUltrasonicDistanceInches() {
         return mMedianFilter.calculate(mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches);
     }
 

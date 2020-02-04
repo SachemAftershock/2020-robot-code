@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Limelight;
 import frc.robot.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
@@ -23,21 +22,16 @@ public class TurretSubsystem extends SubsystemBase {
 
     private boolean mAutoTargetingEnabled;
 
-    private final double kManualControlScaleFactor = 0.25;
-    private final double[] mGains = {0.0, 0.0, 0.0};
-    private final double kTurretEpsilon = 4.0; //TODO: Find the right value
-    private final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
-
     public TurretSubsystem() {
         mTurret = new WPI_VictorSPX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 
         mEncoder = new DutyCycleEncoder(new DigitalInput(TurretConstants.kTurretEncoderDioId));
-        mEncoder.setDistancePerRotation(kTurretDegreesPerEncoderRotation);
+        mEncoder.setDistancePerRotation(TurretConstants.kTurretDegreesPerEncoderRotation);
         mEncoder.reset();
 
-        mPid = new PID(kTurretEpsilon);
-        mPid.start(mGains);
+        mPid = new PID(TurretConstants.kTurretEpsilon);
+        mPid.start(TurretConstants.kGains);
 
         mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
     }
@@ -77,11 +71,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void manualControl(double pow) {
-        mTurret.set(ControlMode.PercentOutput, pow * kManualControlScaleFactor);
+        mTurret.set(ControlMode.PercentOutput, pow * TurretConstants.kManualControlScaleFactor);
     }
 
     public boolean isAimedAtTarget() {
-        return Math.abs(Limelight.getTx()) < kTurretEpsilon;
+        return Math.abs(Limelight.getTx()) < TurretConstants.kTurretEpsilon;
     }
 
     public synchronized static TurretSubsystem getInstance() {

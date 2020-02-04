@@ -27,6 +27,10 @@ public final class Constants {
     public static final class CollisionAvoidanceConstants {
         public static final int kCollisionUltrasonicId = 1;
         public static final double kUltrasonicValueToInches = 0.125;
+        public static final int kNumberOfDistanceSamples = 10;
+        //TODO: Find good values for the below
+        public static final double kCollisionStandoffSlowdownInches = 18.0;
+        public static final double kColorWheelStandoffSlowdownInches = 12.0;
     }
 
     public static final class DriveConstants {
@@ -79,12 +83,21 @@ public final class Constants {
             public static final int kLidarId = 0;
 
             public static final int kPidId = 0;
+
+            public static final double[] kGains = {0.0, 0.0, 0.0, 0.0, 0.0}; //P I D Iz FF
+            public static final double kShooterSpeedEpsilon = 50.0;
+            public static final double kFeederSpeed = 0.65;
         }  
 
         public static final class TurretConstants {
             public static final int kTurretMotorId = 9;
 
             public static final int kTurretEncoderDioId = 0;
+
+            public static final double kManualControlScaleFactor = 0.25;
+            public static final double[] kGains = {0.0, 0.0, 0.0};
+            public static final double kTurretEpsilon = 4.0; //TODO: Find the right value
+            public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
         }
 
         public static final class StorageConstants { 
@@ -94,6 +107,8 @@ public final class Constants {
             public static final int kPreChamberDetectorId = 1;
             public static final int kIntakeDetectorId = 2;
             public static final int kEntryDetectorId = 3;
+
+            public static final double kBeltSpeed = 0.3;
 
             //Pneumatics PCM A
             public static final int kBallValveAForwardId = 3;
@@ -106,6 +121,8 @@ public final class Constants {
         public static final class IntakeConstants {
             public static final int kIntakeMotorId = 11;
 
+            public static final double kIntakeSpeed = 0.5;
+
             //Pneumatics PCM A   
             public static final int kIntakeExtenderForwardId = 7;
             public static final int kIntakeExtenderReverseId = 8;
@@ -115,7 +132,11 @@ public final class Constants {
     public static final class WheelControllerConstants {
         public static final int kWheelControllerId = 12;
         public static final int kUltrasonicId = 0;
-        
+
+        // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
+        public static final int kRobotReadingVarianceIndex = 2;
+        public static final double kWheelSpinSpeed = 0.4;
+
         //Pneumatics PCM B
         public static final int kExtenderForwardId = 0;
         public static final int kExtenderReverseId = 1;

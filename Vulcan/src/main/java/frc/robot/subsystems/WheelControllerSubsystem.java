@@ -29,11 +29,6 @@ public class WheelControllerSubsystem extends SubsystemBase {
     private boolean mPreviousExists;
     private final CircularColorArray mColors;
 
-    // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
-    private final int kRobotReadingVarianceIndex = 2;
-    private final double kWheelSpinSpeed = 0.4;
-
-
     public WheelControllerSubsystem() {
 
         mWheelSpinner = new TalonSRX(WheelControllerConstants.kWheelControllerId);
@@ -81,7 +76,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
                     DriverStation.reportError("ERROR: TARGET COLOR NOT DETECTED", false);
                     break;
             }
-            mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + kRobotReadingVarianceIndex);
+            mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + WheelControllerConstants.kRobotReadingVarianceIndex);
         }
         if(mStartColor != ColorLUT.eUnknown && mPreviousExists) {
             if(mCurrentDetectedColor != mPreviousColor && mCurrentDetectedColor == mStartColor) {
@@ -101,7 +96,7 @@ public class WheelControllerSubsystem extends SubsystemBase {
             DriverStation.reportError("ERROR: COLOR UNKNOWN", false);
             //TODO: Add a loop to retry and timeout here if needed
         }
-        mWheelSpinner.set(ControlMode.PercentOutput, kWheelSpinSpeed);
+        mWheelSpinner.set(ControlMode.PercentOutput, WheelControllerConstants.kWheelSpinSpeed);
     }
 
     public void endPositionControl() {
@@ -120,9 +115,9 @@ public class WheelControllerSubsystem extends SubsystemBase {
         mStartColor = mCurrentDetectedColor;
         mNumberOfWedgesCrossed = 0;
         if(calculatedSpin.getTargetDirection() == Direction.FORWARD) {
-            mWheelSpinner.set(ControlMode.PercentOutput, kWheelSpinSpeed);
+            mWheelSpinner.set(ControlMode.PercentOutput, WheelControllerConstants.kWheelSpinSpeed);
         } else if(calculatedSpin.getTargetDirection() == Direction.REVERSE) {
-            mWheelSpinner.set(ControlMode.PercentOutput, -kWheelSpinSpeed);
+            mWheelSpinner.set(ControlMode.PercentOutput, -WheelControllerConstants.kWheelSpinSpeed);
         } else {
             mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
             DriverStation.reportWarning("WARNING: ALREADY ON TARGET COLOR, SPEED SET TO 0", false);

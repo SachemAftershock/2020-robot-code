@@ -1,24 +1,9 @@
 package frc.robot;
 
-import java.util.List;
-
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.AutonomousCommand;
 import frc.robot.commands.drive.ManualDriveCommand;
 import frc.robot.commands.drive.ToggleCollisionAvoidanceCommand;
@@ -68,7 +53,6 @@ public class RobotContainer {
     private JoystickButton bEjectIntake;
     private JoystickButton bStartShooter;
     private JoystickButton bShooterAuthorized;
-    private JoystickButton jTurret;
 
     public RobotContainer() {
         configureButtonBindings();

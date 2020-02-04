@@ -17,8 +17,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private DoubleSolenoid mIntakeExtender;
     private WPI_VictorSPX mIntakeMotor;
 
-    private final double kIntakeSpeed = 0.5;
-
     public IntakeSubsystem() {
         mIntakeExtender = new DoubleSolenoid(Constants.kPcmAId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
@@ -34,11 +32,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void runIntakeMotor() {
-        mIntakeMotor.set(ControlMode.PercentOutput, kIntakeSpeed);
+        mIntakeMotor.set(ControlMode.PercentOutput, IntakeConstants.kIntakeSpeed);
     }
 
     public void ejectIntakeMotor() {
-        mIntakeMotor.set(ControlMode.PercentOutput, -kIntakeSpeed);
+        mIntakeMotor.set(ControlMode.PercentOutput, -IntakeConstants.kIntakeSpeed);
     }
 
     public void stopIntakeMotor() {

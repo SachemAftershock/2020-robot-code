@@ -41,12 +41,13 @@ public class SuperstructureSubsystem extends SubsystemBase {
             case eFeed:
                 if (mStorage.isNewBallInChamber()) {
                     setMode(SuperstructureMode.eArmed);
-                }
-                if(mStorage.isNewBallInIntake()) {
-                    mStorage.runBelt();
-                }
-                if(mStorage.isNewBallInMagazineEntry()) {
-                    mStorage.stopBelt();
+                } else {
+                    if(mStorage.isNewBallInIntake()) {
+                        mStorage.runBelt();
+                    } 
+                    if(mStorage.isNewBallInMagazineEntry()) {
+                        mStorage.stopBelt();
+                    }
                 }
                 break;
             case eArmed:
@@ -68,12 +69,12 @@ public class SuperstructureSubsystem extends SubsystemBase {
                         } else {
                             mStorage.closeChamberValve();
                             mStorage.stopBelt();
-                        }
 
-                        if(mShooter.isAtTargetRPM()) {
-                            mShooter.startFeeder();
-                        } else {
-                            mShooter.stopFeeder();
+                            if(mShooter.isAtTargetRPM()) {
+                                mShooter.startFeeder();
+                            } else {
+                                mShooter.stopFeeder();
+                            }
                         }
                     } else {
                         DriverStation.reportError("ERROR: SHOOTING MODE NOT FOUND", false);
@@ -98,7 +99,9 @@ public class SuperstructureSubsystem extends SubsystemBase {
                 CommandScheduler.getInstance().schedule(new StartIdleSequence(mIntake, mStorage, mShooter));
                 break;
             default:
+                mSystemMode = SuperstructureMode.eIdle;
                 DriverStation.reportError("ERROR: SUPERSTRUCTURE MODE NOT FOUND", false);
+                return;
         }
         mSystemMode = mode;
     }

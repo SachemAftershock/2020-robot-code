@@ -20,8 +20,6 @@ public class StorageSubsystem extends SubsystemBase {
     private final DoubleSolenoid mBallValveA, mBallValveB;
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
 
-    private final double kBeltSpeed = 0.3;
-
     private boolean mPrevChamberLoaded, mPrevFrontMagazineLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
     public StorageSubsystem() {
@@ -64,18 +62,6 @@ public class StorageSubsystem extends SubsystemBase {
         }
     }
 
-    public boolean isNewBallAtMagazineFront() {
-        if (isFrontMagazineLoaded() && !mPrevFrontMagazineLoaded) {
-            mPrevFrontMagazineLoaded = true;
-            return true;
-        } else {
-            if(!isFrontMagazineLoaded()) {
-                mPrevFrontMagazineLoaded = false;
-            }
-            return false;
-        }
-    }
-
     public boolean isNewBallInIntake() {
         if (isBallCaughtIntake() && !mPrevIntakeBallDetected) {
             mPrevIntakeBallDetected = true;
@@ -100,7 +86,7 @@ public class StorageSubsystem extends SubsystemBase {
         }
     }
 
-    //TODO: Might need a better definition of "Empty"
+    //TODO: Might need a better definition of "Empty", maybe use LIDAR
     public boolean isEmpty() {
         return !isChamberLoaded() && !isFrontMagazineLoaded() && !isBallEnteredMagazine();
     }
@@ -122,7 +108,7 @@ public class StorageSubsystem extends SubsystemBase {
     }
 
     public void runBelt() {
-        mBeltDriver.set(ControlMode.PercentOutput, kBeltSpeed);
+        mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
     }
 
     public void stopBelt() {
