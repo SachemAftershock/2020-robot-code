@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
 import frc.robot.PID;
+import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -21,6 +22,7 @@ public class TurretSubsystem extends SubsystemBase {
     private PID mPid;
 
     private boolean mAutoTargetingEnabled;
+    private ShootingTarget mSelectedTarget;
 
     public TurretSubsystem() {
         mTurret = new WPI_VictorSPX(TurretConstants.kTurretMotorId);
@@ -34,6 +36,8 @@ public class TurretSubsystem extends SubsystemBase {
         mPid.start(TurretConstants.kGains);
 
         mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
+
+        mSelectedTarget = ShootingTarget.eHighTarget; //TODO: Add Buttons for high and low
     }
 
     @Override
@@ -75,7 +79,12 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean isAimedAtTarget() {
-        return Math.abs(Limelight.getTx()) < TurretConstants.kTurretEpsilon;
+        return Math.abs(Limelight.getTx()) < TurretConstants.kTurretEpsilon 
+                && Math.abs(DriveSubsystem.getInstance().getHeading() + mEncoder.getDistance()) <= TurretConstants.kShootingAngleMaxLimit[mSelectedTarget.ordinal()];
+    }
+
+    enum ShootingTarget {
+        eHighTarget, eLowTarget
     }
 
     public synchronized static TurretSubsystem getInstance() {

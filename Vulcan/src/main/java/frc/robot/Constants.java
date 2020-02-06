@@ -87,6 +87,21 @@ public final class Constants {
             public static final double[] kGains = {0.0, 0.0, 0.0, 0.0, 0.0}; //P I D Iz FF
             public static final double kShooterSpeedEpsilon = 50.0;
             public static final double kFeederSpeed = 0.65;
+
+            public static final double[][] kDistanceFeetToRpmLUT = {
+                {0, 1000.0},
+                {5, 1100.0},
+                {10, 1200.0},
+                {15, 1400.0},
+                {20, 1600.0},
+                {25, 1900.0},
+                {30, 2300.0},
+                {35, 2700.0},
+                {40, 3200.0},
+                {45, 3800.0}
+            };
+
+            public static final PolynomialRegression kShooterPolynomial = new PolynomialRegression(kDistanceFeetToRpmLUT, 2);
         }  
 
         public static final class TurretConstants {
@@ -98,6 +113,10 @@ public final class Constants {
             public static final double[] kGains = {0.0, 0.0, 0.0};
             public static final double kTurretEpsilon = 4.0; //TODO: Find the right value
             public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
+
+            private static final double kLowMaxAcceptableShootingAngle = 10;
+            private static final double kHighMaxAcceptableShootingAngle = 26;
+            public static final double[] kShootingAngleMaxLimit = {kHighMaxAcceptableShootingAngle, kLowMaxAcceptableShootingAngle};
         }
 
         public static final class StorageConstants { 

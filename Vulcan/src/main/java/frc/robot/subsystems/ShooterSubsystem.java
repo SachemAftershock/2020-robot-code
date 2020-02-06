@@ -52,7 +52,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     //TODO: Rumble / LEDs when at Target RPM
+    //TODO: Add code for when Target in FOV: Use the predictive lookup, when falls out of view,
+    // after a timeout, goes to the median Table RPM. Defaults to median value when target is not found
     public void reachCalculatedTargetRPM() {
+        mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
         mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
     }
 
