@@ -22,7 +22,7 @@ import frc.robot.PID;
 import frc.robot.Util;
 import frc.robot.Constants.DriveConstants;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static DriveSubsystem mInstance;
 
@@ -84,18 +84,17 @@ public class DriveSubsystem extends SubsystemBase {
 
         mNavx = new AHRS(Port.kMXP);
 
-        //TODO: Need to check over all encoder calculations, not sure I trust them
+        //TODO: Need to check over all encoder related calculations, not sure I trust them
         mPortEncoder = mDriveMotorPortA.getEncoder();
         //Convert RPM to Rad/s
         mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         mStarboardEncoder = mDriveMotorStarboardA.getEncoder();
         mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
-        resetEncoders();
 
         mKinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidth);
 
         //TODO: Find out if I need to change the range of degrees the Navx gives, currently [-180, 180]
-        mOdometry = new DifferentialDriveOdometry(new Rotation2d(mNavx.getYaw()),
+        mOdometry = new DifferentialDriveOdometry(new Rotation2d(getHeading()),
         new Pose2d(0, 0, new Rotation2d()));
         //TODO: the auto I choose is gonna have to change the above x, y, and theta values
                 
@@ -116,6 +115,12 @@ public class DriveSubsystem extends SubsystemBase {
         mLeftTarget = 0.0;
         mRightTarget = 0.0;
         mRotateSetpoint = 0.0;
+    }
+
+    @Override
+    public void init() {
+        resetEncoders();
+        mNavx.zeroYaw();
     }
 
     @Override
@@ -165,7 +170,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void runAutoRotate() {
         double theta = Util.normalizeAngle(mRotateSetpoint);
-        double output = mRotatePid.updateRotation(mNavx.getYaw(), theta);
+        double output = mRotatePid.updateRotation(getHeading(), theta);
         mDifferentialDrive.tankDrive(output, -output);
     }
 

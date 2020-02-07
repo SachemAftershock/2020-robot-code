@@ -10,7 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static IntakeSubsystem mInstance;
 
@@ -27,8 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-
+    public void init() {
     }
 
     public void runIntakeMotor() {

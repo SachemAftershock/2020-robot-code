@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -11,7 +13,6 @@ import frc.robot.commands.drive.ToggleDrivebaseGearingCommand;
 import frc.robot.commands.drive.TogglePrecisionDrivingCommand;
 import frc.robot.commands.superstructure.SetArmedModeCommand;
 import frc.robot.commands.superstructure.SetIdleModeCommand;
-import frc.robot.commands.superstructure.intake.EjectIntakeCommand;
 import frc.robot.commands.superstructure.shooter.AuthorizeShotCommand;
 import frc.robot.commands.superstructure.shooter.DeauthorizeShotCommand;
 import frc.robot.commands.wheelcontroller.WheelColorControlCommand;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
@@ -44,17 +46,29 @@ public class RobotContainer {
     private final ShooterSubsystem mShooter =  ShooterSubsystem.getInstance();
     private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
-
+    private final ArrayList<SubsystemInterface> mSubsystems;
+    
     private JoystickButton bToggleDriveGear;
     private JoystickButton bToggleCollisionAvoidance;
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
     private JoystickButton bTogglePrecisionDrive;
-    private JoystickButton bEjectIntake;
     private JoystickButton bStartShooter;
     private JoystickButton bShooterAuthorized;
 
     public RobotContainer() {
+        mSubsystems = new ArrayList<SubsystemInterface>();
+        mSubsystems.add(mAbsoluteFieldPosition);
+        mSubsystems.add(mIntake);
+        mSubsystems.add(mDriverCamera);
+        mSubsystems.add(mClimber);
+        mSubsystems.add(mCollisionAvoidanceSubsystem);
+        mSubsystems.add(mDrive);
+        mSubsystems.add(mPower);
+        mSubsystems.add(mShooter);
+        mSubsystems.add(mTurret);
+        mSubsystems.add(mSuperstructure);
+        
         configureButtonBindings();
         CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mXboxControllerPrimary));
     }
@@ -69,9 +83,6 @@ public class RobotContainer {
 
         bToggleCollisionAvoidance = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBack.value);
         bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mXboxControllerPrimary));
-        
-        bEjectIntake = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBumperLeft.value);
-        bEjectIntake.whileHeld(new EjectIntakeCommand(mIntake));
         
         //SECONDARY CONTROLLER
         bStartWheelPositionControl = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kX.value);
@@ -104,6 +115,10 @@ public class RobotContainer {
 
     public XboxController getXboxControllerSecondary() {
         return mXboxControllerSecondary;
+    }
+
+    public ArrayList<SubsystemInterface> getSubsystemList() {
+        return mSubsystems;
     }
 }
 

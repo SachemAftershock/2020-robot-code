@@ -8,7 +8,7 @@ import frc.robot.commands.groups.StartArmedSequence;
 import frc.robot.commands.groups.StartFeedSequence;
 import frc.robot.commands.groups.StartIdleSequence;
 
-public class SuperstructureSubsystem extends SubsystemBase {
+public class SuperstructureSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static SuperstructureSubsystem mInstance;
 
@@ -36,6 +36,10 @@ public class SuperstructureSubsystem extends SubsystemBase {
     }
 
     @Override
+    public void init() {
+    }
+
+    @Override
     public void periodic() {
         switch(mSystemMode) {
             case eFeed:
@@ -52,7 +56,6 @@ public class SuperstructureSubsystem extends SubsystemBase {
                 break;
             case eArmed:
                 mShooter.reachCalculatedTargetRPM();
-                //TODO: Implement some way to find out whether it's worth it to take the shot or not
                 if(mAuthorizedToShoot && mTurret.isAimedAtTarget()) {
                     if(mShootingMode == ShootingMode.eAuto) {
                         if(mIsNewAutomaticMagazine) {

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.SubsystemInterface;
 
 public class Robot extends TimedRobot {
 
@@ -18,6 +19,10 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         mRobotContainer = new RobotContainer();
 
+        for(SubsystemInterface subsystem : mRobotContainer.getSubsystemList()) {
+            subsystem.init();
+        }
+        
         mCompressor = new Compressor();
         mCompressor.setClosedLoopControl(true);
         mCompressor.start();

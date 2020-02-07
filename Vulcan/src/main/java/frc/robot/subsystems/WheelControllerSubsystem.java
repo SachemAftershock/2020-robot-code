@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.revrobotics.ColorSensorV3;
 
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
@@ -12,16 +11,14 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.CollisionAvoidanceConstants;
 import frc.robot.Constants.WheelControllerConstants;
 
-public class WheelControllerSubsystem extends SubsystemBase {
+public class WheelControllerSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static WheelControllerSubsystem mInstance;
 
     private final TalonSRX mWheelSpinner;
     private final ColorSensorV3 mColorSensor;
-    private final AnalogInput mUltrasonic;
     private final DoubleSolenoid mExtender;
     private String mTargetColorString;
     private ColorLUT mFieldRelativeTargetColor, mRobotRelativeTargetColor, mCurrentDetectedColor, mStartColor;
@@ -40,8 +37,6 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
         mColors = new CircularColorArray();
 
-        mUltrasonic = new AnalogInput(WheelControllerConstants.kUltrasonicId);
-
         mFieldRelativeTargetColor = ColorLUT.eUnknown;
         mRobotRelativeTargetColor = ColorLUT.eUnknown;
         mCurrentDetectedColor = ColorLUT.eUnknown;
@@ -49,6 +44,10 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
         mTimesPositionedToStartColor = 0;
         mPreviousExists = false;
+    }
+
+    @Override
+    public void init() {
     }
 
     @Override
@@ -206,11 +205,6 @@ public class WheelControllerSubsystem extends SubsystemBase {
 
     public boolean isTargetColorKnown() {
         return mFieldRelativeTargetColor != null;
-    }
-
-    //TODO: Have to implement safe driving features to use
-    private double getUltrasonicDistance() {
-        return mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches;
     }
 
     private enum ColorLUT {

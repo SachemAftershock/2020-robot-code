@@ -11,21 +11,21 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Lidar;
+import frc.robot.LIDAR;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
-public class ShooterSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static ShooterSubsystem mInstance;
     
     private final CANSparkMax mShooter;
     private final WPI_TalonSRX mFeeder;
-    private final Lidar mLidar;
+    private final LIDAR mLidar;
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
 
-    private double mTargetRPM = 6000.0; //TODO: Get a way to calculate this value 
+    private double mTargetRPM;
 
     public ShooterSubsystem() {
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
@@ -33,7 +33,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
 
-        mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
+        mLidar = new LIDAR(new DigitalInput(ShooterConstants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 
@@ -47,10 +47,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic() {
-
+    public void init() {
     }
-
+    
     //TODO: Rumble / LEDs when at Target RPM
     //TODO: Add code for when Target in FOV: Use the predictive lookup, when falls out of view,
     // after a timeout, goes to the median Table RPM. Defaults to median value when target is not found

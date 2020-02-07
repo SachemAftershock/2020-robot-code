@@ -111,12 +111,15 @@ public final class Constants {
 
             public static final double kManualControlScaleFactor = 0.25;
             public static final double[] kGains = {0.0, 0.0, 0.0};
-            public static final double kTurretEpsilon = 4.0; //TODO: Find the right value
+            public static final double kTurretEpsilon = 2.0; //TODO: Find the right value
             public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
 
-            private static final double kLowMaxAcceptableShootingAngle = 10;
-            private static final double kHighMaxAcceptableShootingAngle = 26;
-            public static final double[] kShootingAngleMaxLimit = {kHighMaxAcceptableShootingAngle, kLowMaxAcceptableShootingAngle};
+            public static final double kPowerCellDiameterInches = 7.5; //TODO: Get real values from game manual
+            public static final double kPowerCellClearance = 2.0;
+
+            private static final double kLowTargetWidth = 10; //TODO: Get real values from game manual
+            private static final double kHighTargetWidth = 26;
+            public static final double[] kTargetWidth = {kHighTargetWidth, kLowTargetWidth};
         }
 
         public static final class StorageConstants { 
@@ -127,7 +130,10 @@ public final class Constants {
             public static final int kIntakeDetectorId = 2;
             public static final int kEntryDetectorId = 3;
 
+            public static final int kLidarId = 1;
+
             public static final double kBeltSpeed = 0.3;
+            public static final double kMaxEmptyStorageDistanceInches = 25.0; //TODO: Find real value
 
             //Pneumatics PCM A
             public static final int kBallValveAForwardId = 3;

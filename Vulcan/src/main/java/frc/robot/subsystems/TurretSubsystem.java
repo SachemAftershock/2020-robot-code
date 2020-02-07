@@ -10,10 +10,9 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
 import frc.robot.PID;
-import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
-public class TurretSubsystem extends SubsystemBase {
+public class TurretSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static TurretSubsystem mInstance;
 
@@ -38,6 +37,10 @@ public class TurretSubsystem extends SubsystemBase {
         mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
 
         mSelectedTarget = ShootingTarget.eHighTarget; //TODO: Add Buttons for high and low
+    }
+
+    @Override
+    public void init() {
     }
 
     @Override
@@ -78,9 +81,22 @@ public class TurretSubsystem extends SubsystemBase {
         mTurret.set(ControlMode.PercentOutput, pow * TurretConstants.kManualControlScaleFactor);
     }
 
+    /**
+     * Is Turret Aimed at Target AND does the ball have clearance with this angle
+     * @return whether to take the shot
+     */
     public boolean isAimedAtTarget() {
-        return Math.abs(Limelight.getTx()) < TurretConstants.kTurretEpsilon 
-                && Math.abs(DriveSubsystem.getInstance().getHeading() + mEncoder.getDistance()) <= TurretConstants.kShootingAngleMaxLimit[mSelectedTarget.ordinal()];
+        double tx = Limelight.getTx();
+        return Math.abs(tx) < TurretConstants.kTurretEpsilon 
+                && TurretConstants.kTargetWidth[mSelectedTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
+    }
+
+    /**
+     * Returns the Robot-Relative Turret Angle
+     * @return Robot-Relative Turret Angle
+     */
+    public double getTurretAngle() {
+        return mEncoder.getDistance();
     }
 
     enum ShootingTarget {

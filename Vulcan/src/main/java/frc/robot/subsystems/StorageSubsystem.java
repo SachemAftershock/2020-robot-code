@@ -10,17 +10,19 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LIDAR;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
-public class StorageSubsystem extends SubsystemBase {
+public class StorageSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static StorageSubsystem mInstance;
 
     private final TalonSRX mBeltDriver;
     private final DoubleSolenoid mBallValveA, mBallValveB;
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
+    private final LIDAR mLidar;
 
-    private boolean mPrevChamberLoaded, mPrevFrontMagazineLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
+    private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
     public StorageSubsystem() {
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
@@ -34,10 +36,14 @@ public class StorageSubsystem extends SubsystemBase {
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
         mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
 
-        mPrevChamberLoaded = true; //TODO: Should init to whatever it actually sees
-        mPrevFrontMagazineLoaded = true;
-        mPrevIntakeBallDetected = false;
-        mPrevMagazineEntryBallDetected = false;
+        mLidar = new LIDAR(new DigitalInput(StorageConstants.kLidarId));
+    }
+
+    @Override
+    public void init() {
+        mPrevChamberLoaded = isChamberLoaded();
+        mPrevIntakeBallDetected = isBallCaughtIntake();
+        mPrevMagazineEntryBallDetected = isBallEnteredMagazine();
     }
 
     public void closeChamberValve() {
@@ -86,16 +92,15 @@ public class StorageSubsystem extends SubsystemBase {
         }
     }
 
-    //TODO: Might need a better definition of "Empty", maybe use LIDAR
     public boolean isEmpty() {
-        return !isChamberLoaded() && !isFrontMagazineLoaded() && !isBallEnteredMagazine();
+        return mLidar.getDistanceIn() < StorageConstants.kMaxEmptyStorageDistanceInches;
     }
 
     public boolean isChamberLoaded() {
         return mChamberBallDetector.get();
     }
 
-    public boolean isFrontMagazineLoaded() {
+    public boolean isBackMagazineLoaded() {
         return mPreChamberBallDetector.get();
     }
 

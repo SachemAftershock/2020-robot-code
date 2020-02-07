@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
-public class CollisionAvoidanceSubsystem extends SubsystemBase {
+public class CollisionAvoidanceSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static CollisionAvoidanceSubsystem mInstance;
 
@@ -21,6 +21,10 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase {
         mCollisionEnabled = true;
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
+    }
+
+    @Override
+    public void init() {
     }
 
     @Override
