@@ -11,7 +11,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LIDAR;
+import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -20,7 +20,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     
     private final CANSparkMax mShooter;
     private final WPI_TalonSRX mFeeder;
-    private final LIDAR mLidar;
+    private final Lidar mLidar;
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
@@ -33,7 +33,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
         mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
 
-        mLidar = new LIDAR(new DigitalInput(ShooterConstants.kLidarId));
+        mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 

@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LIDAR;
+import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
 public class StorageSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -20,7 +20,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     private final TalonSRX mBeltDriver;
     private final DoubleSolenoid mBallValveA, mBallValveB;
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
-    private final LIDAR mLidar;
+    private final Lidar mLidar;
 
     private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
@@ -36,7 +36,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
         mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
 
-        mLidar = new LIDAR(new DigitalInput(StorageConstants.kLidarId));
+        mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
     }
 
     @Override

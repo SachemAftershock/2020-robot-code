@@ -3,10 +3,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalSource;
 
-public class LIDAR {
+public class Lidar {
     private Counter mCounter;
     
-    public LIDAR(DigitalSource port) {
+    public Lidar(DigitalSource port) {
         mCounter = new Counter(port);
         mCounter.setMaxPeriod(1.0);
         mCounter.setSemiPeriodMode(true);
