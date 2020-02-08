@@ -17,7 +17,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        mRobotContainer = new RobotContainer();
+        mRobotContainer = RobotContainer.getInstance();
 
         for(SubsystemInterface subsystem : mRobotContainer.getSubsystemList()) {
             subsystem.init();
@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+        mRobotContainer.periodic();
     }
 
     @Override

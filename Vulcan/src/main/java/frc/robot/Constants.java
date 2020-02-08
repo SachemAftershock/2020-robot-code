@@ -3,7 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.util.Units;
 
 public final class Constants {
-    /*Throughout all code: All units are assumed to be in the following units:
+    /*
+    Throughout all code: All units are assumed to be in the following units:
         - Distance: Meters
         - Angle: Degrees
         - Time: Seconds
@@ -11,7 +12,7 @@ public final class Constants {
         - Acceleration: Meters/Second^2
         - Angular Speed: Radians/Second
     
-        Unless otherwise specified
+    Unless otherwise specified
     */
 
     // XboxController Constants
@@ -114,12 +115,12 @@ public final class Constants {
             public static final double kTurretEpsilon = 2.0; //TODO: Find the right value
             public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
 
-            public static final double kPowerCellDiameterInches = 7.5; //TODO: Get real values from game manual
+            public static final double kPowerCellDiameterInches = 7.0;
             public static final double kPowerCellClearance = 2.0;
 
-            private static final double kLowTargetWidth = 10; //TODO: Get real values from game manual
-            private static final double kHighTargetWidth = 26;
-            public static final double[] kTargetWidth = {kHighTargetWidth, kLowTargetWidth};
+            private static final double kLowTargetWidthInches = 34;
+            private static final double kHighTargetWidthInches = 39.25;
+            public static final double[] kTargetWidth = {kHighTargetWidthInches, kLowTargetWidthInches};
         }
 
         public static final class StorageConstants { 
@@ -161,6 +162,8 @@ public final class Constants {
         // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
         public static final int kRobotReadingVarianceIndex = 2;
         public static final double kWheelSpinSpeed = 0.4;
+
+        public static final double kColorTolerance = 0.08;
 
         //Pneumatics PCM B
         public static final int kExtenderForwardId = 0;

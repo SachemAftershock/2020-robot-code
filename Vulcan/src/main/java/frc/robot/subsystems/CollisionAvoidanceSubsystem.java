@@ -5,6 +5,10 @@ import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
+/**
+ * Controller for Collision Avoidance Speed Control
+ * @author Shreyas Prasad
+ */
 public class CollisionAvoidanceSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static CollisionAvoidanceSubsystem mInstance;
@@ -32,6 +36,11 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
         mCurrentDistance = getUltrasonicDistanceInches();
     }
 
+    /**
+     * Gets the Proportion the Drivebase Speed should be scaled down by
+     * Proportional to the proximity to the object to be collided into
+     * @return speed proportion as calculated by the distance from the object; 1.0 if no collision detected
+     */
     public double getSlowdownScaleFactor() {
         if(!mCollisionEnabled) {
             return 1.0;
@@ -45,6 +54,7 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
     public void setColorWheelStandoff() {
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kColorWheelStandoffSlowdownInches;
     }
+
     public void setStandardStandoff() {
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }
@@ -68,6 +78,9 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
         return mMedianFilter.calculate(mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches);
     }
 
+    /**
+     * @return CollisionAvoidanceSubsystem Singleton Instance
+     */
     public synchronized static CollisionAvoidanceSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new CollisionAvoidanceSubsystem();

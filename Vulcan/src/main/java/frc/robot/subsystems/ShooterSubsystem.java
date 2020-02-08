@@ -11,21 +11,30 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LIDAR;
+import frc.robot.ControllerRumble;
+import frc.robot.Lidar;
+import frc.robot.Limelight;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
+/**
+ * Shooter Subsystem
+ * @author Shreyas Prasad
+ */
 public class ShooterSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static ShooterSubsystem mInstance;
     
     private final CANSparkMax mShooter;
     private final WPI_TalonSRX mFeeder;
-    private final LIDAR mLidar;
+    private final Lidar mLidar;
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
 
     private double mTargetRPM;
+
+    private int mRumbleDelayCounter, mTargetFalloutDelayCounter;
 
     public ShooterSubsystem() {
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
@@ -33,7 +42,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
         mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
 
-        mLidar = new LIDAR(new DigitalInput(ShooterConstants.kLidarId));
+        mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 
@@ -44,17 +53,26 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooterPid.setIZone(ShooterConstants.kGains[3], ShooterConstants.kPidId);
         mShooterPid.setFF(ShooterConstants.kGains[4], ShooterConstants.kPidId);
         mShooterPid.setOutputRange(-1.0, 1.0);
+
+        mRumbleDelayCounter = 0;
+        mTargetFalloutDelayCounter = 0;
     }
 
     @Override
     public void init() {
     }
     
-    //TODO: Rumble / LEDs when at Target RPM
-    //TODO: Add code for when Target in FOV: Use the predictive lookup, when falls out of view,
-    // after a timeout, goes to the median Table RPM. Defaults to median value when target is not found
+    //TODO: LEDs when at Target RPM
     public void reachCalculatedTargetRPM() {
-        mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
+        if(Limelight.isTarget()) {
+            mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
+            mTargetFalloutDelayCounter = 0;
+        } else if(mTargetFalloutDelayCounter > 2500 / 20) {
+            mTargetRPM = ShooterConstants.kDistanceFeetToRpmLUT[(int) ShooterConstants.kDistanceFeetToRpmLUT.length / 2][1];
+            mTargetFalloutDelayCounter = 0;
+        } else {
+            mTargetFalloutDelayCounter++;
+        }
         mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
     }
 
@@ -63,7 +81,15 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     public boolean isAtTargetRPM() {
-        return Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
+        final boolean isAtTargetRPM = Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
+        if(isAtTargetRPM) {
+            if(mRumbleDelayCounter > 1000 / 20) {
+                (new ControllerRumble(RobotContainer.getInstance().getControllerSecondary(), 1)).start();
+                mRumbleDelayCounter = 0;
+            }
+            mRumbleDelayCounter++;
+        }
+        return isAtTargetRPM;
     }
 
     public void startFeeder() {
@@ -74,6 +100,9 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mFeeder.set(ControlMode.PercentOutput, 0.0);
     }
     
+    /**
+     * @return ShooterSubsystem Singleton Instance
+     */
     public synchronized static ShooterSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new ShooterSubsystem();

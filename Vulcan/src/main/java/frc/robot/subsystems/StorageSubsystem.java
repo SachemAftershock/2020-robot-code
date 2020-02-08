@@ -10,9 +10,13 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LIDAR;
+import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
+/**
+ * Power Cell Storage Subsystem
+ * @author Shreyas Prasad
+ */
 public class StorageSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static StorageSubsystem mInstance;
@@ -20,7 +24,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     private final TalonSRX mBeltDriver;
     private final DoubleSolenoid mBallValveA, mBallValveB;
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
-    private final LIDAR mLidar;
+    private final Lidar mLidar;
 
     private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
@@ -36,7 +40,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
         mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
 
-        mLidar = new LIDAR(new DigitalInput(StorageConstants.kLidarId));
+        mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
     }
 
     @Override
@@ -120,6 +124,9 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }
 
+    /**
+     * @return StorageSubsystem Singleton Instance
+     */
     public static StorageSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new StorageSubsystem();

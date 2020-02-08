@@ -22,6 +22,10 @@ import frc.robot.PID;
 import frc.robot.Util;
 import frc.robot.Constants.DriveConstants;
 
+/**
+ * Drivebase Subsystem
+ * @author Shreyas Prasad
+ */
 public class DriveSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static DriveSubsystem mInstance;
@@ -132,6 +136,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mDifferentialDrive.curvatureDrive(pow * mSelectedMaxSpeedProportion, rot * mSelectedMaxSpeedProportion, true);
     }
 
+    /**
+     * Set target destination for Autonomous Linear Drive
+     * @param setpoint target destination to drive forward to
+     */
     public void startAutoDrive(double setpoint) {
         mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint);
         mRightTarget = mStarboardEncoder.getPosition() + getEncoderCount(setpoint);
@@ -139,6 +147,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mStarboardPid.start(DriveConstants.kLinearGains);
     }
 
+    /**
+     * Process Autonomous Linear Drive
+     * Limited by Collision Avoidance if collision imminent 
+     */
     public void runAutoDrive() {
         double scaleFactor = CollisionAvoidanceSubsystem.getInstance().getSlowdownScaleFactor();
         if(scaleFactor < 1.0) {
@@ -163,11 +175,18 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
              Math.abs(mStarboardPid.getError()) <= DriveConstants.kDriveEpsilon;
     }
 
+    /**
+     * Start Autonomous Rotation
+     * @param theta the angle to rotate to
+     */
     public void startAutoRotate(double theta) {
-        mRotateSetpoint = theta;
+        mRotateSetpoint = theta; //TODO: Determine bounds on rotation
         mRotatePid.start(DriveConstants.kRotationalGains);
     }
 
+    /**
+     * Process Autonomous Rotation
+     */
     public void runAutoRotate() {
         double theta = Util.normalizeAngle(mRotateSetpoint);
         double output = mRotatePid.updateRotation(getHeading(), theta);
@@ -178,6 +197,9 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         return Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
     }
 
+    /**
+     * Toggles between Max Robot Speed between Standard Speed and Slow Precision Speed
+     */
     public void togglePrecisionDriving() {
         if(mSelectedMaxSpeedProportion == DriveConstants.kRegularMaxSpeed) {
             mSelectedMaxSpeedProportion = DriveConstants.kPrecisionMaxSpeed;
@@ -277,7 +299,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     }
 
     /**
-     * Uses Right Hand Rule: Clockwise is negative, CCW is positive
+     * Uses Right Hand Rule: CW is negative, CCW is positive
      * 
      * @return the robot's heading in degrees, from [-180, 180]
      */
@@ -292,10 +314,16 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         return mOdometry.getPoseMeters();
     }
 
+    /**
+     * @return Differential Drive Kinematics Object
+     */
     public DifferentialDriveKinematics getKinematics() {
         return mKinematics;
     }
 
+    /**
+     * @return DriveSubsystem Singleton Instance
+     */
     public synchronized static DriveSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new DriveSubsystem();

@@ -10,6 +10,10 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
+/**
+ * Intake Subsystem
+ * @author Shreyas Prasad
+ */
 public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static IntakeSubsystem mInstance;
@@ -54,6 +58,9 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
         return mIntakeExtender.get() == Value.kForward;
     }
 
+    /**
+     * @return IntakeSubsystem Singleton Instance
+     */
     public synchronized static IntakeSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new IntakeSubsystem();

@@ -3,10 +3,10 @@ package frc.robot;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.AutonomousCommand;
 import frc.robot.commands.drive.ManualDriveCommand;
 import frc.robot.commands.drive.ToggleCollisionAvoidanceCommand;
 import frc.robot.commands.drive.ToggleDrivebaseGearingCommand;
@@ -32,8 +32,10 @@ import frc.robot.subsystems.WheelControllerSubsystem;
 
 public class RobotContainer {
 
-    private final XboxController mXboxControllerPrimary = new XboxController(Constants.kControllerPrimaryId);
-    private final XboxController mXboxControllerSecondary = new XboxController(Constants.kControllerSecondaryId);
+    private static RobotContainer mInstance;
+
+    private final XboxController mControllerPrimary = new XboxController(Constants.kControllerPrimaryId);
+    private final XboxController mControllerSecondary = new XboxController(Constants.kControllerSecondaryId);
 
     private final AbsoluteFieldPositionDeviceSubsystem mAbsoluteFieldPosition = AbsoluteFieldPositionDeviceSubsystem.getInstance();
     private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
@@ -55,6 +57,7 @@ public class RobotContainer {
     private JoystickButton bTogglePrecisionDrive;
     private JoystickButton bStartShooter;
     private JoystickButton bShooterAuthorized;
+    private JoystickButton bToggleTurretAutoTargeting;
 
     public RobotContainer() {
         mSubsystems = new ArrayList<SubsystemInterface>();
@@ -70,55 +73,66 @@ public class RobotContainer {
         mSubsystems.add(mSuperstructure);
         
         configureButtonBindings();
-        CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mXboxControllerPrimary));
+        CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mControllerPrimary));
     }
 
     private void configureButtonBindings() {
         //PRIMARY CONTROLLER
-        bToggleDriveGear = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kA.value);
-        bToggleDriveGear.whenPressed(new ToggleDrivebaseGearingCommand(mDrive, mXboxControllerPrimary));
+        bToggleDriveGear = new JoystickButton(mControllerPrimary, XboxController.Button.kA.value);
+        bToggleDriveGear.whenPressed(new ToggleDrivebaseGearingCommand(mDrive, mControllerPrimary));
 
-        bTogglePrecisionDrive = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kB.value);
+        bTogglePrecisionDrive = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
         bTogglePrecisionDrive.whenPressed(new TogglePrecisionDrivingCommand(mDrive));
 
-        bToggleCollisionAvoidance = new JoystickButton(mXboxControllerPrimary, XboxController.Button.kBack.value);
-        bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mXboxControllerPrimary));
+        bToggleCollisionAvoidance = new JoystickButton(mControllerPrimary, XboxController.Button.kBack.value);
+        bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mControllerPrimary));
         
         //SECONDARY CONTROLLER
-        bStartWheelPositionControl = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kX.value);
+        bStartWheelPositionControl = new JoystickButton(mControllerSecondary, XboxController.Button.kX.value);
         bStartWheelPositionControl.whenPressed(new WheelPositionControlCommand(mColorWheelController));
 
-        bStartWheelColorTargeting = new JoystickButton(mXboxControllerSecondary, XboxController.Button.kB.value);
+        bStartWheelColorTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kB.value);
         bStartWheelColorTargeting.whenPressed(new WheelColorControlCommand(mColorWheelController));
 
-        bStartShooter = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftTrigger.value);
+        bStartShooter = new JoystickButton(mControllerSecondary, XboxController.Axis.kLeftTrigger.value);
         bStartShooter
         .whenReleased(new SetIdleModeCommand(mSuperstructure))
         .whileActiveOnce(new SetArmedModeCommand(mSuperstructure));
 
-        bShooterAuthorized = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kRightTrigger.value);
+        bShooterAuthorized = new JoystickButton(mControllerSecondary, XboxController.Axis.kRightTrigger.value);
         bShooterAuthorized
         .whenReleased(new DeauthorizeShotCommand(mSuperstructure))
         .whileActiveOnce(new AuthorizeShotCommand(mSuperstructure));
 
-        //TODO: Find how to use Joysticks like this
-        //jTurret = new JoystickButton(mXboxControllerSecondary, XboxController.Axis.kLeftX.value);
-        //jTurret.whileActiveContinuous(new DriveTurretCommand(mTurret, mXboxControllerSecondary));
-
-        SmartDashboard.putData("Autonomous Command", new AutonomousCommand());
-        SmartDashboard.putData("Toggle Drivebase Gearing", new ToggleDrivebaseGearingCommand(mDrive, mXboxControllerPrimary));
+        bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kStart.value);
+        bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
     }
 
-    public XboxController getXboxControllerPrimary() {
-        return mXboxControllerPrimary;
+    public void periodic() {
+        final double secondaryLeftXAxis = mControllerSecondary.getX(Hand.kLeft);
+        mTurret.manualControl(Util.deadband(secondaryLeftXAxis, Constants.kDeadbandTolerance));
     }
 
-    public XboxController getXboxControllerSecondary() {
-        return mXboxControllerSecondary;
+    public XboxController getControllerPrimary() {
+        return mControllerPrimary;
     }
 
+    public XboxController getControllerSecondary() {
+        return mControllerSecondary;
+    }
+
+    /**
+     * @return ArrayList containing All Subsystems
+     */
     public ArrayList<SubsystemInterface> getSubsystemList() {
         return mSubsystems;
+    }
+
+    public static RobotContainer getInstance() {
+        if(mInstance == null) {
+            mInstance = new RobotContainer();
+        }
+        return mInstance;
     }
 }
 

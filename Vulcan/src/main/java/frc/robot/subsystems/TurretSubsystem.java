@@ -5,13 +5,16 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
 import frc.robot.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
+/**
+ * Turret Subsystem
+ * @author Shreyas Prasad
+ */
 public class TurretSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static TurretSubsystem mInstance;
@@ -45,7 +48,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     @Override
     public void periodic() {
-        if(DriverStation.getInstance().isAutonomous() || mAutoTargetingEnabled) {
+        if(mAutoTargetingEnabled) {
             final double tx = Limelight.getTx();
             final double robotAziumth = DriveSubsystem.getInstance().getHeading();  // TODO: make sure zero means heading is downfield.
             final double turretAzimuth = mEncoder.getDistance();  // Turret Azimuth in -180..180, zero is turrent inline robot forward.
@@ -77,8 +80,15 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         }
     }
 
+    /**
+     * Manually Drives the Turret only when Auto Targeting is disabled
+     * <p> Scaled down by kManualControlScaleFactor
+     * @param pow the input power from [-1,1] to be scaled down to drive the turret
+     */
     public void manualControl(double pow) {
-        mTurret.set(ControlMode.PercentOutput, pow * TurretConstants.kManualControlScaleFactor);
+        if(!mAutoTargetingEnabled) {
+            mTurret.set(ControlMode.PercentOutput, pow * TurretConstants.kManualControlScaleFactor);
+        }
     }
 
     /**
@@ -99,10 +109,28 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         return mEncoder.getDistance();
     }
 
+    public boolean isAutoTargetingEnabled() {
+        return mAutoTargetingEnabled;
+    }
+
+    public void toggleAutoTargetingEnabled() {
+        if(mAutoTargetingEnabled) {
+            mAutoTargetingEnabled = false;
+        } else {
+            mAutoTargetingEnabled = true;
+        }
+    }
+
+    /**
+     * The Target Options of the Shooter
+     */
     enum ShootingTarget {
         eHighTarget, eLowTarget
     }
 
+    /**
+     * @return TurretSubsystem Singleton Instance
+     */
     public synchronized static TurretSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new TurretSubsystem();

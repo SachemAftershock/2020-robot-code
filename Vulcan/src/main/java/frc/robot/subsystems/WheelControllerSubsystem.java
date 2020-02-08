@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.WheelControllerConstants;
 
+/**
+ * Control Panel Wheel Controller Subsystem
+ * @author Shreyas Prasad
+ */
 public class WheelControllerSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static WheelControllerSubsystem mInstance;
@@ -120,7 +124,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         } else {
             mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
             DriverStation.reportWarning("WARNING: ALREADY ON TARGET COLOR, SPEED SET TO 0", false);
-            //If this isn't true, fix TODO in calculateSpinDirection()
+            //If this isn't true, fix todo in calculateSpinDirection()
         }
     }
 
@@ -150,7 +154,11 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
-    public CalculatedSpin calculateSpinDirection() {
+    /**
+     * Calculates Smallest Vector to Rotate to Required Color Target
+     * @return CalculatedSpin Vector, containing Magnitude and Direction to Spin
+     */
+    private CalculatedSpin calculateSpinDirection() {
         Direction targetDirection;
         int wedgesToRotate;
         int colorVariance = mColors.getIndex(mRobotRelativeTargetColor) - mColors.getIndex(mCurrentDetectedColor);
@@ -178,7 +186,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         return (new CalculatedSpin(targetDirection, wedgesToRotate));
     }
 
-    public ColorLUT getCurrentColor() {
+    private ColorLUT getCurrentColor() {
         Color mColor = mColorSensor.getColor();
         if(isColor(mColor, ColorLUT.eBlue)) {
             return ColorLUT.eBlue;
@@ -198,15 +206,25 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
             withinRange(detectedColor.blue, calibratedColor.getBlue()) &&
             withinRange(detectedColor.green, calibratedColor.getGreen());
     }
+
+    /**
+     * Tests if input parameters are within Color Tolerance
+     * @param a First Single Color Value
+     * @param b Second Single Color Value
+     * @return If a and b are within the accepted tolerance
+     */
     private boolean withinRange(double a, double b) {
-        final double kTolerance = 0.08;
-        return Math.abs(a - b) <= kTolerance;
+        return Math.abs(a - b) <= WheelControllerConstants.kColorTolerance;
     }
 
     public boolean isTargetColorKnown() {
         return mFieldRelativeTargetColor != null;
     }
 
+    /**
+     * Lookup-Table consisting of the RGB values of the Control Panel Colors
+     * @author Shreyas Prasad
+     */
     private enum ColorLUT {
         eBlue(0.129, 0.429, 0.441), eYellow(0.314, 0.564, 0.120), eRed(0.462, 0.381, 0.157), eGreen(0.167, 0.581, 0.250), eUnknown(0,0,0);
 
@@ -229,10 +247,17 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * Direction to Spin Control Panel
+     */
     private enum Direction {
         FORWARD, REVERSE, NONE;
     }
 
+    /**
+     * Vector to Spin the Control Panel in Positional(Color) Control
+     * @author Shreyas Prasad
+     */
     private class CalculatedSpin {
         private Direction mTargetDirection;
         private int mWedgesToRotate;
@@ -251,6 +276,10 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * Circular Array representing the cycle of colors on the Control Pnale
+     * @author Shreyas Prasad
+     */
     private class CircularColorArray {
 
         private ColorLUT[] mCircularArray;
@@ -283,6 +312,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * @return WheelControllerSubsystem Singleton Instance
+     */
     public synchronized static WheelControllerSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new WheelControllerSubsystem();

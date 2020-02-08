@@ -8,6 +8,10 @@ import frc.robot.commands.groups.StartArmedSequence;
 import frc.robot.commands.groups.StartFeedSequence;
 import frc.robot.commands.groups.StartIdleSequence;
 
+/**
+ * Superstucture consisting of Shooter, Turret, Intake, & Storage
+ * @author Shreyas Prasad
+ */
 public class SuperstructureSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static SuperstructureSubsystem mInstance;
@@ -39,6 +43,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
     public void init() {
     }
 
+    /**
+     * Superstructure State Machine Processor
+     */
     @Override
     public void periodic() {
         switch(mSystemMode) {
@@ -89,6 +96,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         }
     }
 
+    /**
+     * Run Initialization Commands for the Selected Mode
+     * @param mode SuperstructureMode to change to
+     */
     public void setMode(SuperstructureMode mode) {
         switch(mode) {
             case eFeed:
@@ -129,6 +140,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         eSemiAuto, eAuto
     }
 
+    /**
+     * @return SuperstructureSubsystem Singleton Instance
+     */
     public synchronized static SuperstructureSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new SuperstructureSubsystem();

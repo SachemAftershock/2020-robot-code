@@ -9,6 +9,10 @@ import frc.robot.auto.StraightThenRotateAutoPath;
 import frc.robot.commands.drive.LinearDriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
+/**
+ * Class to select desired Autonomous Configuration at Startup
+ * @author Shreyas Prasad
+ */
 public class AutoSelector {
 
     enum AutoPath {
