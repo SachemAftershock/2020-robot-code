@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.DigitalSource;
 public class Lidar {
     
     private Counter mCounter;
-
+    
     /**
      * Creates a LIDAR Lite v3 Object
      * @param port DigitalInput Object
