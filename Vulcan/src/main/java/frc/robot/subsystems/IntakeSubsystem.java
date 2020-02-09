@@ -49,10 +49,12 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
 
     public void deployIntake() {
         mIntakeExtender.set(Value.kForward);
+        runIntakeMotor();
     }
 
     public void retractIntake() {
         mIntakeExtender.set(Value.kReverse);
+        stopIntakeMotor();
     }
 
     public boolean isIntakeDeployed() {

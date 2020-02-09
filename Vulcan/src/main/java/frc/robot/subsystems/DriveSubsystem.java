@@ -50,6 +50,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     private double mSelectedMaxSpeedProportion;
     private boolean mIsPrecisionMode;
 
+    private boolean mIsAutoRotateRunning;
+
     private DriveSubsystem() {
         mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
         mDriveMotorPortA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
@@ -108,6 +110,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
         mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
         mIsPrecisionMode = false;
+
+        mIsAutoRotateRunning = false;
 
         mLeftSpeed = 0.0;
         mRightSpeed = 0.0;
@@ -175,6 +179,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @param theta the angle to rotate to
      */
     public void startAutoRotate(double theta) {
+        mIsAutoRotateRunning = true;
         mRotateSetpoint = theta; //TODO: Determine bounds on rotation
         mRotatePid.start(DriveConstants.kRotationalGains);
     }
@@ -189,7 +194,11 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     }
 
     public boolean rotateTargetReached() {
-        return Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
+        final boolean targetReached = Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
+        if(targetReached) {
+            mIsAutoRotateRunning = false;
+        }
+        return targetReached;
     }
 
     /**
@@ -321,6 +330,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      */
     public DifferentialDriveKinematics getKinematics() {
         return mKinematics;
+    }
+
+    public boolean getIsAutoRotateRunning() {
+        return mIsAutoRotateRunning;
     }
 
     @Override

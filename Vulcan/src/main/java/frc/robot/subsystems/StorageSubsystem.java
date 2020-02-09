@@ -120,6 +120,10 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
     }
 
+    public void reverseBelt() {
+        mBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
+    }
+
     public void stopBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }

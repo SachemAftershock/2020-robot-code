@@ -19,7 +19,9 @@ public final class Constants {
     public static final int kControllerPrimaryId = 0;
     public static final int kControllerSecondaryId = 1;
 
-    public static final double kDeadbandTolerance = 0.05;
+    public static final double kJoystickDeadbandTolerance = 0.05;
+    public static final double kTriggerDeadbandTolerance = 0.25;
+    
 
     //Pneumatic Constants
     public static final int kPcmAId = 0;
@@ -54,12 +56,14 @@ public final class Constants {
         public static final double kTrackWidth = Units.inchesToMeters(19.125); //Distance in between wheels
         public static final double kLowGearRatio = 1.0;
         public static final double kHighGearRatio = 1.0; //TODO: If switched to Rev Through Bore Encoder, do not need this
-        
+        //TODO: Find values for everything below
         public static final double kDriveEpsilon = 0.1; 
         public static final double kRotateEpsilon = 3.0;
         public static final double[] kLinearGains = {0.0, 0.0, 0.0};
         public static final double[] kRotationalGains = {0.0, 0.0, 0.0};
         public static final double kRampRateToMaxSpeed = 1.0;
+        public static final double kThrottleDecelerationProportion = 0.8; 
+        public static final double kRotationalDecelerationProportion = 0.8;
 
         public static final double kRegularMaxSpeed = 1.0;
         public static final double kPrecisionMaxSpeed = 0.5;
