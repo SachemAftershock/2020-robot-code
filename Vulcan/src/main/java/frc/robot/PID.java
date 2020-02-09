@@ -4,13 +4,12 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class PID {
 
-    private final double kEpsilon;
     private boolean mPaused;
     private double mIntegral, mDerivative, mError, mPreviousError;
     private double[] mGains;
     private Timer mTimer;
 
-    public PID(double epsilon) {
+    public PID() {
         mGains = new double[3];
         mIntegral = 0.0;
         mDerivative = 0.0;
@@ -18,8 +17,6 @@ public class PID {
         mPreviousError = 0.0;
 
         mPaused = false;
-
-        kEpsilon = epsilon;
 
         mTimer = new Timer();
     }
@@ -36,9 +33,6 @@ public class PID {
     }
 
     private double updateError(double error) {
-        if(Math.abs(error) <= kEpsilon) {
-            return 0.0;
-        }
         mError = error;
         mIntegral += error;
         mDerivative = error - mPreviousError;

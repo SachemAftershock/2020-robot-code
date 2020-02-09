@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -24,7 +24,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     private static WheelControllerSubsystem mInstance;
 
-    private final TalonSRX mWheelSpinner;
+    private final WPI_TalonSRX mWheelSpinner;
     private final ColorSensorV3 mColorSensor;
     private final DoubleSolenoid mExtender;
     private String mTargetColorString;
@@ -35,7 +35,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     private WheelControllerSubsystem() {
 
-        mWheelSpinner = new TalonSRX(WheelControllerConstants.kWheelControllerId);
+        mWheelSpinner = new WPI_TalonSRX(WheelControllerConstants.kWheelControllerId);
 
         mColorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 

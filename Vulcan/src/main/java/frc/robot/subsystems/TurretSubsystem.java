@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -23,7 +23,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     private static TurretSubsystem mInstance;
 
-    private WPI_VictorSPX mTurret;
+    private WPI_TalonSRX mTurret;
     private DutyCycleEncoder mEncoder;
     private PID mPid;
 
@@ -31,14 +31,14 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     private ShootingTarget mSelectedTarget;
 
     private TurretSubsystem() {
-        mTurret = new WPI_VictorSPX(TurretConstants.kTurretMotorId);
+        mTurret = new WPI_TalonSRX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 
         mEncoder = new DutyCycleEncoder(new DigitalInput(TurretConstants.kTurretEncoderDioId));
         mEncoder.setDistancePerRotation(TurretConstants.kTurretDegreesPerEncoderRotation);
         mEncoder.reset();
 
-        mPid = new PID(TurretConstants.kTurretEpsilon);
+        mPid = new PID();
         mPid.start(TurretConstants.kGains);
 
         mAutoTargetingEnabled = true;

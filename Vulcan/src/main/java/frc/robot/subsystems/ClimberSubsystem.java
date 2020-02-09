@@ -11,6 +11,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
+/**
+ * Climber Subsystem
+ * @author Shreyas Prasad
+ */
 public class ClimberSubsystem extends SubsystemBase implements SubsystemInterface {
 
     private static ClimberSubsystem mInstance;
@@ -89,6 +93,10 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
         mLifter.set(ControlMode.PercentOutput, 0.0);
     }
 
+    /**
+     * Elevator Positions containing the encoder count for the appropriate position
+     * @author Shreyas Prasad
+     */
     public enum ClimbElevatorPosition implements Sendable {
         eLow(0), eMid(4000), eHigh(8000); //TODO:Find values
 
@@ -115,6 +123,9 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
         SmartDashboard.putData("Desired Position", mDesiredPosition);
     }
 
+    /**
+     * @return ClimberSubsystem Singleton Instance
+     */
     public synchronized static ClimberSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new ClimberSubsystem();

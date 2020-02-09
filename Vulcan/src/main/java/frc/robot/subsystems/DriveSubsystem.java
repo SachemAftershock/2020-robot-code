@@ -51,38 +51,32 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     private boolean mIsPrecisionMode;
 
     private DriveSubsystem() {
-        //Differential Drive Class inverts right side
         mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
-        //mDriveMotorPortA.setInverted(false);
         mDriveMotorPortA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
         mDriveMotorPortB = new CANSparkMax(DriveConstants.kDriveMotorPortBId, MotorType.kBrushless);
-        //mDriveMotorPortB.setInverted(false);
         mDriveMotorPortB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
         mDriveMotorPortC = new CANSparkMax(DriveConstants.kDriveMotorPortCId, MotorType.kBrushless);
-        //mDriveMotorPortC.setInverted(false);
         mDriveMotorPortC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
         mDriveGroupPort = new SpeedControllerGroup(mDriveMotorPortA, mDriveMotorPortB, mDriveMotorPortC);
         addChild("Speed Controller Group Port Side",mDriveGroupPort);
                 
         mDriveMotorStarboardA = new CANSparkMax(DriveConstants.kDriveMotorStarboardAId, MotorType.kBrushless);
-        //mDriveMotorStarboardA.setInverted(true);
         mDriveMotorStarboardA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
                 
         mDriveMotorStarboardB = new CANSparkMax(DriveConstants.kDriveMotorStarboardBId, MotorType.kBrushless);
-        //mDriveMotorStarboardB.setInverted(true);
         mDriveMotorStarboardB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
 
         mDriveMotorStarboardC = new CANSparkMax(DriveConstants.kDriveMotorStarboardCId, MotorType.kBrushless);
-        //mDriveMotorStarboardC.setInverted(true);
         mDriveMotorStarboardC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
 
         mDriveGroupStarboard = new SpeedControllerGroup(mDriveMotorStarboardA, mDriveMotorStarboardB, mDriveMotorStarboardC  );
                 
         mDifferentialDrive = new DifferentialDrive(mDriveGroupPort, mDriveGroupStarboard);
         addChild("Differential Drive", mDifferentialDrive);
+        mDifferentialDrive.setRightSideInverted(true);
         mDifferentialDrive.setSafetyEnabled(true);
         mDifferentialDrive.setExpiration(0.1);
         mDifferentialDrive.setMaxOutput(1.0);
@@ -107,10 +101,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         addChild("Gear Shift Port Double Solenoid", mGearShifter);    
         mGearShifter.set(Value.kReverse); // TODO: Find out which side corresponds to which gearing
 
-        mPortPid = new PID(DriveConstants.kDriveEpsilon);
-        mStarboardPid = new PID(DriveConstants.kDriveEpsilon);
+        mPortPid = new PID();
+        mStarboardPid = new PID();
 
-        mRotatePid = new PID(DriveConstants.kRotateEpsilon);
+        mRotatePid = new PID();
 
         mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
         mIsPrecisionMode = false;

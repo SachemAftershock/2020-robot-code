@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
@@ -20,13 +20,13 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
     private static IntakeSubsystem mInstance;
 
     private DoubleSolenoid mIntakeExtender;
-    private WPI_VictorSPX mIntakeMotor;
+    private WPI_TalonSRX mIntakeMotor;
 
     private IntakeSubsystem() {
         mIntakeExtender = new DoubleSolenoid(Constants.kPcmAId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
-        mIntakeMotor = new WPI_VictorSPX(IntakeConstants.kIntakeMotorId);
+        mIntakeMotor = new WPI_TalonSRX(IntakeConstants.kIntakeMotorId);
 
         mIntakeExtender.set(Value.kReverse);
     }
