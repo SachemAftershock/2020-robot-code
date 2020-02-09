@@ -7,7 +7,10 @@ import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -232,7 +235,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      * Lookup-Table consisting of the RGB values of the Control Panel Colors
      * @author Shreyas Prasad
      */
-    private enum ColorLUT {
+    private enum ColorLUT implements Sendable {
         eBlue(0.129, 0.429, 0.441), eYellow(0.314, 0.564, 0.120), eRed(0.462, 0.381, 0.157), eGreen(0.167, 0.581, 0.250), eUnknown(0,0,0);
 
         private final double mRed, mGreen, mBlue;
@@ -252,6 +255,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         public double getGreen(){
             return mGreen;
         }
+
+        @Override
+        public void initSendable(SendableBuilder builder) {}
     }
 
     /**
@@ -317,6 +323,13 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
             DriverStation.reportError("ERROR: COLOR NOT FOUND IN CIRCULAR ARRAY", false);
             return 0;
         }
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putData("Current Detected Color", mCurrentDetectedColor);
+        SmartDashboard.putData("Field Relative Target Color", mFieldRelativeTargetColor);
+        SmartDashboard.putData("Robot Relative Target Color", mRobotRelativeTargetColor);
     }
 
     /**

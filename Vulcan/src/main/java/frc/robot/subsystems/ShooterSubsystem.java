@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ControllerRumble;
 import frc.robot.Lidar;
@@ -98,6 +99,13 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
     public void stopFeeder() {
         mFeeder.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putNumber("Shooter Velocity", mShooterEncoder.getVelocity());
+        SmartDashboard.putNumber("Target Velocity", mTargetRPM);
+        SmartDashboard.putNumber("Lidar Distance Ft", mLidar.getDistanceIn() / 12.0);
     }
     
     /**

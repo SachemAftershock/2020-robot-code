@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.commands.groups.StartAutoFireSequence;
@@ -132,12 +135,29 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         return mSystemMode;
     }
 
-    public enum SuperstructureMode {
-        eFeed, eArmed, eIdle
+    public enum SuperstructureMode implements Sendable {
+        eFeed(), eArmed(), eIdle();
+
+        private SuperstructureMode() {}
+
+        @Override
+        public void initSendable(SendableBuilder builder) {}
     }
 
-    public enum ShootingMode {
-        eSemiAuto, eAuto
+    public enum ShootingMode implements Sendable {
+        eSemiAuto(), eAuto();
+
+        private ShootingMode() {}
+
+        @Override
+        public void initSendable(SendableBuilder builder) {}
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putData("Current System Mode", mSystemMode);
+        SmartDashboard.putData("Current Shooting Mode", mShootingMode);
+        SmartDashboard.putBoolean("Is Authorized to Shoot", mAuthorizedToShoot);
     }
 
     /**

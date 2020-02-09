@@ -6,6 +6,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
 import frc.robot.LimelightManager;
@@ -131,8 +134,21 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     /**
      * The Target Options of the Shooter
      */
-    public enum ShootingTarget {
-        eHighTarget, eLowTarget
+    public enum ShootingTarget implements Sendable {
+        eHighTarget(), eLowTarget();
+
+        private ShootingTarget() {}
+
+        @Override
+        public void initSendable(SendableBuilder builder) {}
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putData("Shooting Target", mSelectedTarget);
+        SmartDashboard.putNumber("Turret Angle", getTurretAngle());
+        SmartDashboard.putBoolean("Aimed at Target", isAimedAtTarget());
+        SmartDashboard.putBoolean("Auto Targeting Enabled", mAutoTargetingEnabled);
     }
 
     /**

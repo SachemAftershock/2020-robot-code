@@ -1,8 +1,9 @@
 package frc.robot.subsystems;
 
 /**
- * Interface to require all subsystems to have a initialization method for consistent structure
+ * Interface for consistent structure among all Subsystems
  */
 public interface SubsystemInterface {
     public void init();
+    public void outputTelemetry();
 }

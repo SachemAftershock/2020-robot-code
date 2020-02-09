@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.PID;
@@ -326,6 +327,15 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      */
     public DifferentialDriveKinematics getKinematics() {
         return mKinematics;
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Is High Gear", mGearShifter.get() == Value.kForward); //TODO: Find out if foward or reverse is high gear
+        SmartDashboard.putBoolean("Precision Mode Enabled", mIsPrecisionMode);
+        SmartDashboard.putNumber("Port Side Drive Speed", mDriveGroupPort.get());
+        SmartDashboard.putNumber("Starboard Side Drive Speed", mDriveGroupStarboard.get());
+        SmartDashboard.putNumber("Heading", getHeading());
     }
 
     /**

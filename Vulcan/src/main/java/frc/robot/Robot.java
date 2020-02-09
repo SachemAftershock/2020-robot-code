@@ -19,9 +19,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         mRobotContainer = RobotContainer.getInstance();
 
-        for(SubsystemInterface subsystem : mRobotContainer.getSubsystemList()) {
-            subsystem.init();
-        }
+        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
         
         mCompressor = new Compressor();
         mCompressor.setClosedLoopControl(true);
@@ -49,9 +47,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
     
-        for(SubsystemInterface subsystem : mRobotContainer.getSubsystemList()) {
-            subsystem.init();
-        }
+        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
 
         mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
         if (mAutonomousCommand != null) {
@@ -74,10 +70,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-      CommandScheduler.getInstance().cancelAll();
     }
   
     @Override
     public void testPeriodic() {
+        try {
+            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
+        } catch(Throwable t) {
+            System.out.println(t);
+        }
     }
 }

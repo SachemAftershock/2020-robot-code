@@ -2,12 +2,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Lidar;
@@ -21,7 +21,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private static StorageSubsystem mInstance;
 
-    private final TalonSRX mBeltDriver;
+    private final WPI_TalonSRX mBeltDriver;
     private final DoubleSolenoid mBallValveA, mBallValveB;
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
     private final Lidar mLidar;
@@ -122,6 +122,18 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     public void stopBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Ball in Intake", isBallCaughtIntake());
+        SmartDashboard.putBoolean("Ball in Magazine Entry", isBallEnteredMagazine());
+        SmartDashboard.putBoolean("Ball before Chamber", isBackMagazineLoaded());
+        SmartDashboard.putBoolean("Chamber Loaded", isChamberLoaded());
+        SmartDashboard.putBoolean("Belt Running", mBeltDriver.get() != 0);
+        SmartDashboard.putBoolean("Is Chamber Valve Open", mBallValveA.get() == Value.kReverse);
+        SmartDashboard.putNumber("Storage Lidar", mLidar.getDistanceIn());
+        SmartDashboard.putBoolean("Is Storage Empty", isEmpty());
     }
 
     /**

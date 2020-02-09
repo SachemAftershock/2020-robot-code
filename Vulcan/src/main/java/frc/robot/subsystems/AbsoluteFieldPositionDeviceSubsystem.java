@@ -19,6 +19,10 @@ public class AbsoluteFieldPositionDeviceSubsystem extends SubsystemBase implemen
     public void periodic() {
     }
 
+    @Override
+    public void outputTelemetry() {
+    }
+
     public synchronized static AbsoluteFieldPositionDeviceSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new AbsoluteFieldPositionDeviceSubsystem();

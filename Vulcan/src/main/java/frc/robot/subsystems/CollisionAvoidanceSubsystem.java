@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.MedianFilter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
@@ -76,6 +77,11 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     private double getUltrasonicDistanceInches() {
         return mMedianFilter.calculate(mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches);
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Collision Avoidance Enabled: ", mCollisionEnabled);
     }
 
     /**

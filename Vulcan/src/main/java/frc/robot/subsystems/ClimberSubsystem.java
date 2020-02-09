@@ -5,6 +5,9 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
@@ -86,7 +89,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
         mLifter.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public enum ClimbElevatorPosition {
+    public enum ClimbElevatorPosition implements Sendable {
         eLow(0), eMid(4000), eHigh(8000); //TODO:Find values
 
         private final int mEncoderCount;
@@ -95,9 +98,21 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
             mEncoderCount = encoderCount;
         }
 
+        @Override
+        public void initSendable(SendableBuilder builder) {
+            
+        }
+
         public int getEncoderCount() {
             return mEncoderCount;
         }
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putNumber("Current Encoder Count", mElevator.getSelectedSensorPosition());
+        SmartDashboard.putData("Current Position", mCurrentPosition);
+        SmartDashboard.putData("Desired Position", mDesiredPosition);
     }
 
     public synchronized static ClimberSubsystem getInstance() {

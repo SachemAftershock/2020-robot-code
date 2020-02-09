@@ -4,6 +4,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.SuperstructureConstants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -56,6 +57,12 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
 
     public boolean isIntakeDeployed() {
         return mIntakeExtender.get() == Value.kForward;
+    }
+
+    @Override
+    public void outputTelemetry() {
+        SmartDashboard.putBoolean("Is Intake Deployed", isIntakeDeployed());
+        SmartDashboard.putBoolean("Is Intake Running", mIntakeMotor.get() != 0);
     }
 
     /**
