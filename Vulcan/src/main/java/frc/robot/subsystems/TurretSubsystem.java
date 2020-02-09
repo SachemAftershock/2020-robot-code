@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
+import frc.robot.LimelightManager;
 import frc.robot.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
@@ -26,7 +27,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     private boolean mAutoTargetingEnabled;
     private ShootingTarget mSelectedTarget;
 
-    public TurretSubsystem() {
+    private TurretSubsystem() {
         mTurret = new WPI_VictorSPX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 
@@ -37,9 +38,9 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         mPid = new PID(TurretConstants.kTurretEpsilon);
         mPid.start(TurretConstants.kGains);
 
-        mAutoTargetingEnabled = true; //TODO: Maybe want a way to disable this?
+        mAutoTargetingEnabled = true;
 
-        mSelectedTarget = ShootingTarget.eHighTarget; //TODO: Add Buttons for high and low
+        mSelectedTarget = ShootingTarget.eHighTarget;
     }
 
     @Override
@@ -49,7 +50,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     @Override
     public void periodic() {
         if(mAutoTargetingEnabled) {
-            final double tx = Limelight.getTx();
+            final double tx = LimelightManager.getInstance().getShooterLimelight().getTx();
             final double robotAziumth = DriveSubsystem.getInstance().getHeading();  // TODO: make sure zero means heading is downfield.
             final double turretAzimuth = mEncoder.getDistance();  // Turret Azimuth in -180..180, zero is turrent inline robot forward.
             double turretSetpointInDegrees = 0.0; 
@@ -74,6 +75,8 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
                 } else {
                     turretSetpointInDegrees = interimTurretAzimuth;                     
                 }
+    
+                turretSetpointInDegrees %= TurretConstants.kPhysicalTurretRotationLimit;
             } 
             double turretMotorSpeed = mPid.updateRotation(turretAzimuth, turretSetpointInDegrees);
             mTurret.set(ControlMode.PercentOutput, turretMotorSpeed);                
@@ -96,7 +99,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
      * @return whether to take the shot
      */
     public boolean isAimedAtTarget() {
-        double tx = Limelight.getTx();
+        double tx = LimelightManager.getInstance().getShooterLimelight().getTx();
         return Math.abs(tx) < TurretConstants.kTurretEpsilon 
                 && TurretConstants.kTargetWidth[mSelectedTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
     }
@@ -121,10 +124,14 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         }
     }
 
+    public void setTarget(ShootingTarget target) {
+        mSelectedTarget = target;
+    }
+
     /**
      * The Target Options of the Shooter
      */
-    enum ShootingTarget {
+    public enum ShootingTarget {
         eHighTarget, eLowTarget
     }
 

@@ -30,7 +30,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     private boolean mPreviousExists;
     private final CircularColorArray mColors;
 
-    public WheelControllerSubsystem() {
+    private WheelControllerSubsystem() {
 
         mWheelSpinner = new TalonSRX(WheelControllerConstants.kWheelControllerId);
 
@@ -96,8 +96,15 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         mStartColor = mCurrentDetectedColor;
         mTimesPositionedToStartColor = 0;
         if(mStartColor == ColorLUT.eUnknown) {
-            DriverStation.reportError("ERROR: COLOR UNKNOWN", false);
-            //TODO: Add a loop to retry and timeout here if needed
+            for(int i = 0; i < 5000 / 20; i++) {
+                mStartColor = mCurrentDetectedColor;
+                if(mStartColor != ColorLUT.eUnknown) {
+                    break;
+                }
+            }
+            if(mStartColor == ColorLUT.eUnknown) {
+                DriverStation.reportError("ERROR: COLOR UNKNOWN", false);
+            }
         }
         mWheelSpinner.set(ControlMode.PercentOutput, WheelControllerConstants.kWheelSpinSpeed);
     }

@@ -25,6 +25,11 @@ public final class Constants {
     public static final int kPcmAId = 0;
     public static final int kPcmBId = 1;
 
+    public static final class LimelightConstants {
+        public static final String kShooterTableName = "limelight-shooter";
+        public static final String kIntakeTableName = "limelight-intake";
+    }
+
     public static final class CollisionAvoidanceConstants {
         public static final int kCollisionUltrasonicId = 1;
         public static final double kUltrasonicValueToInches = 0.125;
@@ -121,6 +126,9 @@ public final class Constants {
             private static final double kLowTargetWidthInches = 34;
             private static final double kHighTargetWidthInches = 39.25;
             public static final double[] kTargetWidth = {kHighTargetWidthInches, kLowTargetWidthInches};
+
+            //TODO: Might further adjust turretSetpointInDegrees to a lower range than 180deg
+            public static final double kPhysicalTurretRotationLimit = 180; 
         }
 
         public static final class StorageConstants { 
@@ -168,5 +176,24 @@ public final class Constants {
         //Pneumatics PCM B
         public static final int kExtenderForwardId = 0;
         public static final int kExtenderReverseId = 1;
+    }
+
+    public static final class ClimberConstants {
+        public static final int kElevatorId = 13;
+        public static final int kLifterId = 14;
+
+        public static final int kElevatorPidId = 0;
+        //TODO: Tune all values below
+        public static final double[] kGains = {0,0,0}; 
+
+        //Below Two constants are in CTRE Mag Encoder Units Per 100Ms Per Sec
+        public static final int kMagicAcceleration = 1000;
+        public static final int kMagicCruiseVelocity = 5000;
+
+        public static final int kIntegralZone = 200;
+        public static final int kEpsilon = 12; 
+        public static final int kTimeout = 256;
+
+        public static final double kLifterSpeed = 0.3; //TODO: Find value
     }
 }

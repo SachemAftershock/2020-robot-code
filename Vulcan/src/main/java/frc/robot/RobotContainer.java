@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.climber.LowerElevatorLevelCommand;
+import frc.robot.commands.climber.RaiseElevatorLevelCommand;
 import frc.robot.commands.drive.ManualDriveCommand;
 import frc.robot.commands.drive.ToggleCollisionAvoidanceCommand;
 import frc.robot.commands.drive.ToggleDrivebaseGearingCommand;
@@ -29,6 +31,7 @@ import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
+import frc.robot.subsystems.TurretSubsystem.ShootingTarget;
 
 public class RobotContainer {
 
@@ -58,6 +61,9 @@ public class RobotContainer {
     private JoystickButton bStartShooter;
     private JoystickButton bShooterAuthorized;
     private JoystickButton bToggleTurretAutoTargeting;
+    private JoystickButton bDriveClimbLifter;
+    private JoystickButton bRaiseClimbElevator;
+    private JoystickButton bLowerClimbElevator;
 
     public RobotContainer() {
         mSubsystems = new ArrayList<SubsystemInterface>();
@@ -81,14 +87,25 @@ public class RobotContainer {
         bToggleDriveGear = new JoystickButton(mControllerPrimary, XboxController.Button.kA.value);
         bToggleDriveGear.whenPressed(new ToggleDrivebaseGearingCommand(mDrive, mControllerPrimary));
 
-        bTogglePrecisionDrive = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
+        bTogglePrecisionDrive = new JoystickButton(mControllerPrimary, XboxController.Button.kX.value);
         bTogglePrecisionDrive.whenPressed(new TogglePrecisionDrivingCommand(mDrive));
 
         bToggleCollisionAvoidance = new JoystickButton(mControllerPrimary, XboxController.Button.kBack.value);
         bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mControllerPrimary));
+
+        bDriveClimbLifter = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
+        bDriveClimbLifter
+        .whenPressed(new InstantCommand(() -> mClimber.driveLifter()))
+        .whenReleased(new InstantCommand(() -> mClimber.stopLifter()));
+
+        bRaiseClimbElevator = new JoystickButton(mControllerPrimary, XboxController.Button.kBumperRight.value);
+        bRaiseClimbElevator.whenPressed(new RaiseElevatorLevelCommand(mClimber));
+
+        bLowerClimbElevator = new JoystickButton(mControllerPrimary, XboxController.Button.kBumperLeft.value);
+        bLowerClimbElevator.whenPressed(new LowerElevatorLevelCommand(mClimber));
         
         //SECONDARY CONTROLLER
-        bStartWheelPositionControl = new JoystickButton(mControllerSecondary, XboxController.Button.kX.value);
+        bStartWheelPositionControl = new JoystickButton(mControllerSecondary, XboxController.Button.kY.value);
         bStartWheelPositionControl.whenPressed(new WheelPositionControlCommand(mColorWheelController));
 
         bStartWheelColorTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kB.value);
@@ -106,11 +123,18 @@ public class RobotContainer {
 
         bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kStart.value);
         bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
+
     }
 
     public void periodic() {
-        final double secondaryLeftXAxis = mControllerSecondary.getX(Hand.kLeft);
-        mTurret.manualControl(Util.deadband(secondaryLeftXAxis, Constants.kDeadbandTolerance));
+        final double leftXAxisSecondary = mControllerSecondary.getX(Hand.kLeft);
+        mTurret.manualControl(Util.deadband(leftXAxisSecondary, Constants.kDeadbandTolerance));
+        final int povSecondary = mControllerSecondary.getPOV();
+        if(povSecondary == POVDirection.eUp.getAngle()) {
+            mTurret.setTarget(ShootingTarget.eHighTarget);
+        } else if(povSecondary == POVDirection.eDown.getAngle()) {
+            mTurret.setTarget(ShootingTarget.eLowTarget);
+        }
     }
 
     public XboxController getControllerPrimary() {
@@ -121,6 +145,21 @@ public class RobotContainer {
         return mControllerSecondary;
     }
 
+    private enum POVDirection {
+        eUp(0), eUpRight(45), eRight(90), eRightDown(135), eDown(180),
+        eLeftDown(225), eLeft(270), eLeftUp(315);
+
+        private final int angle;
+
+        private POVDirection(int angle) {
+            this.angle = angle;
+        }
+
+        private int getAngle() {
+            return this.angle;
+        }
+    }
+
     /**
      * @return ArrayList containing All Subsystems
      */
@@ -128,7 +167,7 @@ public class RobotContainer {
         return mSubsystems;
     }
 
-    public static RobotContainer getInstance() {
+    public synchronized static RobotContainer getInstance() {
         if(mInstance == null) {
             mInstance = new RobotContainer();
         }

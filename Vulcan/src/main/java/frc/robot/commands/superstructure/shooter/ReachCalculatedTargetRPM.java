@@ -7,6 +7,7 @@ public class ReachCalculatedTargetRPM extends CommandBase {
     
     private ShooterSubsystem mShooter;
 
+    //TODO: Check if we really need this
     public ReachCalculatedTargetRPM(ShooterSubsystem shooter) {
         mShooter = shooter;
         addRequirements(mShooter);

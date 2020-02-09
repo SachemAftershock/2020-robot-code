@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.ControllerRumble;
 import frc.robot.Lidar;
-import frc.robot.Limelight;
+import frc.robot.LimelightManager;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
@@ -36,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private int mRumbleDelayCounter, mTargetFalloutDelayCounter;
 
-    public ShooterSubsystem() {
+    private ShooterSubsystem() {
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
 
@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     
     //TODO: LEDs when at Target RPM
     public void reachCalculatedTargetRPM() {
-        if(Limelight.isTarget()) {
+        if(LimelightManager.getInstance().getShooterLimelight().isTarget()) {
             mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
             mTargetFalloutDelayCounter = 0;
         } else if(mTargetFalloutDelayCounter > 2500 / 20) {

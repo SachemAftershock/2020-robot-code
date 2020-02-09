@@ -9,7 +9,7 @@ public class PowerSubsystem extends SubsystemBase implements SubsystemInterface 
 
     private PowerDistributionPanel mPdp;
     //TODO: Add print for system information, start printing system info by command
-    public PowerSubsystem() {
+    private PowerSubsystem() {
         mPdp = new PowerDistributionPanel(0);
         addChild("PowerDistributionPanel",mPdp);
     }

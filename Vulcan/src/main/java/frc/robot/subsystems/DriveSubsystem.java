@@ -45,11 +45,11 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
     private Pose2d mPose;
     private double mLeftSpeed, mRightSpeed, mLeftTarget, mRightTarget, mRotateSetpoint;
-    private boolean mIsHighGear;
 
     private double mSelectedMaxSpeedProportion;
+    private boolean mIsPrecisionMode;
 
-    public DriveSubsystem() {
+    private DriveSubsystem() {
         //Differential Drive Class inverts right side
         mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
         //mDriveMotorPortA.setInverted(false);
@@ -104,7 +104,6 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 
         mGearShifter = new DoubleSolenoid(Constants.kPcmAId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
         addChild("Gear Shift Port Double Solenoid", mGearShifter);    
-        mIsHighGear = false;
         mGearShifter.set(Value.kReverse); // TODO: Find out which side corresponds to which gearing
 
         mPortPid = new PID(DriveConstants.kDriveEpsilon);
@@ -113,6 +112,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mRotatePid = new PID(DriveConstants.kRotateEpsilon);
 
         mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
+        mIsPrecisionMode = false;
 
         mLeftSpeed = 0.0;
         mRightSpeed = 0.0;
@@ -203,26 +203,33 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     public void togglePrecisionDriving() {
         if(mSelectedMaxSpeedProportion == DriveConstants.kRegularMaxSpeed) {
             mSelectedMaxSpeedProportion = DriveConstants.kPrecisionMaxSpeed;
+            mIsPrecisionMode = true;
         } else {
             mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
+            mIsPrecisionMode = false;
         }
     }
 
+    /**
+     * Toggles Drivebase between Low and High Gearing
+     * <p>If the Robot is in Precision Driving Mode, turns it off
+     */
     public void toggleDrivebaseGearing(){
         switch (mGearShifter.get()) {
-            case kForward : 
+            case kForward: 
                 mGearShifter.set(Value.kReverse);
-                mIsHighGear = false;
                 break;
-            case kReverse : 
+            case kReverse: 
                 mGearShifter.set(Value.kForward);
-                mIsHighGear = true;
                 break;
-            default :
+            default:
                 mGearShifter.set(Value.kReverse);
-                mIsHighGear = false;
                 DriverStation.reportError("ERROR: GEAR SHIFT VALUE INVALID", false);
                 break;
+        }
+
+        if(mIsPrecisionMode) {
+            togglePrecisionDriving();
         }
     }
 

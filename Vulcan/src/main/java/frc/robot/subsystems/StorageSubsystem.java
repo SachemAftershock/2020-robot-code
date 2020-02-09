@@ -28,7 +28,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
-    public StorageSubsystem() {
+    private StorageSubsystem() {
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
 

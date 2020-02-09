@@ -7,12 +7,23 @@ import edu.wpi.first.networktables.NetworkTableInstance;
  * Wrapper class for getting and setting Limelight NetworkTable values.
  * 
  * @author Dan Waxman
+ * @author Shreyas Prasad
  */
 public class Limelight {
+	
+	private NetworkTableInstance table = null;
 
-	private static NetworkTableInstance table = null;
+	private final String mTableName;
 
-	public final static double kDefaultTx = 9999.0;
+	public final static double kDefaultTx = 9999.9;
+
+	/**
+	 * Creates a new Limelight Object
+	 * @param tableName The name of the Limelight's NetworkTable
+	 */
+	public Limelight(String tableName) {
+		mTableName = tableName;
+	}
 
 	/**
 	 * Light modes for Limelight.
@@ -37,16 +48,16 @@ public class Limelight {
 	 * 
 	 * @return true if a target is detected, false otherwise.
 	 */
-	public static boolean isTarget() {
+	public boolean isTarget() {
 		return getValue("tv").getDouble(0) == 1;
 	}
 
 	/**
 	 * Horizontal offset from crosshair to target (-27 degrees to 27 degrees).
-	 * Default value is 999.9
+	 * Default value is 9999.9
 	 * @return tx as reported by the Limelight.
 	 */
-	public static double getTx() {
+	public double getTx() {
 		return getValue("tx").getDouble(kDefaultTx);
 	}
 
@@ -55,7 +66,7 @@ public class Limelight {
 	 * 
 	 * @return ty as reported by the Limelight.
 	 */
-	public static double getTy() {
+	public double getTy() {
 		return getValue("ty").getDouble(0.00);
 	}
 
@@ -64,7 +75,7 @@ public class Limelight {
 	 * 
 	 * @return Area of target.
 	 */
-	public static double getTa() {
+	public double getTa() {
 		return getValue("ta").getDouble(0.00);
 	}
 
@@ -73,7 +84,7 @@ public class Limelight {
 	 * 
 	 * @return Target skew.
 	 */
-	public static double getTs() {
+	public double getTs() {
 		return getValue("ts").getDouble(0.00);
 	}
 
@@ -82,7 +93,7 @@ public class Limelight {
 	 * 
 	 * @return Target latency.
 	 */
-	public static double getTl() {
+	public double getTl() {
 		return getValue("tl").getDouble(0.00);
 	}
 
@@ -92,7 +103,7 @@ public class Limelight {
 	 * @param mode
 	 *            Light mode for Limelight.
 	 */
-	public static void setLedMode(LightMode mode) {
+	public void setLedMode(LightMode mode) {
 		getValue("ledMode").setNumber(mode.ordinal());
 	}
 
@@ -102,7 +113,7 @@ public class Limelight {
 	 * @param mode
 	 *            Camera mode for Limelight.
 	 */
-	public static void setCameraMode(CameraMode mode) {
+	public void setCameraMode(CameraMode mode) {
 		getValue("camMode").setNumber(mode.ordinal());
 	}
 
@@ -112,7 +123,7 @@ public class Limelight {
 	 * @param number
 	 *            Pipeline number (0-9).
 	 */
-	public static void setPipeline(int number) {
+	public void setPipeline(int number) {
 		getValue("pipeline").setNumber(number);
 	}
 
@@ -123,11 +134,11 @@ public class Limelight {
 	 *            Key for entry.
 	 * @return NetworkTableEntry of given entry.
 	 */
-	private static NetworkTableEntry getValue(String key) {
+	private NetworkTableEntry getValue(String key) {
 		if (table == null) {
 			table = NetworkTableInstance.getDefault();
 		}
 
-		return table.getTable("limelight").getEntry(key);
+		return table.getTable(mTableName).getEntry(key);
 	}
 }

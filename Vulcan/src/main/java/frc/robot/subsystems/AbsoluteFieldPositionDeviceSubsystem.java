@@ -7,7 +7,7 @@ public class AbsoluteFieldPositionDeviceSubsystem extends SubsystemBase implemen
     private static AbsoluteFieldPositionDeviceSubsystem mInstance;
     //This is intended for the rotational LIDAR YDLidar
     
-    public AbsoluteFieldPositionDeviceSubsystem() {
+    private AbsoluteFieldPositionDeviceSubsystem() {
     }
 
     @Override

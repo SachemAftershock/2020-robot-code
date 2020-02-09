@@ -21,7 +21,7 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
     private final AnalogInput mUltrasonic;
 
 
-    public CollisionAvoidanceSubsystem() {
+    private CollisionAvoidanceSubsystem() {
         mCollisionEnabled = true;
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;

@@ -26,7 +26,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     private boolean mAuthorizedToShoot, mIsNewAutomaticMagazine;
 
-    public SuperstructureSubsystem() {
+    private SuperstructureSubsystem() {
         mShooter = ShooterSubsystem.getInstance();
         mTurret = TurretSubsystem.getInstance();
         mIntake = IntakeSubsystem.getInstance();

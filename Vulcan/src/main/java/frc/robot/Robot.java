@@ -48,6 +48,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+    
+        for(SubsystemInterface subsystem : mRobotContainer.getSubsystemList()) {
+            subsystem.init();
+        }
+
         mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
         if (mAutonomousCommand != null) {
           mAutonomousCommand.schedule();
