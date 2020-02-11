@@ -78,8 +78,11 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
                 } else {
                     turretSetpointInDegrees = interimTurretAzimuth;                     
                 }
-    
-                turretSetpointInDegrees = Math.min(turretSetpointInDegrees, TurretConstants.kPhysicalTurretRotationLimit);
+                if(turretSetpointInDegrees > TurretConstants.kPhysicalTurretRotationLimit) {
+                    turretSetpointInDegrees = TurretConstants.kPhysicalTurretRotationLimit;
+                } else if (turretSetpointInDegrees < -TurretConstants.kPhysicalTurretRotationLimit) {
+                    turretSetpointInDegrees = -TurretConstants.kPhysicalTurretRotationLimit;
+                }
             } 
             double turretMotorSpeed = mPid.updateRotation(turretAzimuth, turretSetpointInDegrees);
             mTurret.set(ControlMode.PercentOutput, turretMotorSpeed);                
