@@ -16,7 +16,7 @@ public class StopFeederCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        mShooter.stopFeeder();
+        //mShooter.stopFeeder();
         mIsFinished = true;
     }
 

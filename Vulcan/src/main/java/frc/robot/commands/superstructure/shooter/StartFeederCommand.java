@@ -16,7 +16,7 @@ public class StartFeederCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        mShooter.startFeeder();
+        //mShooter.startFeeder();
         mIsFinished = true;
     }
 
