@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
@@ -10,8 +8,11 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.ControllerRumble;
 import frc.robot.Lidar;
 import frc.robot.LimelightManager;
@@ -27,7 +28,8 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     private static ShooterSubsystem mInstance;
     
     private final CANSparkMax mShooter;
-    private final WPI_TalonSRX mFeeder;
+    //private final WPI_TalonSRX mFeeder;
+    private final DoubleSolenoid mLoader;
     private final Lidar mLidar;
 
     private final CANEncoder mShooterEncoder;
@@ -41,7 +43,8 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
 
-        mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
+        //mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
+        mLoader = new DoubleSolenoid(Constants.kPcmBId, ShooterConstants.kLoaderForwardId, ShooterConstants.kLoaderReverseId);
 
         mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 
@@ -93,6 +96,14 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         return isAtTargetRPM;
     }
 
+    public void loadBall() {
+        mLoader.set(Value.kForward);
+    }
+    public void openBallLoader() {
+        mLoader.set(Value.kReverse);
+    }
+
+    /*
     public void startFeeder() {
         mFeeder.set(ControlMode.PercentOutput, ShooterConstants.kFeederSpeed);
     }
@@ -100,6 +111,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     public void stopFeeder() {
         mFeeder.set(ControlMode.PercentOutput, 0.0);
     }
+    */
 
     @Override
     public void outputTelemetry() {

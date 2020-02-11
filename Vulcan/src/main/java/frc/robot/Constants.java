@@ -89,6 +89,8 @@ public final class Constants {
         public static final class ShooterConstants {
             public static final int kLauncherMotorId = 7;
             public static final int kFeederMotorId = 8;
+            public static final int kLoaderForwardId = 2; //PCM B
+            public static final int kLoaderReverseId = 3;
 
             public static final int kLidarId = 0;
 

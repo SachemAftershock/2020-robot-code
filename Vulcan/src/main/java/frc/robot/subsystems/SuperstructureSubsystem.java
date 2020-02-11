@@ -84,9 +84,11 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                             mStorage.stopBelt();
 
                             if(mShooter.isAtTargetRPM()) {
-                                mShooter.startFeeder();
+                                //mShooter.startFeeder();
+                                mShooter.loadBall();
                             } else {
-                                mShooter.stopFeeder();
+                               // mShooter.stopFeeder();
+                               mShooter.openBallLoader();
                             }
                         }
                     } else {
