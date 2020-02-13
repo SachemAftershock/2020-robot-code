@@ -22,6 +22,8 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     private final WPI_TalonSRX mElevator, mLifter;
 
     private ClimbElevatorPosition mCurrentPosition, mDesiredPosition;
+
+    private boolean mHasLifterRun;
     
     private ClimberSubsystem() {
         mElevator = new WPI_TalonSRX(ClimberConstants.kElevatorId);
@@ -41,10 +43,13 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
         
         mCurrentPosition = ClimbElevatorPosition.eLow;
         mDesiredPosition = ClimbElevatorPosition.eLow;
+
+        mHasLifterRun = false;
     }
 
     @Override
     public void init() {
+        mHasLifterRun = false;
         mElevator.setSelectedSensorPosition(0); //Stowed Position
     }
 
@@ -88,6 +93,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 
     public void driveLifter() {
         mLifter.set(ControlMode.PercentOutput, ClimberConstants.kLifterSpeed);
+        mHasLifterRun = true;
     }
     public void stopLifter() {
         mLifter.set(ControlMode.PercentOutput, 0.0);
@@ -114,6 +120,14 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
         public int getEncoderCount() {
             return mEncoderCount;
         }
+    }
+
+    public boolean isClimbing() {
+        return Math.abs(mLifter.get()) > 0;
+    }
+
+    public boolean predictIsClimbFinished() {
+        return mHasLifterRun && Math.abs(mLifter.get()) == 0.0;
     }
 
     @Override

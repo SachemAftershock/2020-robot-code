@@ -325,6 +325,10 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    public boolean isRunning() {
+        return Math.abs(mWheelSpinner.get()) > 0;
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData("Current Detected Color", mCurrentDetectedColor);

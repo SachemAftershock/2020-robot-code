@@ -84,7 +84,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooter.set(0.0);
     }
 
-    public boolean isAtTargetRPM() {
+    public synchronized boolean isAtTargetRPM() {
         final boolean isAtTargetRPM = Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
         if(isAtTargetRPM) {
             if(mRumbleDelayCounter > 1000 / 20) {

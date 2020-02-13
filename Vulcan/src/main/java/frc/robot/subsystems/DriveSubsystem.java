@@ -44,8 +44,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     private final PID mPortPid, mStarboardPid, mRotatePid;
     private final AHRS mNavx;
 
+    private double mPrevPow, mPrevRot;
+
     private Pose2d mPose;
-    private double mLeftSpeed, mRightSpeed, mLeftTarget, mRightTarget, mRotateSetpoint;
+    private double mPortSpeed, mStarboardSpeed, mLeftTarget, mRightTarget, mRotateSetpoint;
 
     private double mSelectedMaxSpeedProportion;
     private boolean mIsPrecisionMode;
@@ -113,8 +115,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
         mIsAutoRotateRunning = false;
 
-        mLeftSpeed = 0.0;
-        mRightSpeed = 0.0;
+        mPortSpeed = 0.0;
+        mStarboardSpeed = 0.0;
         mLeftTarget = 0.0;
         mRightTarget = 0.0;
         mRotateSetpoint = 0.0;
@@ -131,8 +133,19 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mPose = mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistance(), getStarboardEncoderDistance());
     }
     
-    public void manualDrive(double pow, double rot) {
-        mDifferentialDrive.curvatureDrive(pow * mSelectedMaxSpeedProportion, rot * mSelectedMaxSpeedProportion, true);
+    public void manualDrive(double pow, double rot, boolean wantDeccelerate) {
+        if(wantDeccelerate) { 
+            pow = mPrevPow * DriveConstants.kThrottleDecelerationProportion;
+            rot = mPrevRot * DriveConstants.kRotationalDecelerationProportion; //TODO: Find out if we need to change rot differently than pow
+        }
+        pow *= mSelectedMaxSpeedProportion;
+        rot *= mSelectedMaxSpeedProportion; //Same as above todo, not sure if we need to scale it differently
+        if(Math.abs(mPrevPow - pow) > DriveConstants.kMaxManualAcceleration) {
+            pow = pow > 0 ? DriveConstants.kMaxManualAcceleration + mPrevPow : -DriveConstants.kMaxManualAcceleration + mPrevPow;
+        }
+        mPrevPow = pow;
+        mPrevRot = rot;
+        mDifferentialDrive.curvatureDrive(pow, rot, true);
     }
 
     /**
@@ -153,8 +166,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     public void runAutoDrive() {
         double scaleFactor = CollisionAvoidanceSubsystem.getInstance().getSlowdownScaleFactor();
         if(scaleFactor < 1.0) {
-            mLeftSpeed *= scaleFactor;
-            mRightSpeed *= scaleFactor;
+            mPortSpeed *= scaleFactor;
+            mStarboardSpeed *= scaleFactor;
             mPortPid.pausePID();
             mStarboardPid.pausePID();
         } else {
@@ -162,10 +175,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 mPortPid.resumePID();
                 mStarboardPid.resumePID();
             }
-            mLeftSpeed = mPortPid.update(mPortEncoder.getPosition(), mLeftTarget);
-            mRightSpeed = mStarboardPid.update(mStarboardEncoder.getPosition(), mRightTarget);
+            mPortSpeed = mPortPid.update(mPortEncoder.getPosition(), mLeftTarget);
+            mStarboardSpeed = mStarboardPid.update(mStarboardEncoder.getPosition(), mRightTarget);
         }
-        mDifferentialDrive.tankDrive(mLeftSpeed, mRightSpeed);
+        mDifferentialDrive.tankDrive(mPortSpeed, mStarboardSpeed);
         //If when driving straight, the robot is turning, add gyro-based correction
     }
 
@@ -235,6 +248,14 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         if(mIsPrecisionMode) {
             togglePrecisionDriving();
         }
+    }
+
+    public boolean isHighGear() {
+        return mGearShifter.get() == Value.kForward; //TODO: Find out if this is actually high
+    }
+
+    public boolean isPrecisionMode() {
+        return mIsPrecisionMode;
     }
 
     public void tankDriveVolts(double portVolts, double starboardVolts) {

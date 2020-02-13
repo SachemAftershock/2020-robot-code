@@ -31,6 +31,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CollisionAvoidanceSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
@@ -38,6 +39,7 @@ import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
+import frc.robot.subsystems.LEDSubsystem.SystemState;
 import frc.robot.subsystems.TurretSubsystem.ShootingTarget;
 
 public class RobotContainer {
@@ -60,6 +62,7 @@ public class RobotContainer {
     private final StorageSubsystem mStorage = StorageSubsystem.getInstance();
     private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
+    private final LEDSubsystem mLED = LEDSubsystem.getInstance();
     private final ArrayList<SubsystemInterface> mSubsystems;
 
     // Primary Controller
@@ -96,6 +99,7 @@ public class RobotContainer {
         mSubsystems.add(mTurret);
         mSubsystems.add(mSuperstructure);
         mSubsystems.add(mStorage);
+        mSubsystems.add(mLED);
 
         configureButtonBindings();
         CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mControllerPrimary));
@@ -164,6 +168,10 @@ public class RobotContainer {
         bIngestIntakeAndStorage
         .whenReleased(new StopManualDriveCommand(mIntake, mStorage))
         .whenPressed(new ManualIngestCommand(mIntake, mStorage));
+    }
+
+    public void init() {
+        mLED.forceSystemState(SystemState.eInit);
     }
 
     public void periodic() {

@@ -65,8 +65,12 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                 }
                 break;
             case eArmed:
+                final boolean aimedAtTarget = mTurret.isAimedAtTarget();
+                final boolean atTargetRPM = mShooter.isAtTargetRPM();
                 mShooter.reachCalculatedTargetRPM();
-                if(mAuthorizedToShoot && mTurret.isAimedAtTarget()) {
+                if(aimedAtTarget && atTargetRPM) {
+                }
+                if(mAuthorizedToShoot && aimedAtTarget) {
                     if(mShootingMode == ShootingMode.eAuto) {
                         if(mIsNewAutomaticMagazine) {
                             CommandScheduler.getInstance().schedule(new StartAutoFireSequence(mShooter, mStorage));
@@ -83,7 +87,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                             mStorage.closeChamberValve();
                             mStorage.stopBelt();
 
-                            if(mShooter.isAtTargetRPM()) {
+                            if(atTargetRPM) {
                                 //mShooter.startFeeder();
                                 mShooter.loadBall();
                             } else {
@@ -131,6 +135,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
     public void deauthorizeShot() {
         mAuthorizedToShoot = false;
         mIsNewAutomaticMagazine = true;
+    }
+
+    public boolean isShotAuthorized() {
+        return mAuthorizedToShoot;
     }
 
     public SuperstructureMode getCurrentMode() {

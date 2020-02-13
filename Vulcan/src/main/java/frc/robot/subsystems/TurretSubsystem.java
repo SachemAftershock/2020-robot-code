@@ -104,7 +104,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
      * Is Turret Aimed at Target AND does the ball have clearance with this angle
      * @return whether to take the shot
      */
-    public boolean isAimedAtTarget() {
+    public synchronized boolean isAimedAtTarget() {
         double tx = LimelightManager.getInstance().getShooterLimelight().getTx();
         return Math.abs(tx) < TurretConstants.kTurretEpsilon 
                 && TurretConstants.kTargetWidth[mSelectedTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;

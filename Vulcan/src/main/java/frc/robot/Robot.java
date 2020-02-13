@@ -32,6 +32,12 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         mRobotContainer.periodic();
+
+        try {
+            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
+        } catch(Throwable t) {
+            System.out.println(t);
+        }
     }
 
     @Override
@@ -61,7 +67,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (mAutonomousCommand != null) mAutonomousCommand.cancel();
+        if (mAutonomousCommand != null) {
+            mAutonomousCommand.cancel();
+        }
     }
 
     @Override
@@ -73,11 +81,6 @@ public class Robot extends TimedRobot {
     }
   
     @Override
-    public void testPeriodic() {
-        try {
-            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
-        } catch(Throwable t) {
-            System.out.println(t);
-        }
+    public void testPeriodic() { //TODO: Add ability to quickly tune PIDs
     }
 }
