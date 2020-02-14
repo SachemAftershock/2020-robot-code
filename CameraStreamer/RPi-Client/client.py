@@ -38,7 +38,7 @@ class Camera:
 		self.cam.release()
 
 class ConfigClient:
-	def __init__(self, server_address = '[INSERT IP OF SERVER]', server_port = 5807, packet_size = 1000):
+	def __init__(self, server_address = '10.2.63.13', server_port = 5807, packet_size = 1000):
 		self.comm_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.comm_socket.bind(('', 0))
 		self.comm_socket.settimeout(1.0)
@@ -64,7 +64,7 @@ class ConfigClient:
 		self.comm_socket.close()
 
 class ClientStreamer:
-	def __init__(self, server_address, server_port, cam_index, packet_size = 1000, cap_width = 320, cap_height = 240):
+	def __init__(self, server_address, server_port, cam_index, packet_size = 1000, cap_width = 160, cap_height = 120):
 		#self.comm_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		#self.comm_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, True)
 		#self.comm_socket.connect((server_address, server_port))

@@ -33,8 +33,8 @@ class ServerStreamer:
 		#self.V = 0
 		#self.H = 0
 
-		self.stream_width = bimpy.Float(320)
-		self.stream_height = bimpy.Float(240)
+		self.stream_width = bimpy.Float(160)
+		self.stream_height = bimpy.Float(120)
 
 		atexit.register(self.release)
 		threading.Thread(target = self.reciever_thread).start()
