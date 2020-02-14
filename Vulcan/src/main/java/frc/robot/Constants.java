@@ -69,7 +69,8 @@ public final class Constants {
         public static final double[] kLinearGains = {0.0, 0.0, 0.0};
         public static final double[] kRotationalGains = {0.0, 0.0, 0.0};
         public static final double kRampRateToMaxSpeed = 1.0;
-        public static final double kMaxManualAcceleration = 0.4;
+        public static final double kMaxManualLinearAcceleration = 0.4;
+        public static final double kMaxManualRotationAcceleration = 0.2;
         public static final double kThrottleDecelerationProportion = 0.8; 
         public static final double kRotationalDecelerationProportion = 0.8;
 

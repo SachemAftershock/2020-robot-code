@@ -70,6 +70,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 			} else {
 				mDesiredMode = SystemState.eIdle;
 			}
+			//TODO: After driving a bit, determine if we should have two lists for two arduinos for two seperate LED Strips
 		}
 		
 		if(mCurrentMode.getLEDMode() != mDesiredMode.getLEDMode()) {
@@ -90,11 +91,29 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 			case eRainbow:
 			case eBlue:
 			case eRed:
+			case ePink:
+			case ePurple:
+			case eTeal:
+			case eWhite:
+			case eYellow:
+			case eGreen:
+			case eOrange:
+			case eColorCycle:
 				setColor(desiredLEDMode);
 				mCurrentMode = mDesiredMode;
 				mForcedCommandRunning = false;
 				break;
-			case eBulletAmber:
+			case eWhiteBlink:
+			case eYellowBlink:
+			case eBlueBlink:
+			case eRedBlink:
+			case eTealBullet:
+			case eBulletOrange:
+			case eBulletRed:
+			case eBulletWhite:
+			case eBlueRedAlternate:
+			case eBlueYellowAlternate:
+			case eRedYellowAlternate:
 				if(mFirstRun) {
 					mTimer.start();
 					mPrevMode = mCurrentMode;
@@ -118,10 +137,10 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	 * @author Shreyas Prasad
 	 */
 	public enum SystemState {
-		eInit(LEDMode.eBulletAmber), eIdle(LEDMode.eOff), eAuton(LEDMode.eRainbow), eOverrideToggle(LEDMode.ePink),
-		eArmedMode(LEDMode.eTeal), eFeedMode(LEDMode.eBlue), eExpel(LEDMode.eTeal), eReadyToShoot(LEDMode.eBlink), eShooting(LEDMode.eBulletAmber),
+		eInit(LEDMode.eWhiteBlink), eIdle(LEDMode.eOff), eAuton(LEDMode.eRainbow), eOverrideToggle(LEDMode.ePink),
+		eArmedMode(LEDMode.eRed), eFeedMode(LEDMode.eBlue), eExpel(LEDMode.eTealBullet), eReadyToShoot(LEDMode.eYellowBlink), eShooting(LEDMode.eBulletRed),
 		eHighGearPrecision(LEDMode.eRedYellowAlternate), eLowGearPrecision(LEDMode.eBlueYellowAlternate),
-		eClimbing(LEDMode.eBulletAmber), eFinishedClimb(LEDMode.eRainbow), eWheelControlRunning(LEDMode.eColorCycle),
+		eClimbing(LEDMode.eBulletWhite), eFinishedClimb(LEDMode.eRainbow), eWheelControlRunning(LEDMode.eColorCycle),
 		eCollisionAvoidanceRunning(LEDMode.ePurple);
 		
 		private final LEDMode mLEDMode;
@@ -141,9 +160,9 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	 * @author Shreyas Prasad
      */
     private enum LEDMode { //TODO: Get Correct bytes
-		eOff((byte)'n'), eRed((byte)'r'), eRedYellowAlternate((byte)'r'), eBlue((byte)'b'), eBlueYellowAlternate((byte)'b'), eGreen((byte)'g'), ePink((byte)'p'), 
-		eTeal((byte)'t'), eRainbow((byte)'a'), eBlink((byte)'e'), eBulletAmber((byte)'l'), eColorCycle((byte)'j'),
-		ePurple((byte)'p');
+		eOff((byte)'n'), eRed((byte)'r'), eRedYellowAlternate((byte)'x'), eBlue((byte)'b'), eBlueRedAlternate((byte)'s'), eOrange((byte)'m'), eRedBlink((byte)'f'), eBlueBlink((byte)'h'),
+		eWhite((byte)'w'), eGreen((byte)'g'), ePink((byte)'p'), eYellow((byte)'y'), eYellowBlink((byte)'j'), eTeal((byte)'t'), eTealBullet((byte)'d'), eRainbow((byte)'a'), eWhiteBlink((byte)'o'), eBulletOrange((byte)'l'), eColorCycle((byte)'c'),
+		eBlueYellowAlternate((byte)'v'), ePurple((byte)'u'), eBulletRed((byte)'e'), eBulletWhite((byte)'i');
 
 		private final byte mArduinoCommand;
 

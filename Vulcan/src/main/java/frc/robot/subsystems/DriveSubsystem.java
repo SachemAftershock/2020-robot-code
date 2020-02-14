@@ -140,8 +140,19 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         }
         pow *= mSelectedMaxSpeedProportion;
         rot *= mSelectedMaxSpeedProportion; //Same as above todo, not sure if we need to scale it differently
-        if(Math.abs(mPrevPow - pow) > DriveConstants.kMaxManualAcceleration) {
-            pow = pow > 0 ? DriveConstants.kMaxManualAcceleration + mPrevPow : -DriveConstants.kMaxManualAcceleration + mPrevPow;
+        if(Math.abs(mPrevPow - pow) > DriveConstants.kMaxManualLinearAcceleration) {
+            if(pow > 0) {
+                pow = DriveConstants.kMaxManualLinearAcceleration + mPrevPow;
+            } else {
+                pow = -DriveConstants.kMaxManualLinearAcceleration + mPrevPow;
+            }
+        }
+        if(Math.abs(mPrevRot - rot) > DriveConstants.kMaxManualRotationAcceleration) {
+            if(rot > 0) {
+                rot = DriveConstants.kMaxManualRotationAcceleration + mPrevRot;
+            } else {
+                rot = -DriveConstants.kMaxManualRotationAcceleration + mPrevRot;
+            }
         }
         mPrevPow = pow;
         mPrevRot = rot;
