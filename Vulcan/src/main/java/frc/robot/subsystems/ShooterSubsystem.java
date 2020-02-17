@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.ControllerRumble;
 import frc.robot.Lidar;
-import frc.robot.LimelightManager;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
@@ -39,6 +38,9 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private int mRumbleDelayCounter, mTargetFalloutDelayCounter;
 
+    /**
+     * Constructor for ShooterSubsystem Class
+     */
     private ShooterSubsystem() {
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
@@ -66,13 +68,19 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     public void init() {
     }
     
-    //TODO: LEDs when at Target RPM
+    /**
+     * Runs Velocity PID on Neo Shooter Motor to reach the calculated RPM
+     * <p>
+     * Gets RPM by Polynomial Regression
+     * <p>
+     * If Target falls out of view for 2.5s, goes to median RPM in regression table
+     */
     public void reachCalculatedTargetRPM() {
-        if(LimelightManager.getInstance().getShooterLimelight().isTarget()) {
+        if(LimelightManagerSubsystem.getInstance().getShooterLimelight().isTarget()) {
             mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
             mTargetFalloutDelayCounter = 0;
         } else if(mTargetFalloutDelayCounter > 2500 / 20) {
-            mTargetRPM = ShooterConstants.kDistanceFeetToRpmLUT[(int) ShooterConstants.kDistanceFeetToRpmLUT.length / 2][1];
+            mTargetRPM = ShooterConstants.kDistanceFeetToRpmLUT[(int) (ShooterConstants.kDistanceFeetToRpmLUT.length / 2)][1];
             mTargetFalloutDelayCounter = 0;
         } else {
             mTargetFalloutDelayCounter++;
@@ -80,10 +88,17 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
     }
 
+    /**
+     * Stops Shooter Motor
+     */
     public void stopShooter() {
         mShooter.set(0.0);
     }
 
+    /**
+     * Checks if Shooter is at the Target RPM & Rumbles Controller if at RPM
+     * @return <i> true </i> if at Target RPM; <i> false </i> otherwise
+     */
     public synchronized boolean isAtTargetRPM() {
         final boolean isAtTargetRPM = Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
         if(isAtTargetRPM) {
@@ -96,13 +111,21 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         return isAtTargetRPM;
     }
 
+    /**
+     * Loader Piston pushes Power Cell in Chamber to barrel
+     */
     public void loadBall() {
         mLoader.set(Value.kForward);
     }
+    
+    /**
+     * Loader Piston opens to allow another ball to be pushed into the barrel
+     */
     public void openBallLoader() {
         mLoader.set(Value.kReverse);
     }
 
+    //Reimplement when the Piston Loader is replaced by the feeder wheel
     /*
     public void startFeeder() {
         mFeeder.set(ControlMode.PercentOutput, ShooterConstants.kFeederSpeed);
@@ -115,9 +138,16 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putData(getInstance());
         SmartDashboard.putNumber("Shooter Velocity", mShooterEncoder.getVelocity());
         SmartDashboard.putNumber("Target Velocity", mTargetRPM);
         SmartDashboard.putNumber("Lidar Distance Ft", mLidar.getDistanceIn() / 12.0);
+    }
+
+    @Override
+    public void runTest() {
+        // TODO Auto-generated method stub
+        
     }
     
     /**

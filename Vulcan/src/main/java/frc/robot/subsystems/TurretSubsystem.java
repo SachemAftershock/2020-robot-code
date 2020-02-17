@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Limelight;
-import frc.robot.LimelightManager;
 import frc.robot.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
@@ -30,6 +29,9 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     private boolean mAutoTargetingEnabled;
     private ShootingTarget mSelectedTarget;
 
+    /**
+     * Constructor for TurretSubsystem Class
+     */
     private TurretSubsystem() {
         mTurret = new WPI_TalonSRX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
@@ -50,10 +52,13 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     public void init() {
     }
 
+    /**
+     * Turret Auto Targeting Processor
+     */
     @Override
     public void periodic() {
         if(mAutoTargetingEnabled) {
-            final double tx = LimelightManager.getInstance().getShooterLimelight().getTx();
+            final double tx = LimelightManagerSubsystem.getInstance().getShooterLimelight().getTx();
             final double robotAziumth = DriveSubsystem.getInstance().getHeading();  // TODO: make sure zero means heading is downfield.
             final double turretAzimuth = mEncoder.getDistance();  // Turret Azimuth in -180..180, zero is turrent inline robot forward.
             double turretSetpointInDegrees = 0.0; 
@@ -105,7 +110,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
      * @return whether to take the shot
      */
     public synchronized boolean isAimedAtTarget() {
-        double tx = LimelightManager.getInstance().getShooterLimelight().getTx();
+        double tx = LimelightManagerSubsystem.getInstance().getShooterLimelight().getTx();
         return Math.abs(tx) < TurretConstants.kTurretEpsilon 
                 && TurretConstants.kTargetWidth[mSelectedTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
     }
@@ -118,10 +123,17 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         return mEncoder.getDistance();
     }
 
+    /**
+     * Gets if Turret Auto-Targeting is Enabled
+     * @return <i> true </i> if the turret automatically seeking the target is enabled
+     */
     public boolean isAutoTargetingEnabled() {
         return mAutoTargetingEnabled;
     }
 
+    /**
+     * Toggles whether the turret is allowed to automatically seek the target or not
+     */
     public void toggleAutoTargetingEnabled() {
         if(mAutoTargetingEnabled) {
             mAutoTargetingEnabled = false;
@@ -130,6 +142,10 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         }
     }
 
+    /**
+     * Sets the Target of the shooter to either the High or Low Target
+     * @param target the target for the Shooter to target
+     */
     public void setTarget(ShootingTarget target) {
         mSelectedTarget = target;
     }
@@ -148,10 +164,17 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putData(getInstance());
         SmartDashboard.putData("Shooting Target", mSelectedTarget);
         SmartDashboard.putNumber("Turret Angle", getTurretAngle());
         SmartDashboard.putBoolean("Aimed at Target", isAimedAtTarget());
         SmartDashboard.putBoolean("Auto Targeting Enabled", mAutoTargetingEnabled);
+    }
+
+    @Override
+    public void runTest() {
+        // TODO Auto-generated method stub
+        
     }
 
     /**

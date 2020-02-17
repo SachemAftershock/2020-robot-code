@@ -31,7 +31,7 @@ public final class Constants {
     public static final class LEDConstants {
         public final static int kArduinoI2CAddress = 10;
 
-        public static final double kBulletRunTime = 3.0;
+        public static final double kTempModeRunTime = 3.0;
     }
 
     public static final class LimelightConstants {
@@ -200,6 +200,7 @@ public final class Constants {
         public static final int kElevatorPidId = 0;
         //TODO: Tune all values below
         public static final double[] kGains = {0,0,0}; 
+        public static final int[] kElevataorLevelEncoderValues = {0, 4000, 8000}; //Low, Mid, High
 
         //Below Two constants are in CTRE Mag Encoder Units Per 100Ms Per Sec
         public static final int kMagicAcceleration = 1000;

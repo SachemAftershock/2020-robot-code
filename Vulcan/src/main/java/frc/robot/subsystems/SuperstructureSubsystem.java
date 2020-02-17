@@ -29,6 +29,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     private boolean mAuthorizedToShoot, mIsNewAutomaticMagazine;
 
+    /**
+     * Constructor for SuperstructureSubsystem Class
+     */
     private SuperstructureSubsystem() {
         mShooter = ShooterSubsystem.getInstance();
         mTurret = TurretSubsystem.getInstance();
@@ -36,7 +39,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         mStorage = StorageSubsystem.getInstance();
 
         mSystemMode = SuperstructureMode.eIdle;
-        mShootingMode = ShootingMode.eAuto;
+        mShootingMode = ShootingMode.eSemiAuto; //Cannot run Automatic Firing as the Feeder wheel has been taken out
 
         mAuthorizedToShoot = false;
         mIsNewAutomaticMagazine = true;
@@ -129,22 +132,46 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         mSystemMode = mode;
     }
 
+    /**
+     * Operator authorization for the Robot to fire at will
+     */
     public void authorizeShot() {
         mAuthorizedToShoot = true;
     }
+
+    /**
+     * Operator deauthorization, the Robot cannot shoot
+     */
     public void deauthorizeShot() {
         mAuthorizedToShoot = false;
         mIsNewAutomaticMagazine = true;
     }
 
+    /**
+     * If the shot has been authorized by the operator or not
+     * @return <i> true </i> if the operator has authorized the Robot to shoot at will; <i> false </i> otherwise
+     */
     public boolean isShotAuthorized() {
         return mAuthorizedToShoot;
     }
 
+    /**
+     * Gets current Superstructure System Mode
+     * @return the mode of the Superstructure
+     */
     public SuperstructureMode getCurrentMode() {
         return mSystemMode;
     }
 
+    /**
+     * System Mode of the Superstructure
+     * <ul>
+     * <li> Feed Mode: When Intake is engaged, packs Power Cells front to back to optimize number of balls stored
+     * 
+     * <li> Armed Mode: Preparing to Shoot
+     * 
+     * <li> Idle Mode: Default Mode, does nothing
+     */
     public enum SuperstructureMode implements Sendable {
         eFeed(), eArmed(), eIdle();
 
@@ -154,6 +181,12 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         public void initSendable(SendableBuilder builder) {}
     }
 
+    /**
+     * Enum to hold Shoting modes
+     * <ul>
+     * <li> Automatic Fire
+     * <li> Semi-Automatic (Single Fire)
+     */
     public enum ShootingMode implements Sendable {
         eSemiAuto(), eAuto();
 
@@ -165,9 +198,15 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putData(getInstance());
         SmartDashboard.putData("Current System Mode", mSystemMode);
         SmartDashboard.putData("Current Shooting Mode", mShootingMode);
         SmartDashboard.putBoolean("Is Authorized to Shoot", mAuthorizedToShoot);
+    }
+
+    @Override
+    public void runTest() {
+        // TODO Auto-generated method stub
     }
 
     /**

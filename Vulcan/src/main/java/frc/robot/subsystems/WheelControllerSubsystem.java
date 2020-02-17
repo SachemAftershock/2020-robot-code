@@ -18,6 +18,7 @@ import frc.robot.Constants.WheelControllerConstants;
 
 /**
  * Control Panel Wheel Controller Subsystem
+ * 
  * @author Shreyas Prasad
  */
 public class WheelControllerSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -33,6 +34,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     private boolean mPreviousExists;
     private final CircularColorArray mColors;
 
+    /**
+     * Constructor for WheelControllerSubsystem Class
+     */
     private WheelControllerSubsystem() {
 
         mWheelSpinner = new WPI_TalonSRX(WheelControllerConstants.kWheelControllerId);
@@ -57,33 +61,41 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     public void init() {
     }
 
+    /**
+     * Checks for current detected color & for when the field gives Robots a target color
+     */
     @Override
     public void periodic() {
         ColorLUT mPreviousColor = mCurrentDetectedColor;
-        if(!mPreviousExists)
+        if(!mPreviousExists) {
             mPreviousExists = mPreviousColor != ColorLUT.eUnknown;
-        mCurrentDetectedColor = getCurrentColor();
-        mTargetColorString = DriverStation.getInstance().getGameSpecificMessage();
-        if(!mTargetColorString.equals("")) {
-            switch(mTargetColorString.charAt(0)) {
-                case 'B':
-                    mFieldRelativeTargetColor = ColorLUT.eBlue;
-                    break;
-                case 'Y':
-                    mFieldRelativeTargetColor = ColorLUT.eYellow;
-                    break;
-                case 'R':
-                    mFieldRelativeTargetColor = ColorLUT.eRed;
-                    break;
-                case 'G':
-                    mFieldRelativeTargetColor = ColorLUT.eGreen;
-                    break;
-                default:
-                    DriverStation.reportError("ERROR: TARGET COLOR NOT DETECTED", false);
-                    break;
-            }
-            mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + WheelControllerConstants.kRobotReadingVarianceIndex);
         }
+        mCurrentDetectedColor = getCurrentColor();
+
+        if(mTargetColorString.equals("")) {
+            mTargetColorString = DriverStation.getInstance().getGameSpecificMessage();
+            if(!mTargetColorString.equals("")) {
+                switch(mTargetColorString.charAt(0)) {
+                    case 'B':
+                        mFieldRelativeTargetColor = ColorLUT.eBlue;
+                        break;
+                    case 'Y':
+                        mFieldRelativeTargetColor = ColorLUT.eYellow;
+                        break;
+                    case 'R':
+                        mFieldRelativeTargetColor = ColorLUT.eRed;
+                        break;
+                    case 'G':
+                        mFieldRelativeTargetColor = ColorLUT.eGreen;
+                        break;
+                    default:
+                        DriverStation.reportError("ERROR: TARGET COLOR NOT DETECTED", false);
+                        break;
+                }
+                mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + WheelControllerConstants.kRobotReadingVarianceIndex);
+            }
+        }
+
         if(mStartColor != ColorLUT.eUnknown && mPreviousExists) {
             if(mCurrentDetectedColor != mPreviousColor && mCurrentDetectedColor == mStartColor) {
                 mTimesPositionedToStartColor++;
@@ -94,7 +106,10 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
-    public void startPositionControl() {
+    /**
+     * Starts Automatic Rotational Control (Spins Control Panel 3.5 Times)
+     */
+    public void startRotationControl() {
         mPreviousExists = false;
         mStartColor = mCurrentDetectedColor;
         mTimesPositionedToStartColor = 0;
@@ -112,12 +127,19 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         mWheelSpinner.set(ControlMode.PercentOutput, WheelControllerConstants.kWheelSpinSpeed);
     }
 
-    public void endPositionControl() {
+    /**
+     * Stops Wheel Controller Motor to end Rotational Control
+     */
+    public void endRotationControl() {
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
     }
 
-    public boolean isPositionConditionMet() {
-        //3.5 Turns
+    /**
+     * Gets if the Automatic Rotational Process should end
+     * 
+     * @return <i> true </i> if Control Panel has rotated 3.5 times; <i> false </i> otherwise
+     */
+    public boolean isRotateConditionMet() {
         return mTimesPositionedToStartColor >= 7;
     }
 
@@ -138,14 +160,27 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * Stops Wheel Controller Motor to end Color Targeting
+     */
     public void stopColorTargeting() {
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
     }
 
+    /**
+     * Gets if the Magnitude of Wedges Crossed is equal to the number required as calculated by {@link WheelControllerSubsystem#calculateSpinDirection()}
+     * 
+     * @return <i> true </i> if the Target Color has been found; <i> false </i> otherwise
+     */
     public boolean isTargetColorFound() {
         return mNumberOfWedgesCrossed == mWedgesRequiredToRotate;
     }
 
+    /**
+     * Toggles the Wheel Controller Extender Piston
+     * <p>
+     * Changes Coliision Avoidance Standoff {@link CollisionAvoidanceSubsystem#setColorWheelStandoff()}
+     */
     public void toggleExtender() {
         switch (mExtender.get()) {
             case kForward : 
@@ -166,6 +201,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Calculates Smallest Vector to Rotate to Required Color Target
+     * 
      * @return CalculatedSpin Vector, containing Magnitude and Direction to Spin
      */
     private CalculatedSpin calculateSpinDirection() {
@@ -196,6 +232,11 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         return (new CalculatedSpin(targetDirection, wedgesToRotate));
     }
 
+    /**
+     * Gets the current Color as detected by the Color Sensor
+     * 
+     * @return the current color detected by the Color Sensor
+     */
     private ColorLUT getCurrentColor() {
         Color mColor = mColorSensor.getColor();
         if(isColor(mColor, ColorLUT.eBlue)) {
@@ -211,6 +252,15 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * Checks if the Color Sensor detected color is equal to the calibrated Control Panel Colors
+     * 
+     * @param detectedColor color detected by Color Sensor
+     * 
+     * @param calibratedColor color to check the detected color against
+     * 
+     * @return <i> true </i> if the detected color is the calibrated color; <i> false </i> otherwise
+     */
     private boolean isColor(Color detectedColor, ColorLUT calibratedColor) {
         return withinRange(detectedColor.red, calibratedColor.getRed()) && 
             withinRange(detectedColor.blue, calibratedColor.getBlue()) &&
@@ -227,6 +277,10 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         return Math.abs(a - b) <= WheelControllerConstants.kColorTolerance;
     }
 
+    /**
+     * Gets if the target color has been given by the FMS
+     * @return <i> true </i> if the FMS has given the target color;<i> false </i> otherwise
+     */
     public boolean isTargetColorKnown() {
         return mFieldRelativeTargetColor != null;
     }
@@ -280,24 +334,37 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
             mWedgesToRotate = wedgesToRotate;
         }
 
+        /**
+         * Gets Direction Component of Vector
+         * @return the direction to get to the target color in the shortest time
+         */
         public Direction getTargetDirection() {
             return mTargetDirection;
         }
 
+        /**
+         * Gets Magnitude of Vector in terms of Control Panel Color Wedges to rotate
+         * @return the number of wedges needed to rotate to reach the target
+         */
         public int getWedgesToRotate() {
             return mWedgesToRotate;
         }
     }
 
     /**
-     * Circular Array representing the cycle of colors on the Control Pnale
+     * Circular Array representing the cycle of colors on the Control Panel
      * @author Shreyas Prasad
      */
     private class CircularColorArray {
 
         private ColorLUT[] mCircularArray;
         private final int kListSize = 4;
-    
+        
+        /**
+         * Constructor for Circular Array Class
+         * <p>
+         * Fills Array with Control Panel Colors in <b>Blue, Yellow, Red, Green</b> order
+         */
         public CircularColorArray() {
             mCircularArray = new ColorLUT[kListSize];
 
@@ -307,6 +374,11 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
             mCircularArray[3] = ColorLUT.eGreen;
         }
 
+        /**
+         * Gets color at the index; wraps around if index is outside of [0,3]
+         * @param index the index to get the color from
+         * @return Color found at the normalized index
+         */
         public ColorLUT getColor(int index) {
             if(index < 0) {
                 index += kListSize;
@@ -314,6 +386,11 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
             return mCircularArray[index % 4];
         }
 
+        /**
+         * Gets index from [0,3] of the selected Color
+         * @param targetColor the color to search the Circular Array for
+         * @return the index from [0,3] of the selected color in the Circular Array
+         */
         public int getIndex(ColorLUT targetColor) {
             for(int i = 0; i < kListSize; i++) {
                 if(targetColor == mCircularArray[i]) {
@@ -325,15 +402,28 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
     }
 
+    /**
+     * Whether or not the Wheel Controller is active
+     * <p>
+     * Used for LED State Processor
+     * @return <i> true </i> if Wheel Spinner Motor is running; <i> false </i> otherwise
+     */
     public boolean isRunning() {
         return Math.abs(mWheelSpinner.get()) > 0;
     }
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putData(getInstance());
         SmartDashboard.putData("Current Detected Color", mCurrentDetectedColor);
         SmartDashboard.putData("Field Relative Target Color", mFieldRelativeTargetColor);
         SmartDashboard.putData("Robot Relative Target Color", mRobotRelativeTargetColor);
+    }
+
+    @Override
+    public void runTest() {
+        // TODO Auto-generated method stub
+        
     }
 
     /**

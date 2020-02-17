@@ -28,6 +28,9 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
 
+    /**
+     * Constructor for StorageSubsystem Class
+     */
     private StorageSubsystem() {
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
@@ -50,11 +53,17 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mPrevMagazineEntryBallDetected = isBallEnteredMagazine();
     }
 
+    /**
+     * Engages Piston to prevent Power Cells from entering the Chamber
+     */
     public void closeChamberValve() {
         mBallValveA.set(Value.kForward);
         mBallValveB.set(Value.kForward);
     }
 
+    /**
+     * Disengages Piston to allow a Power Cell to enter the Chamber
+     */
     public void openChamberValve() {
         mBallValveA.set(Value.kReverse);
         mBallValveB.set(Value.kReverse);
@@ -96,40 +105,70 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         }
     }
 
+    /**
+     * Lidar Checks if any Power Cells are in the storage
+     * @return <i> true </i> if LIDAR detects a ball in the storage; <i> false </i> otherwise
+     */
     public boolean isEmpty() {
         return mLidar.getDistanceIn() < StorageConstants.kMaxEmptyStorageDistanceInches;
     }
 
+    /**
+     * Checks if Power Cell is loaded in Chamber
+     * @return <i> true </i> if a Power Cell is inside the Chamber; <i> false </i> otherwise
+     */
     public boolean isChamberLoaded() {
         return mChamberBallDetector.get();
     }
 
+    /**
+     * Checks if Power Cell is at the back of the magazine, ready to be loaded into the chamber
+     * @return <i> true </i> if a Power Cell is at the back of the magazine; <i> false </i> otherwise
+     */
     public boolean isBackMagazineLoaded() {
         return mPreChamberBallDetector.get();
     }
 
+    /**
+     * Checks if Power Cell has entered the Magazine
+     * @return <i> true </i> if a Power Cell has entered the magazine; <i> false </i> otherwise
+     */
     public boolean isBallEnteredMagazine() {
         return mEntryBallDetector.get();
     }
 
+    /**
+     * Checks if Power Cell is detected by Intake Beam Breaker
+     * @return <i> true </i> if a Power Cell is caught in the intake; <i> false </i> otherwise
+     */
     public boolean isBallCaughtIntake() {
         return mIntakeBallDetector.get();
     }
 
+    /**
+     * Runs storage belt at constant speed
+     */
     public void runBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
     }
 
+    /**
+     * Runs storage belt in the opposite direction at constant speed
+     */
     public void reverseBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
     }
 
+    /**
+     * Stops storage belt from running
+     */
     public void stopBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }
 
     @Override
     public void outputTelemetry() {
+        SmartDashboard.putData(getInstance());
         SmartDashboard.putBoolean("Ball in Intake", isBallCaughtIntake());
         SmartDashboard.putBoolean("Ball in Magazine Entry", isBallEnteredMagazine());
         SmartDashboard.putBoolean("Ball before Chamber", isBackMagazineLoaded());
@@ -138,6 +177,12 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         SmartDashboard.putBoolean("Is Chamber Valve Open", mBallValveA.get() == Value.kReverse);
         SmartDashboard.putNumber("Storage Lidar", mLidar.getDistanceIn());
         SmartDashboard.putBoolean("Is Storage Empty", isEmpty());
+    }
+
+    @Override
+    public void runTest() {
+        // TODO Auto-generated method stub
+        
     }
 
     /**

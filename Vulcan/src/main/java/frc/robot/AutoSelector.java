@@ -15,6 +15,10 @@ import frc.robot.subsystems.DriveSubsystem;
  */
 public class AutoSelector {
 
+    /**
+     * Autonomous Paths that map to a Command Sequence
+     * @author Shreyas Prasad
+     */
     enum AutoPath {
         eNothing, eStraight, eStraightThenTurn, eComplexPath, eRamseteTest
     }
@@ -35,6 +39,9 @@ public class AutoSelector {
         SmartDashboard.putData("Auto Path", mAutoChooser);
     }
 
+    /**
+     * Allows Operators to select one of several designed Autonomous Routines via SmartDashboard/Shuffleboard
+     */
     public void selectAuto() {
         mSelectedAutoScenario = mAutoChooser.getSelected();
         if(mPrevAutoScenario != mSelectedAutoScenario) {
@@ -43,6 +50,10 @@ public class AutoSelector {
         mPrevAutoScenario = mSelectedAutoScenario;
     }
 
+    /**
+     * Decodes AutoPath Enum to a Command Sequence
+     * @return Command Sequence for Autonomous
+     */
     public Command getSelectedAutoCommand() {
         switch(mSelectedAutoScenario) {
             case eStraight:

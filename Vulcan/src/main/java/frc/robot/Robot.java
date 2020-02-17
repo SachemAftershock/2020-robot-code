@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         mRobotContainer = RobotContainer.getInstance();
+        mRobotContainer.init();
 
         RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
         
@@ -42,7 +43,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit(){
-
+        mRobotContainer.disableLimelightLeds();
     }
 
     @Override
@@ -52,7 +53,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-    
         RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
 
         mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
@@ -81,6 +81,11 @@ public class Robot extends TimedRobot {
     }
   
     @Override
-    public void testPeriodic() { //TODO: Add ability to quickly tune PIDs
+    public void testPeriodic() { 
+        try {
+            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::runTest);
+        } catch(Throwable t) {
+            System.out.println(t);
+        }
     }
 }

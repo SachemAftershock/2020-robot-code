@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.WheelControllerSubsystem;
 
-public class WheelPositionControlCommand extends CommandBase {
+public class WheelRotateControlCommand extends CommandBase {
     private final WheelControllerSubsystem mWheelController;
     private final Timer mTimer;
     private final double kTimeoutInSeconds = 30.0; //TODO: Time a good value for this
 
-    public WheelPositionControlCommand(WheelControllerSubsystem subsystem) {
+    public WheelRotateControlCommand(WheelControllerSubsystem subsystem) {
         mWheelController = subsystem;
         addRequirements(mWheelController);
         mTimer = new Timer();
@@ -19,13 +19,13 @@ public class WheelPositionControlCommand extends CommandBase {
     @Override
     public void initialize() {
         mTimer.start();
-        mWheelController.startPositionControl();
+        mWheelController.startRotationControl();
     }
 
     @Override
     public void end(boolean interrupted) {
         mTimer.stop();
-        mWheelController.endPositionControl();
+        mWheelController.endRotationControl();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class WheelPositionControlCommand extends CommandBase {
         if(mTimer.hasPeriodPassed(kTimeoutInSeconds)) {
             DriverStation.reportError("ERROR: WHEEL POSITION COMMAND TIMED OUT", false);
             return true;
-        } else if(mWheelController.isPositionConditionMet()) {
+        } else if(mWheelController.isRotateConditionMet()) {
             return true;
         }
         return false;

@@ -3,12 +3,13 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDConstants;
 import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
 
 /**
- * RoboRIO Master Code to process appropriate LED Color & sends data over I2C to Arduino LED Slave
+ * RoboRIO Master Code to process appropriate LED Color & send data over I2C to Arduino LED Slave
  * @author Shreyas Prasad
  */
 public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -20,6 +21,9 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	public SystemState mCurrentMode, mDesiredMode, mPrevMode;
 	private boolean mFirstRun, mForcedCommandRunning;
 
+	/**
+	 * Constructor for LEDSubsystem Class
+	 */
     private LEDSubsystem() {
 		mTimer = new Timer();
         mI2c = new I2C(I2C.Port.kOnboard, LEDConstants.kArduinoI2CAddress);
@@ -79,14 +83,21 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 		mPrevMode = mCurrentMode;
 	}
 
+	/**
+	 * Forcefully changes the LED State & overrides the Robot State Check Processor
+	 * @param state SystemState to change the LEDs to
+	 */
 	public void forceSystemState(SystemState state) {
 		mDesiredMode = state;
 		mForcedCommandRunning = true;
 	}
 	
+	/**
+	 * Processes change in current and desired LED Mode
+	 */
 	private void processModeChange() {
 		final LEDMode desiredLEDMode = mDesiredMode.getLEDMode();
-		switch(desiredLEDMode) { //TODO: Get all desired LED configs in
+		switch(desiredLEDMode) {
 			case eOff:
 			case eRainbow:
 			case eBlue:
@@ -103,6 +114,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 				mCurrentMode = mDesiredMode;
 				mForcedCommandRunning = false;
 				break;
+
 			case eWhiteBlink:
 			case eYellowBlink:
 			case eBlueBlink:
@@ -120,7 +132,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 					setColor(desiredLEDMode);
 					mFirstRun = false;
 				}
-				if(mTimer.get() >= LEDConstants.kBulletRunTime) {
+				if(mTimer.get() >= LEDConstants.kTempModeRunTime) {
 					mTimer.stop();
 					setColor(mPrevMode.getLEDMode());
 					mFirstRun = true;
@@ -159,7 +171,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
      * 
 	 * @author Shreyas Prasad
      */
-    private enum LEDMode { //TODO: Get Correct bytes
+    private enum LEDMode {
 		eOff((byte)'n'), eRed((byte)'r'), eRedYellowAlternate((byte)'x'), eBlue((byte)'b'), eBlueRedAlternate((byte)'s'), eOrange((byte)'m'), eRedBlink((byte)'f'), eBlueBlink((byte)'h'),
 		eWhite((byte)'w'), eGreen((byte)'g'), ePink((byte)'p'), eYellow((byte)'y'), eYellowBlink((byte)'j'), eTeal((byte)'t'), eTealBullet((byte)'d'), eRainbow((byte)'a'), eWhiteBlink((byte)'o'), eBulletOrange((byte)'l'), eColorCycle((byte)'c'),
 		eBlueYellowAlternate((byte)'v'), ePurple((byte)'u'), eBulletRed((byte)'e'), eBulletWhite((byte)'i');
@@ -194,9 +206,18 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
     
     @Override
     public void outputTelemetry() {
-        
-    }
+		SmartDashboard.putData(getInstance());
+	}
+	
+	@Override
+	public void runTest() {
+		// TODO Auto-generated method stub
+		
+	}
 
+	/**
+	 * @return LEDSubsystem Singleton Instance
+	 */
     public synchronized static LEDSubsystem getInstance() {
         if(mInstance == null) {
             mInstance = new LEDSubsystem();
