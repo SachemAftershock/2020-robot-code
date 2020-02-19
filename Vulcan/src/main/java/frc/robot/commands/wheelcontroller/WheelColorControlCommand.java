@@ -14,7 +14,7 @@ public class WheelColorControlCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        mWheelController.turnToTargetColor();
+        mWheelController.startColorTargeting();
     }
 
     @Override

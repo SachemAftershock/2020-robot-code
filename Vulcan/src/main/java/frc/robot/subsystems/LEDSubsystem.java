@@ -40,6 +40,9 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
         
     }
 
+	/**
+	 * LED Subsystem State Machine
+	 */
     @Override
     public void periodic() {
 		if(!mForcedCommandRunning) {
@@ -190,8 +193,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	/**
 	 * Send current desired LED Strip mode over I2C to Arduino
 	 * 
-	 * @param systemColor
-	 *            SystemLEDMode enum element to set LEDStrip
+	 * @param systemColor SystemLEDMode enum element to set LEDStrip
 	 */
 	private void setColor(LEDMode color) {
 		// Test to make sure color is different than current mode to avoid

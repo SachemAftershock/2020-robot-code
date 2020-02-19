@@ -16,7 +16,13 @@ import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
 /**
  * Turret Subsystem
+ * 
  * @author Shreyas Prasad
+ * 
+ * @see SuperstructureSubsystem
+ * 
+ * @see ShooterSubsystem
+ * 
  */
 public class TurretSubsystem extends SubsystemBase implements SubsystemInterface {
 
@@ -54,6 +60,8 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Turret Auto Targeting Processor
+     * <p>
+     * Uses Limelight tx to aim onto target: {@link LimelightManagerSubsystem}
      */
     @Override
     public void periodic() {
@@ -96,7 +104,9 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Manually Drives the Turret only when Auto Targeting is disabled
-     * <p> Scaled down by kManualControlScaleFactor
+     * <p> 
+     * Scaled down by kManualControlScaleFactor
+     * 
      * @param pow the input power from [-1,1] to be scaled down to drive the turret
      */
     public void manualControl(double pow) {
@@ -107,6 +117,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Is Turret Aimed at Target AND does the ball have clearance with this angle
+     * 
      * @return whether to take the shot
      */
     public synchronized boolean isAimedAtTarget() {
@@ -117,6 +128,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Returns the Robot-Relative Turret Angle
+     * 
      * @return Robot-Relative Turret Angle
      */
     public double getTurretAngle() {
@@ -125,6 +137,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Gets if Turret Auto-Targeting is Enabled
+     * 
      * @return <i> true </i> if the turret automatically seeking the target is enabled
      */
     public boolean isAutoTargetingEnabled() {
@@ -144,6 +157,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Sets the Target of the shooter to either the High or Low Target
+     * 
      * @param target the target for the Shooter to target
      */
     public void setTarget(ShootingTarget target) {

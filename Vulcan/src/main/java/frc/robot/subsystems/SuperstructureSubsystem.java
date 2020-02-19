@@ -12,7 +12,8 @@ import frc.robot.commands.groups.StartFeedSequence;
 import frc.robot.commands.groups.StartIdleSequence;
 
 /**
- * Superstucture consisting of Shooter, Turret, Intake, & Storage
+ * Superstucture consisting of {@link ShooterSubsystem}, {@link TurretSubsystem}, {@link StorageSubsystem}, & {@link IntakeSubsystem}
+ * 
  * @author Shreyas Prasad
  */
 public class SuperstructureSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -110,6 +111,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     /**
      * Run Initialization Commands for the Selected Mode
+     * 
      * @param mode SuperstructureMode to change to
      */
     public void setMode(SuperstructureMode mode) {
@@ -149,6 +151,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     /**
      * If the shot has been authorized by the operator or not
+     * 
      * @return <i> true </i> if the operator has authorized the Robot to shoot at will; <i> false </i> otherwise
      */
     public boolean isShotAuthorized() {
@@ -157,6 +160,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     /**
      * Gets current Superstructure System Mode
+     * 
      * @return the mode of the Superstructure
      */
     public SuperstructureMode getCurrentMode() {

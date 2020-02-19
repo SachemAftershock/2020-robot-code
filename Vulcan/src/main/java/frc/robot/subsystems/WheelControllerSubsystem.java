@@ -143,7 +143,10 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         return mTimesPositionedToStartColor >= 7;
     }
 
-    public void turnToTargetColor() {
+    /**
+     * Begins Color Targeting
+     */
+    public void startColorTargeting() {
         mPreviousExists = false;
         CalculatedSpin calculatedSpin = calculateSpinDirection();
         mWedgesRequiredToRotate = calculatedSpin.getWedgesToRotate();
@@ -179,7 +182,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     /**
      * Toggles the Wheel Controller Extender Piston
      * <p>
-     * Changes Coliision Avoidance Standoff {@link CollisionAvoidanceSubsystem#setColorWheelStandoff()}
+     * Changes Coliision Avoidance Standoff: {@link CollisionAvoidanceSubsystem#setColorWheelStandoff()}
      */
     public void toggleExtender() {
         switch (mExtender.get()) {
@@ -269,8 +272,11 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Tests if input parameters are within Color Tolerance
+     * 
      * @param a First Single Color Value
+     * 
      * @param b Second Single Color Value
+     * 
      * @return If a and b are within the accepted tolerance
      */
     private boolean withinRange(double a, double b) {
@@ -279,6 +285,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Gets if the target color has been given by the FMS
+     * 
      * @return <i> true </i> if the FMS has given the target color;<i> false </i> otherwise
      */
     public boolean isTargetColorKnown() {
@@ -287,6 +294,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Lookup-Table consisting of the RGB values of the Control Panel Colors
+     * 
      * @author Shreyas Prasad
      */
     private enum ColorLUT implements Sendable {
@@ -323,6 +331,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Vector to Spin the Control Panel in Positional(Color) Control
+     * 
      * @author Shreyas Prasad
      */
     private class CalculatedSpin {
@@ -336,6 +345,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         /**
          * Gets Direction Component of Vector
+         * 
          * @return the direction to get to the target color in the shortest time
          */
         public Direction getTargetDirection() {
@@ -344,6 +354,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         /**
          * Gets Magnitude of Vector in terms of Control Panel Color Wedges to rotate
+         * 
          * @return the number of wedges needed to rotate to reach the target
          */
         public int getWedgesToRotate() {
@@ -353,6 +364,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     /**
      * Circular Array representing the cycle of colors on the Control Panel
+     * 
      * @author Shreyas Prasad
      */
     private class CircularColorArray {
@@ -376,7 +388,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         /**
          * Gets color at the index; wraps around if index is outside of [0,3]
+         * 
          * @param index the index to get the color from
+         * 
          * @return Color found at the normalized index
          */
         public ColorLUT getColor(int index) {
@@ -388,7 +402,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         /**
          * Gets index from [0,3] of the selected Color
+         * 
          * @param targetColor the color to search the Circular Array for
+         * 
          * @return the index from [0,3] of the selected color in the Circular Array
          */
         public int getIndex(ColorLUT targetColor) {
@@ -405,7 +421,8 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     /**
      * Whether or not the Wheel Controller is active
      * <p>
-     * Used for LED State Processor
+     * Used for {@link LEDSubsystem#periodic() LED State Processor}
+     * 
      * @return <i> true </i> if Wheel Spinner Motor is running; <i> false </i> otherwise
      */
     public boolean isRunning() {

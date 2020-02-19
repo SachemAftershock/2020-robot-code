@@ -7,11 +7,23 @@ import frc.robot.Constants;
 import frc.robot.Util;
 import frc.robot.subsystems.DriveSubsystem;
 
+/**
+ * Default Manual Operator Drive Command
+ * 
+ * @author Shreyas Prasad
+ */
 public class ManualDriveCommand extends CommandBase {
  
     private DriveSubsystem mDrive;
     private XboxController mController;
 
+    /**
+     * Constructor for ManualDriveCommand Class
+     * 
+     * @param drive DriveSubsystem singleton instance
+     * 
+     * @param controller Primary Xbox Controller
+     */
     public ManualDriveCommand(DriveSubsystem drive, XboxController controller) {
         mDrive = drive;
         mController = controller;

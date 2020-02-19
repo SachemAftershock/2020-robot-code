@@ -56,9 +56,11 @@ public final class Constants {
         public static final int kDriveMotorStarboardBId = 5;
         public static final int kDriveMotorStarboardCId = 6;
 
-        public static final double kWheelDiameter = Units.inchesToMeters(6.0);
+        public static final double kWheelRadiusInches = 3.0;
+        public static final double kWheelDiameterInches = 6.0;
+        public static final double kWheelCircumferenceInches = kWheelDiameterInches * Math.PI;
+        public static final double kWheelDiameter = Units.inchesToMeters(kWheelDiameterInches);
         public static final double kWheelCircumference = kWheelDiameter * Math.PI;
-        public static final double kDriveEncoderPPR = 42.0;
         public static final double kWheelRadius = Units.inchesToMeters(3.0);
         public static final double kTrackWidth = Units.inchesToMeters(19.125); //Distance in between wheels
         public static final double kLowGearRatio = 1.0;

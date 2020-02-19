@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -25,7 +26,8 @@ import frc.robot.Util;
 
 /**
  * Drivebase Subsystem for a Two Speed Transmission, 6 Wheel, West Coast Drive
- * 
+ * <p>
+ * {@link CollisionAvoidanceSubsystem Features Proportional Collision Avoidance}
  * @author Shreyas Prasad
  */
 public class DriveSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -58,26 +60,59 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Constructor for DriveSubsystem Class
      */
     private DriveSubsystem() {
+        //I'm only this thorough with Spark initialization because I saw a thread on Chief Delphi 
+        //that Spark MAXs reset to the settings burned into the flash memory if they lose power
         mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
+        mDriveMotorPortA.restoreFactoryDefaults();
+        mDriveMotorPortA.setMotorType(MotorType.kBrushless);
         mDriveMotorPortA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorPortA.setIdleMode(IdleMode.kBrake);
+        mDriveMotorPortA.setInverted(false);
+        mDriveMotorPortA.burnFlash();
                 
         mDriveMotorPortB = new CANSparkMax(DriveConstants.kDriveMotorPortBId, MotorType.kBrushless);
+        mDriveMotorPortB.restoreFactoryDefaults();
+        mDriveMotorPortB.setMotorType(MotorType.kBrushless);
         mDriveMotorPortB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorPortB.setIdleMode(IdleMode.kBrake);
+        mDriveMotorPortB.setInverted(false);
+        mDriveMotorPortB.burnFlash();
+
                 
         mDriveMotorPortC = new CANSparkMax(DriveConstants.kDriveMotorPortCId, MotorType.kBrushless);
+        mDriveMotorPortC.restoreFactoryDefaults();
+        mDriveMotorPortC.setMotorType(MotorType.kBrushless);
         mDriveMotorPortC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorPortC.setIdleMode(IdleMode.kBrake);
+        mDriveMotorPortC.setInverted(false);
+        mDriveMotorPortC.burnFlash();
                 
         mDriveGroupPort = new SpeedControllerGroup(mDriveMotorPortA, mDriveMotorPortB, mDriveMotorPortC);
         addChild("Port Side Speed Controller Group",mDriveGroupPort);
                 
         mDriveMotorStarboardA = new CANSparkMax(DriveConstants.kDriveMotorStarboardAId, MotorType.kBrushless);
+        mDriveMotorStarboardA.restoreFactoryDefaults();
+        mDriveMotorStarboardA.setMotorType(MotorType.kBrushless);
         mDriveMotorStarboardA.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorStarboardA.setIdleMode(IdleMode.kBrake);
+        mDriveMotorStarboardA.setInverted(false);
+        mDriveMotorStarboardA.burnFlash();
                 
         mDriveMotorStarboardB = new CANSparkMax(DriveConstants.kDriveMotorStarboardBId, MotorType.kBrushless);
+        mDriveMotorStarboardB.restoreFactoryDefaults();
+        mDriveMotorStarboardB.setMotorType(MotorType.kBrushless);
         mDriveMotorStarboardB.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorStarboardB.setIdleMode(IdleMode.kBrake);
+        mDriveMotorStarboardB.setInverted(false);
+        mDriveMotorStarboardB.burnFlash();
 
         mDriveMotorStarboardC = new CANSparkMax(DriveConstants.kDriveMotorStarboardCId, MotorType.kBrushless);
+        mDriveMotorStarboardC.restoreFactoryDefaults();
+        mDriveMotorStarboardC.setMotorType(MotorType.kBrushless);
         mDriveMotorStarboardC.setOpenLoopRampRate(DriveConstants.kRampRateToMaxSpeed);
+        mDriveMotorStarboardC.setIdleMode(IdleMode.kBrake);
+        mDriveMotorStarboardC.setInverted(false);
+        mDriveMotorStarboardC.burnFlash();
 
         mDriveGroupStarboard = new SpeedControllerGroup(mDriveMotorStarboardA, mDriveMotorStarboardB, mDriveMotorStarboardC);
         addChild("Starboard Side Speed Controller Group", mDriveGroupStarboard);
@@ -125,14 +160,14 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mNavx.zeroYaw();
         mOdometry.resetPosition(new Pose2d(), new Rotation2d(getHeading()));
         mGearShifter.set(Value.kReverse); //TODO: Find out which side corresponds to which gearing, needs to start in Low Gear
-
+        
         mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
     }
 
     @Override
     public void periodic() {
-        mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistance(), getStarboardEncoderDistance());
+        mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistanceInches(), getStarboardEncoderDistanceInches());
     }
     
     /**
@@ -145,6 +180,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @param rot Robot's Rotation Rate; Right Joystick X-Axis
      * 
      * @param wantDeccelerate If the Operator requests the Robot to deccelerate; Left or Right Triggers
+     * 
+     * @see frc.robot.commands.drive.ManualDriveCommand
      */
     public void manualDrive(double pow, double rot, boolean wantDeccelerate) {
         if(wantDeccelerate) { 
@@ -154,6 +191,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
         pow *= mSelectedMaxSpeedProportion;
         rot *= mSelectedMaxSpeedProportion; //Same as above todo, not sure if we need to scale rot differently
+
+        final double slowdownScaleFactor = CollisionAvoidanceSubsystem.getInstance().getSlowdownScaleFactor();
+        pow *= slowdownScaleFactor;
+        rot *= slowdownScaleFactor;
 
         //If Velocity is changing by greater than the Max Acceptable Limit, the change in velocity is switched to the maximum acceptable change in velocity
         if(Math.abs(mPrevPow - pow) > DriveConstants.kMaxManualLinearAcceleration) {
@@ -200,8 +241,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @param setpoint target destination to drive forward to
      */
     public void startAutoDrive(double setpoint) {
-        mLeftTarget = mPortEncoder.getPosition() + getEncoderCount(setpoint);
-        mRightTarget = mStarboardEncoder.getPosition() + getEncoderCount(setpoint);
+        mLeftTarget = mPortEncoder.getPosition() + getRotations(setpoint);
+        mRightTarget = mStarboardEncoder.getPosition() + getRotations(setpoint);
         mPortPid.start(DriveConstants.kLinearGains);
         mStarboardPid.start(DriveConstants.kLinearGains);
     }
@@ -223,8 +264,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 mPortPid.resumePID();
                 mStarboardPid.resumePID();
             }
-            mPortSpeed = mPortPid.update(mPortEncoder.getPosition(), mLeftTarget);
-            mStarboardSpeed = mStarboardPid.update(mStarboardEncoder.getPosition(), mRightTarget);
+            mPortSpeed = mPortPid.update(getPortRotations(), mLeftTarget);
+            mStarboardSpeed = mStarboardPid.update(getStarboardRotations(), mRightTarget);
         }
         mDifferentialDrive.tankDrive(mPortSpeed, mStarboardSpeed);
         //If when driving straight, the robot is turning, add gyro-based correction
@@ -266,7 +307,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     /**
      * Check for if the Rotational Drive Target has been reached
      * 
-     * @return <i>true</i> when Rotational Error < Epsilon; <i>false</i> otherwise
+     * @return <i> true </i> when Rotational Error < Epsilon; <i> false </i> otherwise
      */
     public boolean rotateTargetReached() {
         final boolean targetReached = Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
@@ -322,16 +363,16 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     /**
      * Checks if Drivebase Gearing is in High Gear
      * 
-     * @return <i>true</i> when Gear Solenoid is Forward, i.e in High Gear; <i>false</i> otherwise
+     * @return <i> true </i> when Gear Solenoid is Forward, i.e in High Gear; <i> false </i> otherwise
      */
-    public boolean isHighGear() {
+    public synchronized boolean isHighGear() {
         return mGearShifter.get() == Value.kForward; //TODO: Find out if this is actually high
     }
 
     /**
      * Checks if Precision Mode is Enabled
      * 
-     * @return <i>true</i> when Precision Mode Enabled <i>false</i> otherwise
+     * @return <i> true </i> when Precision Mode Enabled <i> false </i> otherwise
      */
     public boolean isPrecisionMode() {
         return mIsPrecisionMode;
@@ -357,8 +398,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * 
      * @return Number of Port Side Wheel Rotations
      */
-    private double getPortEncoderRotations() {
-        return mPortEncoder.getPosition() / DriveConstants.kDriveEncoderPPR;
+    private double getPortRotations() {
+        return mPortEncoder.getPosition();
     }
 
     /**
@@ -366,43 +407,47 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * 
      * @return Number of Starboard Side Wheel Rotations
      */
-    private double getStarboardEncoderRotations() {
-        return mStarboardEncoder.getPosition() / DriveConstants.kDriveEncoderPPR;
+    private double getStarboardRotations() {
+        return mStarboardEncoder.getPosition();
     }
 
     /**
      * Converts Wheel Rotations to Linear Distance travelled
      * 
      * @param rotations number of rotations
+     * 
      * @return linear distance travelled
      */
     private double rotationsToInches(double rotations) {
-        return rotations * DriveConstants.kWheelCircumference;
+        return rotations * DriveConstants.kWheelCircumferenceInches;
     }
 
     /**
      * @return Port Side Distance Travelled in Inches
      */
-    private double getPortEncoderDistance() {
-        return rotationsToInches(getPortEncoderRotations());
+    private double getPortEncoderDistanceInches() {
+        return rotationsToInches(getPortRotations());
     }
 
     /**
      * @return Starboard Side Distance Travelled in Inches
      */
-    private double getStarboardEncoderDistance() {
-        return rotationsToInches(getStarboardEncoderRotations());
+    private double getStarboardEncoderDistanceInches() {
+        return rotationsToInches(getStarboardRotations());
     }
 
     /**
-     * Gets Number of Encoder Pulses for a distance to travel linearly
+     * Gets Number of Rotations for a distance to travel linearly
      * 
-     * @param distance the distance to travel linearly
+     * @param distanceInches the distance to travel linearly in inches
      * 
-     * @return the number of encoder pulses to travel the distance
+     * @return the number of rotations to travel the distance
      */
-    private double getEncoderCount(double distance) {
-        return distance / DriveConstants.kWheelCircumference * DriveConstants.kDriveEncoderPPR; //TODO: have to factor in drive base gearing
+    private double getRotations(double distanceInches) {
+        if(isHighGear()) {
+            return distanceInches / DriveConstants.kWheelCircumferenceInches * DriveConstants.kHighGearRatio;
+        }
+        return distanceInches / DriveConstants.kWheelCircumferenceInches  * DriveConstants.kLowGearRatio;
     }
 
     /**
@@ -418,6 +463,11 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         return mStarboardEncoder.getVelocity();
     }
 
+    /**
+     * Gets Current Wheel Speeds
+     * 
+     * @return DifferentialDriveWheelSpeeds object containing Port & Starboard side speeds
+     */
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
         return new DifferentialDriveWheelSpeeds(getPortSpeed(), getStarboardSpeed());
     }

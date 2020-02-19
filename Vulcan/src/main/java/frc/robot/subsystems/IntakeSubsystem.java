@@ -17,7 +17,12 @@ import frc.robot.commands.superstructure.intake.StopIntakeCommand;
 
 /**
  * Intake Subsystem
+ * 
  * @author Shreyas Prasad
+ * 
+ * @see SuperstructureSubsystem
+ * 
+ * @see StorageSubsystem
  */
 public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface {
 

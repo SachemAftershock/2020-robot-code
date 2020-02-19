@@ -12,7 +12,10 @@ import frc.robot.Constants.CollisionAvoidanceConstants;
 
 /**
  * Controller for Collision Avoidance Speed Control
+ * 
  * @author Shreyas Prasad
+ * 
+ * @see DriveSubsystem
  */
 public class CollisionAvoidanceSubsystem extends SubsystemBase implements SubsystemInterface {
 
@@ -47,7 +50,12 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
      * Gets the Ratio the Drivebase Speed should be scaled down by
      * <p>
      * Proportional to the proximity to the object to be collided into
+     * 
      * @return speed proportion as calculated by the distance from the object; 1.0 if no collision detected
+     * 
+     * @see DriveSubsystem#manualDrive(double, double, boolean)
+     * 
+     * @see DriveSubsystem#runAutoDrive()
      */
     public double getSlowdownScaleFactor() {
         if(!mCollisionEnabled) {
@@ -61,6 +69,8 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     /**
      * Reduce maximum distance before Collision Avoidance is enacted to allow the Robot to get close to the Control Panel when Wheel Controller is deployed
+     * 
+     * @see WheelControllerSubsystem#toggleExtender()
      */
     public void setColorWheelStandoff() {
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kColorWheelStandoffSlowdownInches;
@@ -68,6 +78,8 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
     
     /**
      * Set maximum distance before Collision Avoidance activates back to the default
+     * 
+     * @see WheelControllerSubsystem#toggleExtender()
      */
     public void setStandardStandoff() {
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
@@ -75,6 +87,8 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     /**
      * Enables Collision Avoidance
+     * 
+     * @see frc.robot.commands.drive.ToggleCollisionAvoidanceCommand
      */
     public void enableCollisionAvoidance() {
         mCollisionEnabled = true;
@@ -82,6 +96,8 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     /**
      * Disables Collision Avoidance
+     * 
+     * @see frc.robot.commands.drive.ToggleCollisionAvoidanceCommand
      */
     public void disableCollisionAvoidance() {
         mCollisionEnabled = false;
@@ -89,7 +105,10 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     /**
      * Gets if Collision Avoidance is Enabled
+     * 
      * @return <i> true </i> if Collision Avoidance is Enabled; <i> false </i> otherwise
+     * 
+     * @see frc.robot.commands.drive.ToggleCollisionAvoidanceCommand
      */
     public boolean isCollisionAvoidanceEnabled() {
         return mCollisionEnabled;
@@ -97,9 +116,11 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     /**
      * Gets current distance from Robot to any obstacle
+     * 
      * @return Distance in Inches from Ultrasonic on Robot to obstacle
+     * 
      */
-    public double getCurrentDistanceInches() {
+    private double getCurrentDistanceInches() {
         return mCurrentDistance;
     }
 

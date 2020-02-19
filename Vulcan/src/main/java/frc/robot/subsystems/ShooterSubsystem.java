@@ -20,7 +20,12 @@ import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
 /**
  * Shooter Subsystem
+ * 
  * @author Shreyas Prasad
+ * 
+ * @see SuperstructureSubsystem
+ * 
+ * @see TurretSubsystem
  */
 public class ShooterSubsystem extends SubsystemBase implements SubsystemInterface {
 
@@ -43,7 +48,11 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
      */
     private ShooterSubsystem() {
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
+        mShooter.restoreFactoryDefaults();
+        mShooter.setMotorType(MotorType.kBrushless);
         mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
+        mShooter.setInverted(false);
+        mShooter.burnFlash();
 
         //mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
         mLoader = new DoubleSolenoid(Constants.kPcmBId, ShooterConstants.kLoaderForwardId, ShooterConstants.kLoaderReverseId);
@@ -71,7 +80,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     /**
      * Runs Velocity PID on Neo Shooter Motor to reach the calculated RPM
      * <p>
-     * Gets RPM by Polynomial Regression
+     * Gets RPM by Polynomial Regression: {@link frc.robot.Constants.SuperstructureConstants.ShooterConstants#kShooterPolynomial}
      * <p>
      * If Target falls out of view for 2.5s, goes to median RPM in regression table
      */
