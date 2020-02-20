@@ -11,12 +11,14 @@ import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * Class to select desired Autonomous Configuration at Startup
+ * 
  * @author Shreyas Prasad
  */
 public class AutoSelector {
 
     /**
      * Autonomous Paths that map to a Command Sequence
+     * 
      * @author Shreyas Prasad
      */
     enum AutoPath {
@@ -27,6 +29,9 @@ public class AutoSelector {
 
     private SendableChooser<AutoPath> mAutoChooser;
 
+    /**
+     * Constructor for AutoSelector Class
+     */
     public AutoSelector() {
         mPrevAutoScenario = null;
 
@@ -52,6 +57,7 @@ public class AutoSelector {
 
     /**
      * Decodes AutoPath Enum to a Command Sequence
+     * 
      * @return Command Sequence for Autonomous
      */
     public Command getSelectedAutoCommand() {

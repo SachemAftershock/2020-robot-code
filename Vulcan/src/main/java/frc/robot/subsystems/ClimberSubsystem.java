@@ -23,6 +23,7 @@ import frc.robot.commands.climber.RunClimber;
 
 /**
  * Climber Subsystem
+ * 
  * @author Shreyas Prasad
  */
 public class ClimberSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -70,6 +71,8 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
      * Raises Elevator Level by one level
      * <p>
      * Does nothing if at highest point
+     * 
+     * @see frc.robot.commands.climber.RaiseElevatorLevelCommand
      */
     public void raiseElevatorLevel() {
         switch(mCurrentPosition) {
@@ -90,6 +93,8 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
      * Lowers Elevator by one level
      * <p>
      * Does nothing if at lowest point
+     * 
+     * @see frc.robot.commands.climber.LowerElevatorLevelCommand
      */
     public void lowerElevatorLevel() {
         switch(mCurrentPosition) {
@@ -108,7 +113,12 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if the elevator has travelled from the last elevator position to the desired elevator position
+     * 
      * @return <i> true </i> if elevator has reached desired position; <i> false </i> otherwise
+     * 
+     * @see frc.robot.commands.climber.RaiseElevatorLevelCommand
+     * 
+     * @see frc.robot.commands.climber.LowerElevatorLevelCommand
      */
     public boolean isAtDesiredPosition() {
         final boolean atDesiredPosition = Math.abs(mElevator.getSelectedSensorPosition() - mDesiredPosition.getEncoderCount()) <= ClimberConstants.kEpsilon;
@@ -135,6 +145,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Elevator Positions containing the encoder count for the appropriate position
+     * 
      * @author Shreyas Prasad
      */
     public enum ClimbElevatorPosition implements Sendable {
@@ -165,8 +176,10 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     /**
      * Gets if Lift Winch Motor is running
      * <p>
-     * Used for LED Feedback
+     * Used for {@link LEDSubsystem#periodic() LED Feedback}
+     * 
      * @return <i> true </i> if Lift Winch Motor is running; <i> false </i> otherwise
+     * 
      */
     public boolean isClimbing() {
         return Math.abs(mLifter.get()) > 0;
@@ -174,6 +187,9 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Predicts if the Robot is finished climbing based off if the Lift Winch Motor has previously ran and has now stopped running
+     * <p>
+     * Used for {@link LEDSubsystem#periodic() LED Feedback}
+     * 
      * @return <i> true </i> if the Robot is predicted to have finished climbing; <i> false </i> otherwise
      */
     public boolean predictIsClimbFinished() {

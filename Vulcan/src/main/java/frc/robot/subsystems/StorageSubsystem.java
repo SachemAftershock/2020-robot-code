@@ -15,6 +15,7 @@ import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
 /**
  * Power Cell Storage Subsystem
+ * 
  * @author Shreyas Prasad
  */
 public class StorageSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -26,7 +27,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
     private final Lidar mLidar;
 
-    private boolean mPrevChamberLoaded, mPrevIntakeBallDetected, mPrevMagazineEntryBallDetected;
+    private LatchedBoolean mNewBallInChamber, mNewBallInIntake, mNewBallEnteredMagazine;
 
     /**
      * Constructor for StorageSubsystem Class
@@ -44,13 +45,14 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
 
         mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
+
+        mNewBallInChamber = new LatchedBoolean();
+        mNewBallInIntake = new LatchedBoolean();
+        mNewBallEnteredMagazine = new LatchedBoolean();
     }
 
     @Override
     public void init() {
-        mPrevChamberLoaded = isChamberLoaded();
-        mPrevIntakeBallDetected = isBallCaughtIntake();
-        mPrevMagazineEntryBallDetected = isBallEnteredMagazine();
     }
 
     /**
@@ -69,44 +71,36 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mBallValveB.set(Value.kReverse);
     }
 
+    /**
+     * Gets if a New Power Cell has entered the Chamber
+     * 
+     * @return <i> true </i> if a Power Cell has entered the Chamber; <i> false </i> otherwise
+     */
     public boolean isNewBallInChamber() {
-        if (isChamberLoaded() && !mPrevChamberLoaded) {
-            mPrevChamberLoaded = true;
-            return true;
-        } else {
-            if(!isChamberLoaded()) {
-                mPrevChamberLoaded = false;
-            }
-            return false;
-        }
+        return mNewBallInChamber.update(isChamberLoaded());
     }
 
+    /**
+     * Gets if a New Power Cell has entered the Intake
+     * 
+     * @return <i> true </i> if a Power Cell has entered the Intake; <i> false </i> otherwise
+     */
     public boolean isNewBallInIntake() {
-        if (isBallCaughtIntake() && !mPrevIntakeBallDetected) {
-            mPrevIntakeBallDetected = true;
-            return true;
-        } else {
-            if(!isBallCaughtIntake()) {
-                mPrevIntakeBallDetected = false;
-            }
-            return false;
-        }
+        return mNewBallInIntake.update(isBallCaughtIntake());
     }
 
+    /**
+     * Gets if a New Power Cell has entered the Magazine
+     * 
+     * @return <i> true </i> if a Power Cell has entered the Magazine; <i> false </i> otherwise
+     */
     public boolean isNewBallInMagazineEntry() {
-        if (isBallEnteredMagazine() && !mPrevMagazineEntryBallDetected) {
-            mPrevMagazineEntryBallDetected = true;
-            return true;
-        } else {
-            if(!isBallEnteredMagazine()) {
-                mPrevMagazineEntryBallDetected = false;
-            }
-            return false;
-        }
+       return mNewBallEnteredMagazine.update(isBallEnteredMagazine());
     }
 
     /**
      * Lidar Checks if any Power Cells are in the storage
+     * 
      * @return <i> true </i> if LIDAR detects a ball in the storage; <i> false </i> otherwise
      */
     public boolean isEmpty() {
@@ -115,6 +109,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if Power Cell is loaded in Chamber
+     * 
      * @return <i> true </i> if a Power Cell is inside the Chamber; <i> false </i> otherwise
      */
     public boolean isChamberLoaded() {
@@ -123,6 +118,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if Power Cell is at the back of the magazine, ready to be loaded into the chamber
+     * 
      * @return <i> true </i> if a Power Cell is at the back of the magazine; <i> false </i> otherwise
      */
     public boolean isBackMagazineLoaded() {
@@ -131,6 +127,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if Power Cell has entered the Magazine
+     * 
      * @return <i> true </i> if a Power Cell has entered the magazine; <i> false </i> otherwise
      */
     public boolean isBallEnteredMagazine() {
@@ -139,6 +136,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if Power Cell is detected by Intake Beam Breaker
+     * 
      * @return <i> true </i> if a Power Cell is caught in the intake; <i> false </i> otherwise
      */
     public boolean isBallCaughtIntake() {
@@ -166,6 +164,24 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }
 
+    /**
+     * An iterative boolean latch.
+     * <p>
+     * Returns true once if and only if the value of newValue changes from false to true.
+     */
+    public class LatchedBoolean {
+        private boolean mLast = false;
+
+        public boolean update(boolean newValue) {
+            boolean ret = false;
+            if (newValue && !mLast) {
+                ret = true;
+            }
+            mLast = newValue;
+            return ret;
+        }
+    }
+
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
@@ -182,7 +198,6 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     @Override
     public void runTest() {
         // TODO Auto-generated method stub
-        
     }
 
     /**

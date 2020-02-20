@@ -86,6 +86,7 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
 
     /**
      * Gets whether the Intake is deployed or not
+     * 
      * @return <i> true </i> if the Intake is deployed; <i> false </i> otherwise
      */
     public boolean isIntakeDeployed() {

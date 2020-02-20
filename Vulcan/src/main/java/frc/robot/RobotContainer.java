@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Limelight.LightMode;
 import frc.robot.commands.climber.LowerElevatorLevelCommand;
 import frc.robot.commands.climber.RaiseElevatorLevelCommand;
 import frc.robot.commands.drive.ManualDriveCommand;
@@ -48,6 +47,8 @@ import frc.robot.subsystems.TurretSubsystem.ShootingTarget;
  * Class to instantiate the structure of the Robot
  * <p> 
  * Instantiates Subsystems & Operator Control Scheme
+ * 
+ * @author Shreyas Prasad
  */
 public class RobotContainer {
 
@@ -210,16 +211,10 @@ public class RobotContainer {
             mTurret.setTarget(ShootingTarget.eLowTarget);
         }
     }
-
-    /**
-     * Disables Limeliight LEDs to avoid blindness; runs when disabled
-     */
-    public void disableLimelightLeds() {
-        mLimelightManager.setAllLightMode(LightMode.eOff);
-    }
     
     /**
      * Gets Xbox Controller for the Primary Driver, tasked with driving the robot
+     * 
      * @return Primary Xbox Controller
      */
     public XboxController getControllerPrimary() {
@@ -228,6 +223,7 @@ public class RobotContainer {
 
     /**
      * Gets Xbox Controller for the Secondary Driver, tasked with controlling all mechanisms
+     * 
      * @return Secondary Xbox Controller
      */
     public XboxController getControllerSecondary() {
@@ -236,6 +232,7 @@ public class RobotContainer {
 
     /**
      * Lookup Table for matching direction of D-Pad on Xbox Controller pressed to an angle measure
+     * 
      * @author Shreyas Prasad
      */
     private enum POVDirection {
@@ -250,6 +247,7 @@ public class RobotContainer {
 
         /**
          * Gets angle for D-Pad Direction Pressed
+         * 
          * @return angle [0,360) corresponding to the appropriate 45deg interval on the D-Pad
          */
         private int getAngle() {
@@ -259,6 +257,7 @@ public class RobotContainer {
 
     /**
      * Gets List of all Subsystems
+     * 
      * @return ArrayList containing All Subsystems
      */
     public ArrayList<SubsystemInterface> getSubsystemList() {

@@ -28,6 +28,7 @@ import frc.robot.Util;
  * Drivebase Subsystem for a Two Speed Transmission, 6 Wheel, West Coast Drive
  * <p>
  * {@link CollisionAvoidanceSubsystem Features Proportional Collision Avoidance}
+ * 
  * @author Shreyas Prasad
  */
 public class DriveSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -196,36 +197,20 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         pow *= slowdownScaleFactor;
         rot *= slowdownScaleFactor;
 
-        //If Velocity is changing by greater than the Max Acceptable Limit, the change in velocity is switched to the maximum acceptable change in velocity
+        //Acceleration Limiting
         if(Math.abs(mPrevPow - pow) > DriveConstants.kMaxManualLinearAcceleration) {
-            if(pow > 0) {
-                if(pow > mPrevPow) {
-                    pow = DriveConstants.kMaxManualLinearAcceleration + mPrevPow; //Forward & Accelerating
-                } else {
-                    pow = -DriveConstants.kMaxManualLinearAcceleration + mPrevPow; //Forward & Deccelerating
-                }
+            if(pow - mPrevPow > 0) {
+                pow = mPrevPow + DriveConstants.kMaxManualLinearAcceleration; //Accelerating in positive direction
             } else {
-                if(pow < mPrevPow) {
-                    pow = -DriveConstants.kMaxManualLinearAcceleration + mPrevPow; //Reverse & Accelerating
-                } else {
-                    pow = DriveConstants.kMaxManualLinearAcceleration + mPrevPow; //Reverse & Deccelerating
-                }
+                pow = mPrevPow - DriveConstants.kMaxManualLinearAcceleration; //Accelerating in negative direction
             }
         }
 
         if(Math.abs(mPrevRot - rot) > DriveConstants.kMaxManualRotationAcceleration) {
-            if(rot > 0) {
-                if(rot > mPrevRot) {
-                    rot = DriveConstants.kMaxManualRotationAcceleration + mPrevRot; //Positive & Accelerating
-                } else {
-                    rot = -DriveConstants.kMaxManualRotationAcceleration + mPrevRot; //Positive & Deccelerating
-                }
+            if(rot - mPrevRot > 0) {
+                rot = mPrevRot + DriveConstants.kMaxManualRotationAcceleration;
             } else {
-                if(rot < mPrevRot) {
-                    rot = -DriveConstants.kMaxManualRotationAcceleration + mPrevRot; //Negative & Accelerating
-                } else {
-                    rot = DriveConstants.kMaxManualRotationAcceleration + mPrevRot; //Negative & Decelerating
-                }
+                rot = mPrevRot - DriveConstants.kMaxManualRotationAcceleration;
             }
         }
 
@@ -239,6 +224,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Set target destination for Autonomous Linear Drive
      * 
      * @param setpoint target destination to drive forward to
+     * 
+     * @see frc.robot.commands.drive.LinearDriveCommand
      */
     public void startAutoDrive(double setpoint) {
         mLeftTarget = mPortEncoder.getPosition() + getRotations(setpoint);
@@ -251,6 +238,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Process Autonomous Linear Drive
      * <p>
      * Limited by Collision Avoidance if collision imminent 
+     * 
+     * @see frc.robot.commands.drive.LinearDriveCommand
      */
     public void runAutoDrive() {
         double scaleFactor = CollisionAvoidanceSubsystem.getInstance().getSlowdownScaleFactor();
@@ -278,6 +267,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      *         <li> <i> true </i> when Port Error & Starboard Error < Drive Epsilon
      *         <li> <i> false </i> otherwise
      *         </ul>
+     * 
+     * @see frc.robot.commands.drive.LinearDriveCommand
      */
     public boolean linearDriveTargetReached() {
         return Math.abs(mPortPid.getError()) <= DriveConstants.kDriveEpsilon &&
@@ -288,6 +279,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Start Autonomous Rotation
      * 
      * @param theta the angle to rotate to
+     * 
+     * @see frc.robot.commands.drive.RotateDriveCommand
      */
     public void startAutoRotate(double theta) {
         mIsAutoRotateRunning = true;
@@ -297,6 +290,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
     /**
      * Process Autonomous Rotation
+     * 
+     * @see frc.robot.commands.drive.RotateDriveCommand
      */
     public void runAutoRotate() {
         double theta = Util.normalizeAngle(mRotateSetpoint);
@@ -308,6 +303,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Check for if the Rotational Drive Target has been reached
      * 
      * @return <i> true </i> when Rotational Error < Epsilon; <i> false </i> otherwise
+     * 
+     * @see frc.robot.commands.drive.RotateDriveCommand
      */
     public boolean rotateTargetReached() {
         final boolean targetReached = Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
@@ -319,6 +316,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
     /**
      * Toggles between Max Robot Speed between Standard Speed and Slow Precision Speed
+     * 
+     * @see frc.robot.commands.drive.TogglePrecisionDrivingCommand
      */
     public void togglePrecisionDriving() {
         if(mSelectedMaxSpeedProportion == DriveConstants.kRegularMaxSpeed) {
@@ -334,6 +333,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Toggles Drivebase between Low and High Gearing
      * <p>
      * If the Robot is in Precision Driving Mode, turns it off
+     * 
+     * @see frc.robot.commands.drive.ToggleDrivebaseGearingCommand
      */
     public void toggleDrivebaseGearing(){
         switch (mGearShifter.get()) {

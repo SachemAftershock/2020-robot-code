@@ -40,6 +40,7 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
 
     /**
      * Gets Limelight 2+, mounted on the Shooter/Turret
+     * 
      * @return Limelight for shooter targeting
      */
     public Limelight getShooterLimelight() {
@@ -48,6 +49,7 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
 
     /**
      * Gets Limelight 1, mounted on the Intake
+     * 
      * @return Limelight for ball tracking
      */
     public Limelight getIntakeLimelight() {
@@ -80,7 +82,6 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
     @Override
     public void runTest() {
         // TODO Auto-generated method stub
-        
     }
 
     /**

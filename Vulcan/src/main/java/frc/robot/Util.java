@@ -21,10 +21,10 @@ public class Util {
     /**
 	* Gets rotational error on [-180, 180]
 	* 
-	* @param alpha
-	*            First angle
-	* @param beta
-	*            Second Angle
+    * @param alpha First angle
+    
+    * @param beta Second Angle
+    
 	* @return Rotational error
 	*/
     public static double rotationalError(double alpha, double beta) {

@@ -124,6 +124,8 @@ public final class Constants {
                 {45, 3800.0}
             };
 
+            //TODO: Consider Cubic Spline Interpolation if 2nd Degree Polynomial Regression isn't accurate enough
+            // http://mathworld.wolfram.com/CubicSpline.html
             public static final PolynomialRegression kShooterPolynomial = new PolynomialRegression(kDistanceFeetToRpmLUT, 2);
         }  
 

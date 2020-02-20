@@ -106,6 +106,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
 
     /**
      * Checks if Shooter is at the Target RPM & Rumbles Controller if at RPM
+     * 
      * @return <i> true </i> if at Target RPM; <i> false </i> otherwise
      */
     public synchronized boolean isAtTargetRPM() {
@@ -156,7 +157,6 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     @Override
     public void runTest() {
         // TODO Auto-generated method stub
-        
     }
     
     /**

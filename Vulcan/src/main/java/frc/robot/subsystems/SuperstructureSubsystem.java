@@ -40,7 +40,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         mStorage = StorageSubsystem.getInstance();
 
         mSystemMode = SuperstructureMode.eIdle;
-        mShootingMode = ShootingMode.eSemiAuto; //Cannot run Automatic Firing as the Feeder wheel has been taken out
+        mShootingMode = ShootingMode.eSemiAuto; //TODO: Cannot run Automatic Firing as the Feeder wheel has been taken out, change when fixed
 
         mAuthorizedToShoot = false;
         mIsNewAutomaticMagazine = true;

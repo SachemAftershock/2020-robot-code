@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Limelight.LightMode;
+import frc.robot.subsystems.LimelightManagerSubsystem;
 import frc.robot.subsystems.SubsystemInterface;
 
 public class Robot extends TimedRobot {
@@ -26,6 +28,7 @@ public class Robot extends TimedRobot {
         mCompressor.setClosedLoopControl(true);
         mCompressor.start();
 
+        mAutoSelector = new AutoSelector();
         mAutoSelector.selectAuto();
     }
 
@@ -43,7 +46,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit(){
-        mRobotContainer.disableLimelightLeds();
+        LimelightManagerSubsystem.getInstance().setAllLightMode(LightMode.eOff);
     }
 
     @Override

@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Class to provide data on the flow of electricity around the Robot
+ * 
  * @author Shreyas Prasad
  */
 public class PowerSubsystem extends SubsystemBase implements SubsystemInterface {
@@ -42,7 +43,6 @@ public class PowerSubsystem extends SubsystemBase implements SubsystemInterface 
     @Override
     public void runTest() {
         // TODO Auto-generated method stub
-        
     }
 
     /**
