@@ -7,7 +7,6 @@ import java.util.Locale;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.StreamTokenizer;
-import frc.robot.JamaMath.Maths;
 
 /**
    Jama = Java Matrix class.
