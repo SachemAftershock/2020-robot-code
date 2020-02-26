@@ -118,8 +118,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                     }
                 } else {
                     if(!mDrive.isAutoRotateRunning()) {
-                        double tx = mShooterLimelight.getTx();
-                        double theta = mDrive.getHeading() + (tx > 0 ? -tx : tx); // Error on limelight(tx) would be in opp direction(sign) as the direction(sign) of the drivebase
+                        double theta = mDrive.getHeading() - mShooterLimelight.getTx(); 
                         CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, theta));
                     }
                 }
