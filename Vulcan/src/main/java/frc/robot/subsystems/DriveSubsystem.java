@@ -53,9 +53,9 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     private double mPortSpeed, mStarboardSpeed, mLeftTarget, mRightTarget, mRotateSetpoint;
 
     private double mSelectedMaxSpeedProportion;
-    private boolean mIsPrecisionMode;
+    private boolean mInPrecisionMode;
 
-    private boolean mIsAutoRotateRunning;
+    private boolean mAutoRotateRunning;
     
     /**
      * Constructor for DriveSubsystem Class
@@ -144,9 +144,9 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mRotatePid = new PID();
 
         mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
-        mIsPrecisionMode = false;
+        mInPrecisionMode = false;
 
-        mIsAutoRotateRunning = false;
+        mAutoRotateRunning = false;
 
         mPortSpeed = 0.0;
         mStarboardSpeed = 0.0;
@@ -283,7 +283,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @see frc.robot.commands.drive.RotateDriveCommand
      */
     public void startAutoRotate(double theta) {
-        mIsAutoRotateRunning = true;
+        mAutoRotateRunning = true;
         mRotateSetpoint = Util.normalizeAngle(theta);
         mRotatePid.start(DriveConstants.kRotationalGains);
     }
@@ -309,7 +309,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     public boolean rotateTargetReached() {
         final boolean targetReached = Math.abs(mRotatePid.getError()) <= DriveConstants.kRotateEpsilon;
         if(targetReached) {
-            mIsAutoRotateRunning = false;
+            mAutoRotateRunning = false;
         }
         return targetReached;
     }
@@ -322,10 +322,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     public void togglePrecisionDriving() {
         if(mSelectedMaxSpeedProportion == DriveConstants.kRegularMaxSpeed) {
             mSelectedMaxSpeedProportion = DriveConstants.kPrecisionMaxSpeed;
-            mIsPrecisionMode = true;
+            mInPrecisionMode = true;
         } else {
             mSelectedMaxSpeedProportion = DriveConstants.kRegularMaxSpeed;
-            mIsPrecisionMode = false;
+            mInPrecisionMode = false;
         }
     }
 
@@ -356,7 +356,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 break;
         }
 
-        if(mIsPrecisionMode) {
+        if(mInPrecisionMode) {
             togglePrecisionDriving();
         }
     }
@@ -376,7 +376,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @return <i> true </i> when Precision Mode Enabled <i> false </i> otherwise
      */
     public boolean isPrecisionMode() {
-        return mIsPrecisionMode;
+        return mInPrecisionMode;
     }
 
     /**
@@ -523,15 +523,15 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * 
      * @return <i> true </i> if the Robot is autonomously rotating; <i> false </i> otherwise
      */
-    public boolean getIsAutoRotateRunning() {
-        return mIsAutoRotateRunning;
+    public boolean isAutoRotateRunning() {
+        return mAutoRotateRunning;
     }
 
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
         SmartDashboard.putBoolean("Is High Gear", mGearShifter.get() == Value.kForward); //TODO: Find out if foward or reverse is high gear
-        SmartDashboard.putBoolean("Precision Mode Enabled", mIsPrecisionMode);
+        SmartDashboard.putBoolean("Precision Mode Enabled", mInPrecisionMode);
         SmartDashboard.putNumber("Port Side Drive Speed", mDriveGroupPort.get());
         SmartDashboard.putNumber("Starboard Side Drive Speed", mDriveGroupStarboard.get());
         SmartDashboard.putNumber("Heading", getHeading());

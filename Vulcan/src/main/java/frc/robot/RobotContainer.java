@@ -38,7 +38,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
 import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.TurretSubsystem; 
 import frc.robot.subsystems.WheelControllerSubsystem;
 import frc.robot.subsystems.LEDSubsystem.SystemState;
 import frc.robot.subsystems.TurretSubsystem.ShootingTarget;
@@ -67,7 +67,7 @@ public class RobotContainer {
     private final PowerSubsystem mPower = PowerSubsystem.getInstance();
     private final ShooterSubsystem mShooter = ShooterSubsystem.getInstance();
     private final StorageSubsystem mStorage = StorageSubsystem.getInstance();
-    private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
+    //private final TurretSubsystem mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
     private final LEDSubsystem mLED = LEDSubsystem.getInstance();
     private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
@@ -83,9 +83,9 @@ public class RobotContainer {
     private JoystickButton bClearCommandQueuePrimary;
 
     // Secondary Controller
-    private JoystickButton bStartShooter;
+    private JoystickButton bStartArmedMode;
     private JoystickButton bShooterAuthorized;
-    private JoystickButton bToggleTurretAutoTargeting;
+    //private JoystickButton bToggleTurretAutoTargeting; //TODO: Change when Turret Implemented
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
     private JoystickButton bDeployWheelController;
@@ -107,7 +107,7 @@ public class RobotContainer {
         mSubsystems.add(mDrive);
         mSubsystems.add(mPower);
         mSubsystems.add(mShooter);
-        mSubsystems.add(mTurret);
+        //mSubsystems.add(mTurret); //TODO: Change when Turret Implemented
         mSubsystems.add(mSuperstructure);
         mSubsystems.add(mStorage);
         mSubsystems.add(mLED);
@@ -158,8 +158,8 @@ public class RobotContainer {
         bDeployWheelController = new JoystickButton(mControllerSecondary, XboxController.Button.kB.value);
         bDeployWheelController.whenPressed(new ToggleWheelExtenderCommand(mColorWheelController, mCollisionAvoidanceSubsystem));
         
-        bStartShooter = new JoystickButton(mControllerSecondary, XboxController.Axis.kLeftTrigger.value);
-        bStartShooter
+        bStartArmedMode = new JoystickButton(mControllerSecondary, XboxController.Axis.kLeftTrigger.value);
+        bStartArmedMode
         .whenReleased(new SetIdleModeCommand(mSuperstructure))
         .whileActiveOnce(new SetArmedModeCommand(mSuperstructure));
 
@@ -168,8 +168,8 @@ public class RobotContainer {
         .whenReleased(new DeauthorizeShotCommand(mSuperstructure))
         .whileActiveOnce(new AuthorizeShotCommand(mSuperstructure));
 
-        bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kBack.value);
-        bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
+        //bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kBack.value); //TODO: Change when Turret Implemented
+        //bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
 
         bClearCommandQueueSecondary = new JoystickButton(mControllerSecondary, XboxController.Button.kStart.value);
         bClearCommandQueueSecondary.whenPressed(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
@@ -198,10 +198,12 @@ public class RobotContainer {
      */
     public void periodic() {
         final int primaryPOV = mControllerPrimary.getPOV();
-        if(primaryPOV != -1 && !mDrive.getIsAutoRotateRunning()) {
+        if(primaryPOV != -1 && !mDrive.isAutoRotateRunning()) {
             CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, primaryPOV));
         }
 
+        //TODO: Change when Turret Implemented
+        /*
         final double leftXAxisSecondary = mControllerSecondary.getX(Hand.kLeft);
         mTurret.manualControl(Util.deadband(leftXAxisSecondary, Constants.kJoystickDeadbandTolerance));
         final int povSecondary = mControllerSecondary.getPOV();
@@ -210,6 +212,7 @@ public class RobotContainer {
         } else if(povSecondary == POVDirection.eDown.getAngle()) {
             mTurret.setTarget(ShootingTarget.eLowTarget);
         }
+        */
     }
     
     /**

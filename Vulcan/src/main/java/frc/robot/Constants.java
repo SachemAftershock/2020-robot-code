@@ -97,6 +97,9 @@ public final class Constants {
     }
 
     public static final class SuperstructureConstants {
+
+        public static final double kDrivebaseTargetingEpsilon = 3;
+        
         public static final class ShooterConstants {
             public static final int kLauncherMotorId = 7;
             public static final int kFeederMotorId = 8;
