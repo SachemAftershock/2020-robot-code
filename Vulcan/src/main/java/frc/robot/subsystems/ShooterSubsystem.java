@@ -55,7 +55,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooter.burnFlash();
 
         //mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
-        mLoader = new DoubleSolenoid(Constants.kPcmBId, ShooterConstants.kLoaderForwardId, ShooterConstants.kLoaderReverseId);
+        mLoader = new DoubleSolenoid(Constants.kPcmId, ShooterConstants.kLoaderForwardId, ShooterConstants.kLoaderReverseId);
 
         mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 

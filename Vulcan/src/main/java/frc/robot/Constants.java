@@ -19,13 +19,12 @@ public final class Constants {
     public static final int kControllerPrimaryId = 0;
     public static final int kControllerSecondaryId = 1;
 
-    public static final double kJoystickDeadbandTolerance = 0.05;
+    public static final double kJoystickDeadbandTolerance = 0.15;
     public static final double kTriggerDeadbandTolerance = 0.25;
     
 
     //Pneumatic Constants
-    public static final int kPcmAId = 0;
-    public static final int kPcmBId = 1;
+    public static final int kPcmId = 0;
 
     //Ardunio I2C Address
     public static final class LEDConstants {
@@ -91,9 +90,8 @@ public final class Constants {
 
         public static final double kMaxVoltage = 10;
 
-        // Pneumatics, PCM A
-        public static final int kGearShiftForwardId = 1;
-        public static final int kGearShiftReverseId = 2;
+        public static final int kGearShiftForwardId = 4;
+        public static final int kGearShiftReverseId = 5;
     }
 
     public static final class SuperstructureConstants {
@@ -102,9 +100,9 @@ public final class Constants {
         
         public static final class ShooterConstants {
             public static final int kLauncherMotorId = 7;
-            public static final int kFeederMotorId = 8;
-            public static final int kLoaderForwardId = 2; //PCM B
-            public static final int kLoaderReverseId = 3;
+            //public static final int kFeederMotorId = 8;
+            public static final int kLoaderForwardId = 6; 
+            public static final int kLoaderReverseId = 7;
 
             public static final int kLidarId = 0;
 
@@ -133,7 +131,7 @@ public final class Constants {
         }  
 
         public static final class TurretConstants {
-            public static final int kTurretMotorId = 9;
+            public static final int kTurretMotorId = 11;
 
             public static final int kTurretEncoderDioId = 0;
 
@@ -154,7 +152,8 @@ public final class Constants {
         }
 
         public static final class StorageConstants { 
-            public static final int kBeltDriverMotorId = 10;
+            public static final int kBottomBeltDriverMotorId = 8;
+            public static final int kBeltDriverMotorId = 9;
 
             public static final int kChamberDetectorId = 0;
             public static final int kPreChamberDetectorId = 1;
@@ -165,28 +164,21 @@ public final class Constants {
 
             public static final double kBeltSpeed = 0.3;
             public static final double kMaxEmptyStorageDistanceInches = 25.0; //TODO: Find real value
-
-            //Pneumatics PCM A
-            public static final int kBallValveAForwardId = 3;
-            public static final int kBallValveAReverseId = 4;
-        
-            public static final int kBallValveBForwardId = 5;
-            public static final int kBallValveBReverseId = 6;
         }
 
         public static final class IntakeConstants {
-            public static final int kIntakeMotorId = 11;
+            public static final int kIntakeMotorId = 14;
 
             public static final double kIntakeSpeed = 0.5;
 
             //Pneumatics PCM A   
-            public static final int kIntakeExtenderForwardId = 7;
-            public static final int kIntakeExtenderReverseId = 8;
+            public static final int kIntakeExtenderForwardId = 0;
+            public static final int kIntakeExtenderReverseId = 1;
         }
     }
 
     public static final class WheelControllerConstants {
-        public static final int kWheelControllerId = 12;
+        public static final int kWheelControllerId = 15;
         public static final int kUltrasonicId = 0;
 
         // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
@@ -195,14 +187,13 @@ public final class Constants {
 
         public static final double kColorTolerance = 0.08;
 
-        //Pneumatics PCM B
-        public static final int kExtenderForwardId = 0;
-        public static final int kExtenderReverseId = 1;
+        public static final int kExtenderForwardId = 2;
+        public static final int kExtenderReverseId = 3;
     }
 
     public static final class ClimberConstants {
-        public static final int kElevatorId = 13;
-        public static final int kLifterId = 14;
+        public static final int kElevatorId = 12;
+        public static final int kLifterId = 13;
 
         public static final int kElevatorPidId = 0;
         //TODO: Tune all values below

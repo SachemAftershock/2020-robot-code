@@ -120,7 +120,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 
         mDifferentialDrive = new DifferentialDrive(mDriveGroupPort, mDriveGroupStarboard);
         addChild("Differential Drive", mDifferentialDrive);
-        mDifferentialDrive.setRightSideInverted(true);
+        mDifferentialDrive.setRightSideInverted(false);
         mDifferentialDrive.setSafetyEnabled(true);
         mDifferentialDrive.setExpiration(0.1);
         mDifferentialDrive.setMaxOutput(1.0);
@@ -135,7 +135,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mOdometry = new DifferentialDriveOdometry(new Rotation2d(getHeading()), new Pose2d(0, 0, new Rotation2d()));
         //TODO: the auto I choose is gonna have to change the above x, y, and theta values
                 
-        mGearShifter = new DoubleSolenoid(Constants.kPcmAId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
+        mGearShifter = new DoubleSolenoid(Constants.kPcmId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
         addChild("Gear Shift Double Solenoid", mGearShifter);    
 
         mPortPid = new PID();

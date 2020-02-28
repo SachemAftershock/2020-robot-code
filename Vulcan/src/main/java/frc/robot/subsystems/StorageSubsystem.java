@@ -3,13 +3,14 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+//import edu.wpi.first.wpilibj.DoubleSolenoid;
+//import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+//import frc.robot.Constants;
 import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
@@ -23,52 +24,35 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     private static StorageSubsystem mInstance;
 
     private final WPI_TalonSRX mBeltDriver;
-    private final DoubleSolenoid mBallValveA, mBallValveB;
-    private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
+    private final WPI_VictorSPX mLowerBeltDriver;
+    //private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
     private final Lidar mLidar;
 
-    private LatchedBoolean mNewBallInChamber, mNewBallInIntake, mNewBallEnteredMagazine;
+    //private LatchedBoolean mNewBallInChamber, mNewBallInIntake, mNewBallEnteredMagazine;
 
     /**
      * Constructor for StorageSubsystem Class
      */
     private StorageSubsystem() {
+        mLowerBeltDriver = new WPI_VictorSPX(StorageConstants.kBottomBeltDriverMotorId);
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
 
-        mBallValveA = new DoubleSolenoid(Constants.kPcmAId, StorageConstants.kBallValveAForwardId, StorageConstants.kBallValveAReverseId);
-        mBallValveB = new DoubleSolenoid(Constants.kPcmAId, StorageConstants.kBallValveBForwardId, StorageConstants.kBallValveBReverseId);
-
+        /*
         mChamberBallDetector = new DigitalInput(StorageConstants.kChamberDetectorId);
         mPreChamberBallDetector = new DigitalInput(StorageConstants.kPreChamberDetectorId);
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
         mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
-
+        */
         mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
 
-        mNewBallInChamber = new LatchedBoolean();
-        mNewBallInIntake = new LatchedBoolean();
-        mNewBallEnteredMagazine = new LatchedBoolean();
+        //mNewBallInChamber = new LatchedBoolean();
+        //mNewBallInIntake = new LatchedBoolean();
+        //mNewBallEnteredMagazine = new LatchedBoolean();
     }
 
     @Override
     public void init() {
-    }
-
-    /**
-     * Engages Piston to prevent Power Cells from entering the Chamber
-     */
-    public void closeChamberValve() {
-        mBallValveA.set(Value.kForward);
-        mBallValveB.set(Value.kForward);
-    }
-
-    /**
-     * Disengages Piston to allow a Power Cell to enter the Chamber
-     */
-    public void openChamberValve() {
-        mBallValveA.set(Value.kReverse);
-        mBallValveB.set(Value.kReverse);
     }
 
     /**
@@ -77,7 +61,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell has entered the Chamber; <i> false </i> otherwise
      */
     public boolean isNewBallInChamber() {
-        return mNewBallInChamber.update(isChamberLoaded());
+        return true;//mNewBallInChamber.update(isChamberLoaded());
     }
 
     /**
@@ -86,7 +70,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell has entered the Intake; <i> false </i> otherwise
      */
     public boolean isNewBallInIntake() {
-        return mNewBallInIntake.update(isBallCaughtIntake());
+        return true;//mNewBallInIntake.update(isBallCaughtIntake());
     }
 
     /**
@@ -95,7 +79,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell has entered the Magazine; <i> false </i> otherwise
      */
     public boolean isNewBallInMagazineEntry() {
-       return mNewBallEnteredMagazine.update(isBallEnteredMagazine());
+       return true;//mNewBallEnteredMagazine.update(isBallEnteredMagazine());
     }
 
     /**
@@ -113,7 +97,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell is inside the Chamber; <i> false </i> otherwise
      */
     public boolean isChamberLoaded() {
-        return mChamberBallDetector.get();
+        return false;//mChamberBallDetector.get();
     }
 
     /**
@@ -121,8 +105,8 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * 
      * @return <i> true </i> if a Power Cell is at the back of the magazine; <i> false </i> otherwise
      */
-    public boolean isBackMagazineLoaded() {
-        return mPreChamberBallDetector.get();
+     public boolean isBackMagazineLoaded() {
+        return false;//mPreChamberBallDetector.get();
     }
 
     /**
@@ -131,7 +115,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell has entered the magazine; <i> false </i> otherwise
      */
     public boolean isBallEnteredMagazine() {
-        return mEntryBallDetector.get();
+        return false;//mEntryBallDetector.get();
     }
 
     /**
@@ -140,7 +124,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if a Power Cell is caught in the intake; <i> false </i> otherwise
      */
     public boolean isBallCaughtIntake() {
-        return mIntakeBallDetector.get();
+        return false;//mIntakeBallDetector.get();
     }
 
     /**
@@ -148,6 +132,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      */
     public void runBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
+        mLowerBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
     }
 
     /**
@@ -155,6 +140,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      */
     public void reverseBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
+        mLowerBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
     }
 
     /**
@@ -162,6 +148,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      */
     public void stopBelt() {
         mBeltDriver.set(ControlMode.PercentOutput, 0.0);
+        mLowerBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }
 
     /**
@@ -185,12 +172,11 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
-        SmartDashboard.putBoolean("Ball in Intake", isBallCaughtIntake());
-        SmartDashboard.putBoolean("Ball in Magazine Entry", isBallEnteredMagazine());
-        SmartDashboard.putBoolean("Ball before Chamber", isBackMagazineLoaded());
-        SmartDashboard.putBoolean("Chamber Loaded", isChamberLoaded());
+        //SmartDashboard.putBoolean("Ball in Intake", isBallCaughtIntake());
+        //SmartDashboard.putBoolean("Ball in Magazine Entry", isBallEnteredMagazine());
+        //SmartDashboard.putBoolean("Ball before Chamber", isBackMagazineLoaded());
+        //SmartDashboard.putBoolean("Chamber Loaded", isChamberLoaded());
         SmartDashboard.putBoolean("Belt Running", mBeltDriver.get() != 0);
-        SmartDashboard.putBoolean("Is Chamber Valve Open", mBallValveA.get() == Value.kReverse);
         SmartDashboard.putNumber("Storage Lidar", mLidar.getDistanceIn());
         SmartDashboard.putBoolean("Is Storage Empty", isEmpty());
     }

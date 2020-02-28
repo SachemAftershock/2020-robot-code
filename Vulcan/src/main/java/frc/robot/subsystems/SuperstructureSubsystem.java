@@ -98,10 +98,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                             }
                         } else if(mShootingMode == ShootingMode.eSemiAuto) {
                             if(!mStorage.isChamberLoaded()) {
-                                mStorage.openChamberValve();
                                 mStorage.runBelt();
                             } else {
-                                mStorage.closeChamberValve();
                                 mStorage.stopBelt();
 
                                 if(atTargetRPM) {

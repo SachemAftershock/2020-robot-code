@@ -43,7 +43,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         mColorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
-        mExtender = new DoubleSolenoid(Constants.kPcmBId, WheelControllerConstants.kExtenderForwardId, WheelControllerConstants.kExtenderReverseId);
+        mExtender = new DoubleSolenoid(Constants.kPcmId, WheelControllerConstants.kExtenderForwardId, WheelControllerConstants.kExtenderReverseId);
         mExtender.set(Value.kReverse);
 
         mColors = new CircularColorArray();
@@ -55,6 +55,8 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
         mTimesPositionedToStartColor = 0;
         mPreviousExists = false;
+
+        mTargetColorString = "";
     }
 
     @Override

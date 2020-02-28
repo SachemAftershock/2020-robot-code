@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
      * Constructor for the IntakeSubsystem Class
      */
     private IntakeSubsystem() {
-        mIntakeExtender = new DoubleSolenoid(Constants.kPcmAId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
+        mIntakeExtender = new DoubleSolenoid(Constants.kPcmId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
         mIntakeMotor = new WPI_TalonSRX(IntakeConstants.kIntakeMotorId);
