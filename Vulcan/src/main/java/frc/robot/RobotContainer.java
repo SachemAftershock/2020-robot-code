@@ -41,7 +41,6 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.TurretSubsystem; 
 import frc.robot.subsystems.WheelControllerSubsystem;
 import frc.robot.subsystems.LEDSubsystem.SystemState;
-import frc.robot.subsystems.TurretSubsystem.ShootingTarget;
 
 /**
  * Class to instantiate the structure of the Robot
