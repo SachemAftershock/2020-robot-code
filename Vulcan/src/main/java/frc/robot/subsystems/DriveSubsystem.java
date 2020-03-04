@@ -8,7 +8,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -19,8 +18,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.PneumaticConstants;
 import frc.robot.PID;
 import frc.robot.Util;
 
@@ -56,6 +55,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     private boolean mInPrecisionMode;
 
     private boolean mAutoRotateRunning;
+
+    private boolean mManualDriveInverted;
     
     /**
      * Constructor for DriveSubsystem Class
@@ -120,12 +121,12 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
                 
         mDifferentialDrive = new DifferentialDrive(mDriveGroupPort, mDriveGroupStarboard);
         addChild("Differential Drive", mDifferentialDrive);
-        mDifferentialDrive.setRightSideInverted(false);
-        mDifferentialDrive.setSafetyEnabled(true);
-        mDifferentialDrive.setExpiration(0.1);
+        mDifferentialDrive.setRightSideInverted(true);
+        mDifferentialDrive.setSafetyEnabled(false);
         mDifferentialDrive.setMaxOutput(1.0);
 
         mNavx = new AHRS(Port.kMXP);
+        addChild("Gyro", mNavx);
 
         mPortEncoder = mDriveMotorPortA.getEncoder();
         mStarboardEncoder = mDriveMotorStarboardA.getEncoder();
@@ -135,7 +136,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mOdometry = new DifferentialDriveOdometry(new Rotation2d(getHeading()), new Pose2d(0, 0, new Rotation2d()));
         //TODO: the auto I choose is gonna have to change the above x, y, and theta values
                 
-        mGearShifter = new DoubleSolenoid(Constants.kPcmId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
+        mGearShifter = new DoubleSolenoid(PneumaticConstants.kPcmId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
         addChild("Gear Shift Double Solenoid", mGearShifter);    
 
         mPortPid = new PID();
@@ -147,6 +148,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mInPrecisionMode = false;
 
         mAutoRotateRunning = false;
+
+        mManualDriveInverted = false;
 
         mPortSpeed = 0.0;
         mStarboardSpeed = 0.0;
@@ -185,6 +188,13 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @see frc.robot.commands.drive.ManualDriveCommand
      */
     public void manualDrive(double pow, double rot, boolean wantDeccelerate) {
+        rot = -rot;
+
+        if(mManualDriveInverted) {
+            pow = -pow;
+            rot = -rot;
+        }
+
         if(wantDeccelerate) { 
             pow = mPrevPow * DriveConstants.kThrottleDecelerationProportion;
             rot = mPrevRot * DriveConstants.kRotationalDecelerationProportion; //TODO: Find out if we need to change rot differently than pow
@@ -217,7 +227,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mPrevPow = pow;
         mPrevRot = rot;
 
-        mDifferentialDrive.curvatureDrive(pow, rot, true);
+        mDifferentialDrive.curvatureDrive(-pow, rot, true);
     }
 
     /**
@@ -329,36 +339,34 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         }
     }
 
-    /**
-     * Toggles Drivebase between Low and High Gearing
-     * <p>
-     * If the Robot is in Precision Driving Mode, turns it off
-     * 
-     * @see frc.robot.commands.drive.ToggleDrivebaseGearingCommand
-     */
-    public void toggleDrivebaseGearing(){
-        switch (mGearShifter.get()) {
-            case kForward: 
-                mGearShifter.set(Value.kReverse);
-                mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
-                mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
-                break;
-            case kReverse: 
-                mGearShifter.set(Value.kForward);
-                mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kHighGearRatio);
-                mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kHighGearRatio);
-                break;
-            default:
-                mGearShifter.set(Value.kReverse);
-                mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
-                mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
-                DriverStation.reportError("ERROR: GEAR SHIFT VALUE INVALID", false);
-                break;
-        }
-
+    public void shiftHighGear() {
+        mGearShifter.set(Value.kForward);
+        mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kHighGearRatio);
+        mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kHighGearRatio);
         if(mInPrecisionMode) {
             togglePrecisionDriving();
         }
+    }
+
+    public void shiftLowGear() {
+        mGearShifter.set(Value.kReverse);
+        mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
+        mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
+        if(mInPrecisionMode) {
+            togglePrecisionDriving();
+        }
+    }
+
+    public void invertManualDrive() {
+        mManualDriveInverted = true;
+    }
+
+    public void revertManualDrive() {
+        mManualDriveInverted = false;
+    }
+
+    public boolean isManualDriveInverted() {
+        return mManualDriveInverted;
     }
 
     /**
@@ -532,9 +540,6 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         SmartDashboard.putData(getInstance());
         SmartDashboard.putBoolean("Is High Gear", mGearShifter.get() == Value.kForward); //TODO: Find out if foward or reverse is high gear
         SmartDashboard.putBoolean("Precision Mode Enabled", mInPrecisionMode);
-        SmartDashboard.putNumber("Port Side Drive Speed", mDriveGroupPort.get());
-        SmartDashboard.putNumber("Starboard Side Drive Speed", mDriveGroupStarboard.get());
-        SmartDashboard.putNumber("Heading", getHeading());
     }
 
     @Override

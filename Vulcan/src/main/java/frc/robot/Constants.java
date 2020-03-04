@@ -15,16 +15,17 @@ public final class Constants {
     Unless otherwise specified
     */
 
-    // XboxController Constants
-    public static final int kControllerPrimaryId = 0;
-    public static final int kControllerSecondaryId = 1;
+    public static final class ControllerConstants {
+        public static final int kControllerPrimaryId = 0;
+        public static final int kControllerSecondaryId = 1;
 
-    public static final double kJoystickDeadbandTolerance = 0.15;
-    public static final double kTriggerDeadbandTolerance = 0.25;
+        public static final double kJoystickDeadbandTolerance = 0.15;
+        public static final double kTriggerDeadbandTolerance = 0.25;
+    }
     
-
-    //Pneumatic Constants
-    public static final int kPcmId = 0;
+    public static final class PneumaticConstants {
+        public static final int kPcmId = 0;
+    }
 
     //Ardunio I2C Address
     public static final class LEDConstants {
@@ -39,7 +40,7 @@ public final class Constants {
     }
 
     public static final class CollisionAvoidanceConstants {
-        public static final int kCollisionUltrasonicId = 1;
+        public static final int kCollisionUltrasonicId = 3;
         public static final double kUltrasonicValueToInches = 0.125;
         public static final int kNumberOfDistanceSamples = 10;
         //TODO: Find good values for the below
@@ -69,9 +70,9 @@ public final class Constants {
         public static final double kRotateEpsilon = 3.0;
         public static final double[] kLinearGains = {0.0, 0.0, 0.0};
         public static final double[] kRotationalGains = {0.0, 0.0, 0.0};
-        public static final double kRampRateToMaxSpeed = 1.0;
-        public static final double kMaxManualLinearAcceleration = 0.4;
-        public static final double kMaxManualRotationAcceleration = 0.2;
+        public static final double kRampRateToMaxSpeed = 0.02;
+        public static final double kMaxManualLinearAcceleration = 0.05;
+        public static final double kMaxManualRotationAcceleration = 0.05;
         public static final double kThrottleDecelerationProportion = 0.8; 
         public static final double kRotationalDecelerationProportion = 0.8;
 
@@ -101,19 +102,28 @@ public final class Constants {
         public static final class ShooterConstants {
             public static final int kLauncherMotorId = 7;
             //public static final int kFeederMotorId = 8;
-            public static final int kLoaderForwardId = 6; 
-            public static final int kLoaderReverseId = 7;
 
             public static final int kLidarId = 0;
 
             public static final int kPidId = 0;
 
-            public static final double[] kGains = {0.0, 0.0, 0.0, 0.0, 0.0}; //P I D Iz FF
+            public static final double kMaxOutput = 1.0;
+            public static final double kMinOutput = 0.0;
+            private static final double kP = 0.002;
+            private static final double kI = 0.0;
+            private static final double kD = 0.0;
+            private static final double kFF = 0.0002;
+            private static final double kIz = 0.0;
+            public static final double[] kGains = {kP, kI, kD, kFF, kIz}; 
+            public static final double kMaxVelocity = 5000;
+            public static final double kLowAccelerationRPMPerSecond = kMaxVelocity / 4;
+            public static final double kHighAccelerationRPMPerSecond = kMaxVelocity / 0.5;
+            public static final double kVelocityAccelShiftThresholdRPM = 1100.0;
             public static final double kShooterSpeedEpsilon = 50.0;
             public static final double kFeederSpeed = 0.65;
 
             public static final double[][] kDistanceFeetToRpmLUT = {
-                {0, 1000.0},
+                {0, 1000.0}, 
                 {5, 1100.0},
                 {10, 1200.0},
                 {15, 1400.0},
@@ -140,6 +150,8 @@ public final class Constants {
             public static final double kTurretEpsilon = 2.0; //TODO: Find the right value
             public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
 
+            public static final double kMaxTx = 999.9;
+
             public static final double kPowerCellDiameterInches = 7.0;
             public static final double kPowerCellClearance = 2.0;
 
@@ -152,18 +164,32 @@ public final class Constants {
         }
 
         public static final class StorageConstants { 
-            public static final int kBottomBeltDriverMotorId = 8;
+            public static final int kBottomBeltDriverMotorId = 10;
             public static final int kBeltDriverMotorId = 9;
 
-            public static final int kChamberDetectorId = 0;
-            public static final int kPreChamberDetectorId = 1;
-            public static final int kIntakeDetectorId = 2;
-            public static final int kEntryDetectorId = 3;
+            public static final int kIntakeEmitterId = 2;
+            public static final int kIntakeDetectorId = 1;
 
-            public static final int kLidarId = 1;
+            public static final int kChamberEmitter = 4;
+            public static final int kChamberDetectorId = 5;
 
-            public static final double kBeltSpeed = 0.3;
+            public static final int kLidarId = 0;
+
+            public static final double kBeltSpeed = 1.0;
+            public static final double kLowerBeltSpeed = 0.44;
             public static final double kMaxEmptyStorageDistanceInches = 25.0; //TODO: Find real value
+
+            public static final int kMedianFilterSize = 15;
+
+            public static final double kBallInIntakeMinIn = 29.5;
+            public static final double kIntakeDepthIn = 4.0;
+            public static final double kBallInIntakeMaxIn = kBallInIntakeMinIn + kIntakeDepthIn;
+            public static final double kBallDiameterIn = 7.0;
+            public static final double kBallSpacingIn = 1.0;
+            public static final double kRangeToPositionCLeadingEdgeIn = 14.0 - 2.0;
+            public static final double kRangeToPositionBLeadingEdgeIn = kRangeToPositionCLeadingEdgeIn + kBallDiameterIn + kBallSpacingIn - 1.0;
+            public static final double kRangeToPositionALeadingEdgeIn = kRangeToPositionBLeadingEdgeIn + kBallDiameterIn + kBallSpacingIn;
+            public static final double kRangeToPositionChamberLeadingEdgeIn = 5.0;
         }
 
         public static final class IntakeConstants {
@@ -172,14 +198,13 @@ public final class Constants {
             public static final double kIntakeSpeed = 0.5;
 
             //Pneumatics PCM A   
-            public static final int kIntakeExtenderForwardId = 0;
-            public static final int kIntakeExtenderReverseId = 1;
+            public static final int kIntakeForwardId = 0;
+            public static final int kIntakeReverseId = 1;
         }
     }
 
     public static final class WheelControllerConstants {
         public static final int kWheelControllerId = 15;
-        public static final int kUltrasonicId = 0;
 
         // Expected to read color 90deg from the field color sensor, therefore 2 45deg color wedges over
         public static final int kRobotReadingVarianceIndex = 2;
@@ -187,8 +212,8 @@ public final class Constants {
 
         public static final double kColorTolerance = 0.08;
 
-        public static final int kExtenderForwardId = 2;
-        public static final int kExtenderReverseId = 3;
+        public static final int kExtenderForwardId = 6;
+        public static final int kExtenderReverseId = 7;
     }
 
     public static final class ClimberConstants {
@@ -197,8 +222,13 @@ public final class Constants {
 
         public static final int kElevatorPidId = 0;
         //TODO: Tune all values below
-        public static final double[] kGains = {0,0,0}; 
-        public static final int[] kElevataorLevelEncoderValues = {0, 4000, 8000}; //Low, Mid, High
+        public static final double[] kGains = {1.0,0,0}; 
+
+        private static final double kStartEnc = 0;
+        private static final double kLowEnc = 1024;
+        private static final double kMedEnc = 4096;
+        private static final double kHighEnc = 8192;
+        public static final double[] kElevataorLevelEncoderValues = {kStartEnc, kLowEnc, kMedEnc, kHighEnc}; 
 
         //Below Two constants are in CTRE Mag Encoder Units Per 100Ms Per Sec
         public static final int kMagicAcceleration = 1000;
@@ -208,6 +238,6 @@ public final class Constants {
         public static final int kEpsilon = 12; 
         public static final int kTimeout = 256;
 
-        public static final double kLifterSpeed = 0.3; //TODO: Find value
+        public static final double kLifterSpeed = 1.0; //TODO: Find value
     }
 }

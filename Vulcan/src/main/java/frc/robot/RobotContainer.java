@@ -7,21 +7,18 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.climber.LowerElevatorLevelCommand;
-import frc.robot.commands.climber.RaiseElevatorLevelCommand;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.drive.ManualDriveCommand;
 import frc.robot.commands.drive.RotateDriveCommand;
 import frc.robot.commands.drive.ToggleCollisionAvoidanceCommand;
 import frc.robot.commands.drive.ToggleDrivebaseGearingCommand;
+import frc.robot.commands.drive.ToggleManualDriveInversionCommand;
 import frc.robot.commands.drive.TogglePrecisionDrivingCommand;
 import frc.robot.commands.superstructure.ManualEjectCommand;
 import frc.robot.commands.superstructure.ManualIngestCommand;
-import frc.robot.commands.superstructure.SetArmedModeCommand;
+import frc.robot.commands.superstructure.SetFeedModeCommand;
 import frc.robot.commands.superstructure.SetIdleModeCommand;
 import frc.robot.commands.superstructure.StopManualDriveCommand;
-import frc.robot.commands.superstructure.ToggleSuperstructureModeCommand;
-import frc.robot.commands.superstructure.shooter.AuthorizeShotCommand;
-import frc.robot.commands.superstructure.shooter.DeauthorizeShotCommand;
 import frc.robot.commands.wheelcontroller.ToggleWheelExtenderCommand;
 import frc.robot.commands.wheelcontroller.WheelColorControlCommand;
 import frc.robot.commands.wheelcontroller.WheelRotateControlCommand;
@@ -31,16 +28,14 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CollisionAvoidanceSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightManagerSubsystem;
 import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
 import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
-import frc.robot.subsystems.TurretSubsystem; 
 import frc.robot.subsystems.WheelControllerSubsystem;
-import frc.robot.subsystems.LEDSubsystem.SystemState;
+import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
 
 /**
  * Class to instantiate the structure of the Robot
@@ -53,14 +48,14 @@ public class RobotContainer {
 
     private static RobotContainer mInstance;
 
-    private final XboxController mControllerPrimary = new XboxController(Constants.kControllerPrimaryId);
-    private final XboxController mControllerSecondary = new XboxController(Constants.kControllerSecondaryId);
+    private final XboxController mControllerPrimary = new XboxController(ControllerConstants.kControllerPrimaryId);
+    private final XboxController mControllerSecondary = new XboxController(ControllerConstants.kControllerSecondaryId);
 
     private final AbsoluteFieldPositionDeviceSubsystem mAbsoluteFieldPosition = AbsoluteFieldPositionDeviceSubsystem.getInstance();
     private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
     private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
     private final ClimberSubsystem mClimber = ClimberSubsystem.getInstance();
-    private final CollisionAvoidanceSubsystem mCollisionAvoidanceSubsystem = CollisionAvoidanceSubsystem.getInstance();
+    private final CollisionAvoidanceSubsystem mCollisionAvoidance = CollisionAvoidanceSubsystem.getInstance();
     private final WheelControllerSubsystem mColorWheelController = WheelControllerSubsystem.getInstance();
     private final DriveSubsystem mDrive = DriveSubsystem.getInstance();
     private final PowerSubsystem mPower = PowerSubsystem.getInstance();
@@ -68,12 +63,13 @@ public class RobotContainer {
     private final StorageSubsystem mStorage = StorageSubsystem.getInstance();
     //private final TurretSubsystem mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
-    private final LEDSubsystem mLED = LEDSubsystem.getInstance();
+    //private final LEDSubsystem mLED = LEDSubsystem.getInstance(); //TODO: Change when LEDs Implemented
     private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
     private final ArrayList<SubsystemInterface> mSubsystems;
 
     // Primary Controller
     private JoystickButton bToggleDriveGear;
+    private JoystickButton bToggleDriveInversion;
     private JoystickButton bToggleCollisionAvoidance;
     private JoystickButton bTogglePrecisionDrive;
     private JoystickButton bDriveClimbLifter;
@@ -82,8 +78,6 @@ public class RobotContainer {
     private JoystickButton bClearCommandQueuePrimary;
 
     // Secondary Controller
-    private JoystickButton bStartArmedMode;
-    private JoystickButton bShooterAuthorized;
     //private JoystickButton bToggleTurretAutoTargeting; //TODO: Change when Turret Implemented
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
@@ -93,24 +87,27 @@ public class RobotContainer {
     private JoystickButton bEjectIntakeAndStorage;
     private JoystickButton bIngestIntakeAndStorage;
 
+    private LatchedBoolean mSecondaryTriggerNewlyPressed = new LatchedBoolean();
+
     /**
      * Constructor for RobotCotainer Class
      */
     private RobotContainer() {
         mSubsystems = new ArrayList<SubsystemInterface>();
         mSubsystems.add(mAbsoluteFieldPosition);
-        mSubsystems.add(mIntake);
         mSubsystems.add(mDriverCamera);
         mSubsystems.add(mClimber);
-        mSubsystems.add(mCollisionAvoidanceSubsystem);
+        mSubsystems.add(mCollisionAvoidance);
         mSubsystems.add(mDrive);
+        mSubsystems.add(mIntake);
+        //mSubsystems.add(mLED); //TODO: Change when LEDs Implemented
+        mSubsystems.add(mLimelightManager);
         mSubsystems.add(mPower);
         mSubsystems.add(mShooter);
-        //mSubsystems.add(mTurret); //TODO: Change when Turret Implemented
-        mSubsystems.add(mSuperstructure);
         mSubsystems.add(mStorage);
-        mSubsystems.add(mLED);
-        mSubsystems.add(mLimelightManager);
+        mSubsystems.add(mSuperstructure);
+        //mSubsystems.add(mTurret); //TODO: Change when Turret Implemented
+        mSubsystems.add(mColorWheelController);
 
         configureButtonBindings();
         CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mControllerPrimary));
@@ -122,14 +119,17 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // PRIMARY CONTROLLER
         bToggleDriveGear = new JoystickButton(mControllerPrimary, XboxController.Button.kA.value);
-        bToggleDriveGear.whenPressed(new ToggleDrivebaseGearingCommand(mDrive, mControllerPrimary));
+        bToggleDriveGear.whenPressed(new ToggleDrivebaseGearingCommand(mDrive));
 
         bTogglePrecisionDrive = new JoystickButton(mControllerPrimary, XboxController.Button.kX.value);
         bTogglePrecisionDrive.whenPressed(new TogglePrecisionDrivingCommand(mDrive));
 
+        bToggleDriveInversion = new JoystickButton(mControllerPrimary, XboxController.Button.kBack.value);
+        bToggleDriveInversion.whenPressed(new ToggleManualDriveInversionCommand(mDrive));
+
+
         bToggleCollisionAvoidance = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
-        bToggleCollisionAvoidance
-                .whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidanceSubsystem, mControllerPrimary));
+        bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidance, mControllerPrimary));
 
         bClearCommandQueuePrimary = new JoystickButton(mControllerPrimary, XboxController.Button.kStart.value);
         bClearCommandQueuePrimary.whenPressed(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
@@ -139,14 +139,16 @@ public class RobotContainer {
                 .whenReleased(new InstantCommand(() -> mClimber.stopLifter()));
 
         bRaiseClimbElevator = new JoystickButton(mControllerPrimary, XboxController.Button.kBumperRight.value);
-        bRaiseClimbElevator.whenPressed(new RaiseElevatorLevelCommand(mClimber));
+        bRaiseClimbElevator.whenReleased(new InstantCommand(() -> mClimber.stopElevator()))
+                            .whenPressed(new InstantCommand(() -> mClimber.forwardElevator())/*new RaiseElevatorLevelCommand(mClimber)*/);
 
         bLowerClimbElevator = new JoystickButton(mControllerPrimary, XboxController.Button.kBumperLeft.value);
-        bLowerClimbElevator.whenPressed(new LowerElevatorLevelCommand(mClimber));
+        bLowerClimbElevator.whenReleased(new InstantCommand(() -> mClimber.stopElevator()))
+                            .whenPressed(new InstantCommand(() -> mClimber.reverseElevator())/*new LowerElevatorLevelCommand(mClimber)*/);
 
         // SECONDARY CONTROLLER
         bToggleSuperstructureMode = new JoystickButton(mControllerSecondary, XboxController.Button.kA.value);
-        bToggleSuperstructureMode.whenPressed(new ToggleSuperstructureModeCommand(mSuperstructure));
+        bToggleSuperstructureMode.whenReleased(new SetIdleModeCommand(mSuperstructure)).whenPressed(new SetFeedModeCommand(mSuperstructure));
 
         bStartWheelPositionControl = new JoystickButton(mControllerSecondary, XboxController.Button.kX.value);
         bStartWheelPositionControl.whenPressed(new WheelRotateControlCommand(mColorWheelController));
@@ -155,17 +157,7 @@ public class RobotContainer {
         bStartWheelColorTargeting.whenPressed(new WheelColorControlCommand(mColorWheelController));
 
         bDeployWheelController = new JoystickButton(mControllerSecondary, XboxController.Button.kB.value);
-        bDeployWheelController.whenPressed(new ToggleWheelExtenderCommand(mColorWheelController, mCollisionAvoidanceSubsystem));
-        
-        bStartArmedMode = new JoystickButton(mControllerSecondary, XboxController.Axis.kLeftTrigger.value);
-        bStartArmedMode
-        .whenReleased(new SetIdleModeCommand(mSuperstructure))
-        .whileActiveOnce(new SetArmedModeCommand(mSuperstructure));
-
-        bShooterAuthorized = new JoystickButton(mControllerSecondary, XboxController.Axis.kRightTrigger.value);
-        bShooterAuthorized
-        .whenReleased(new DeauthorizeShotCommand(mSuperstructure))
-        .whileActiveOnce(new AuthorizeShotCommand(mSuperstructure));
+        bDeployWheelController.whenPressed(new ToggleWheelExtenderCommand(mColorWheelController, mCollisionAvoidance));
 
         //bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kBack.value); //TODO: Change when Turret Implemented
         //bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
@@ -174,21 +166,19 @@ public class RobotContainer {
         bClearCommandQueueSecondary.whenPressed(new InstantCommand(() -> CommandScheduler.getInstance().cancelAll()));
 
         bEjectIntakeAndStorage = new JoystickButton(mControllerSecondary, XboxController.Button.kBumperLeft.value);
-        bEjectIntakeAndStorage
-        .whenReleased(new StopManualDriveCommand(mIntake, mStorage))
-        .whenPressed(new ManualEjectCommand(mIntake, mStorage));
+        bEjectIntakeAndStorage.whenReleased(new StopManualDriveCommand(mIntake, mStorage))
+                                .whenPressed(new ManualEjectCommand(mIntake, mStorage));
 
         bIngestIntakeAndStorage = new JoystickButton(mControllerSecondary, XboxController.Button.kBumperRight.value);
-        bIngestIntakeAndStorage
-        .whenReleased(new StopManualDriveCommand(mIntake, mStorage))
-        .whenPressed(new ManualIngestCommand(mIntake, mStorage));
+        bIngestIntakeAndStorage.whenReleased(new StopManualDriveCommand(mIntake, mStorage))
+                                .whenPressed(new ManualIngestCommand(mIntake, mStorage));
     }
 
     /**
      * RobotContainer Initialization, Runs at Robot Powered On
      */
     public void init() {
-        mLED.forceSystemState(SystemState.eInit);
+        //mLED.forceSystemState(SystemState.eInit); //TODO: Change when LEDs Implemented
     }
 
 
@@ -199,6 +189,22 @@ public class RobotContainer {
         final int primaryPOV = mControllerPrimary.getPOV();
         if(primaryPOV != -1 && !mDrive.isAutoRotateRunning()) {
             CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, primaryPOV));
+        }
+
+        final boolean secondaryLeftTriggerPressed = Util.deadband(mControllerSecondary.getTriggerAxis(Hand.kLeft), ControllerConstants.kTriggerDeadbandTolerance) != 0;
+        final boolean secondaryRightTriggerPressed = Util.deadband(mControllerSecondary.getTriggerAxis(Hand.kRight), ControllerConstants.kTriggerDeadbandTolerance) != 0;
+        if(mSecondaryTriggerNewlyPressed.update(secondaryLeftTriggerPressed)) {
+            mSuperstructure.setMode(SuperstructureMode.eArmed);
+        } else {
+            if(mSuperstructure.getCurrentMode() == SuperstructureMode.eArmed && !secondaryLeftTriggerPressed) {
+                mSuperstructure.setMode(SuperstructureMode.eIdle);
+            }
+        }
+
+        if(secondaryRightTriggerPressed) {
+            mSuperstructure.authorizeShot();
+        } else {
+            mSuperstructure.deauthorizeShot();
         }
 
         //TODO: Change when Turret Implemented

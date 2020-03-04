@@ -1,19 +1,16 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.PneumaticConstants;
 import frc.robot.Constants.SuperstructureConstants.IntakeConstants;
-import frc.robot.commands.superstructure.intake.DeployIntakeCommand;
-import frc.robot.commands.superstructure.intake.EjectIntakeCommand;
-import frc.robot.commands.superstructure.intake.IngestIntakeCommand;
-import frc.robot.commands.superstructure.intake.RetractIntakeCommand;
-import frc.robot.commands.superstructure.intake.StopIntakeCommand;
+
 
 /**
  * Intake Subsystem
@@ -35,16 +32,18 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
      * Constructor for the IntakeSubsystem Class
      */
     private IntakeSubsystem() {
-        mIntakeExtender = new DoubleSolenoid(Constants.kPcmId, IntakeConstants.kIntakeExtenderForwardId, IntakeConstants.kIntakeExtenderReverseId);
+        mIntakeExtender = new DoubleSolenoid(PneumaticConstants.kPcmId, IntakeConstants.kIntakeForwardId, IntakeConstants.kIntakeReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
         mIntakeMotor = new WPI_TalonSRX(IntakeConstants.kIntakeMotorId);
+        mIntakeMotor.setInverted(InvertType.InvertMotorOutput);
 
         mIntakeExtender.set(Value.kReverse);
     }
 
     @Override
     public void init() {
+        mIntakeExtender.set(Value.kReverse);
     }
 
     /**
@@ -97,16 +96,10 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
         SmartDashboard.putBoolean("Is Intake Deployed", isIntakeDeployed());
-        SmartDashboard.putBoolean("Is Intake Running", mIntakeMotor.get() != 0);
     }
 
     @Override
     public void runTest() {
-        SmartDashboard.putData("Deploy Intake", new DeployIntakeCommand(getInstance()));
-        SmartDashboard.putData("Retract Intake", new RetractIntakeCommand(getInstance()));
-        SmartDashboard.putData("Run Intake", new IngestIntakeCommand(getInstance()));
-        SmartDashboard.putData("Eject Intake", new EjectIntakeCommand(getInstance()));
-        SmartDashboard.putData("Stop Intake", new StopIntakeCommand(getInstance()));
     }
 
     /**

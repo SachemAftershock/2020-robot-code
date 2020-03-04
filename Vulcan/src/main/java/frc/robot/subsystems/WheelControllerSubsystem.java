@@ -1,19 +1,17 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.ColorSensorV3;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.PneumaticConstants;
 import frc.robot.Constants.WheelControllerConstants;
 
 /**
@@ -25,7 +23,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     private static WheelControllerSubsystem mInstance;
 
-    private final WPI_TalonSRX mWheelSpinner;
+    private final WPI_VictorSPX mWheelSpinner;
     private final ColorSensorV3 mColorSensor;
     private final DoubleSolenoid mExtender;
     private String mTargetColorString;
@@ -39,11 +37,13 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      */
     private WheelControllerSubsystem() {
 
-        mWheelSpinner = new WPI_TalonSRX(WheelControllerConstants.kWheelControllerId);
+        mWheelSpinner = new WPI_VictorSPX(WheelControllerConstants.kWheelControllerId);
+        addChild("Wheel Spinner", mWheelSpinner);
 
         mColorSensor = new ColorSensorV3(I2C.Port.kOnboard);
 
-        mExtender = new DoubleSolenoid(Constants.kPcmId, WheelControllerConstants.kExtenderForwardId, WheelControllerConstants.kExtenderReverseId);
+        mExtender = new DoubleSolenoid(PneumaticConstants.kPcmId, WheelControllerConstants.kExtenderForwardId, WheelControllerConstants.kExtenderReverseId);
+        addChild("Extender", mExtender);
         mExtender.set(Value.kReverse);
 
         mColors = new CircularColorArray();
@@ -61,6 +61,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
 
     @Override
     public void init() {
+        mExtender.set(Value.kReverse);
     }
 
     /**
@@ -95,6 +96,8 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
                         break;
                 }
                 mRobotRelativeTargetColor = mColors.getColor(mColors.getIndex(mFieldRelativeTargetColor) + WheelControllerConstants.kRobotReadingVarianceIndex);
+            } else {
+                mTargetColorString = "";
             }
         }
 
@@ -181,27 +184,16 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         return mNumberOfWedgesCrossed == mWedgesRequiredToRotate;
     }
 
-    /**
-     * Toggles the Wheel Controller Extender Piston
-     * <p>
-     * Changes Coliision Avoidance Standoff: {@link CollisionAvoidanceSubsystem#setColorWheelStandoff()}
-     */
-    public void toggleExtender() {
-        switch (mExtender.get()) {
-            case kForward : 
-                mExtender.set(Value.kReverse);
-                CollisionAvoidanceSubsystem.getInstance().setStandardStandoff();
-                break;
-            case kReverse : 
-                mExtender.set(Value.kForward);
-                CollisionAvoidanceSubsystem.getInstance().setColorWheelStandoff();
-                break;
-            default :
-                mExtender.set(Value.kReverse);
-                CollisionAvoidanceSubsystem.getInstance().setStandardStandoff();
-                DriverStation.reportError("ERROR: COLOR WHEEL EXTENDER VALUE INVALID", false);
-                break;
-        }
+    public void deployExtender() {
+        mExtender.set(Value.kForward);
+    }
+
+    public void retractExtender() {
+        mExtender.set(Value.kReverse);
+    }
+
+    public boolean isExtended() {
+        return mExtender.get() == Value.kForward;
     }
 
     /**
@@ -299,7 +291,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      * 
      * @author Shreyas Prasad
      */
-    private enum ColorLUT implements Sendable {
+    private enum ColorLUT {
         eBlue(0.129, 0.429, 0.441), eYellow(0.314, 0.564, 0.120), eRed(0.462, 0.381, 0.157), eGreen(0.167, 0.581, 0.250), eUnknown(0,0,0);
 
         private final double mRed, mGreen, mBlue;
@@ -321,7 +313,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         }
 
         @Override
-        public void initSendable(SendableBuilder builder) {}
+        public String toString() {
+            return this.name();
+        }
     }
 
     /**
@@ -434,9 +428,14 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
-        SmartDashboard.putData("Current Detected Color", mCurrentDetectedColor);
-        SmartDashboard.putData("Field Relative Target Color", mFieldRelativeTargetColor);
-        SmartDashboard.putData("Robot Relative Target Color", mRobotRelativeTargetColor);
+        SmartDashboard.putString("Current Detected Color", mCurrentDetectedColor.toString());
+        SmartDashboard.putString("Field Relative Target Color", mFieldRelativeTargetColor.toString());
+        SmartDashboard.putString("Robot Relative Target Color", mRobotRelativeTargetColor.toString());
+        SmartDashboard.putBoolean("Is Extender Deployed", mExtender.get() == Value.kForward);
+        SmartDashboard.putNumber("Times Pos to Start", mTimesPositionedToStartColor);
+        SmartDashboard.putNumber("# of Wedges Crossed", mNumberOfWedgesCrossed);
+        SmartDashboard.putNumber("Req Wedges to Rot", mWedgesRequiredToRotate);
+        SmartDashboard.putData(mWheelSpinner);
     }
 
     @Override

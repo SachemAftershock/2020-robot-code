@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -12,7 +11,6 @@ public class Robot extends TimedRobot {
 
     private Command mAutonomousCommand;
     private RobotContainer mRobotContainer;
-    private Compressor mCompressor;
 
     private AutoSelector mAutoSelector;
 
@@ -23,10 +21,6 @@ public class Robot extends TimedRobot {
         mRobotContainer.init();
 
         RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
-        
-        mCompressor = new Compressor();
-        mCompressor.setClosedLoopControl(true);
-        mCompressor.start();
 
         mAutoSelector = new AutoSelector();
         mAutoSelector.selectAuto();
@@ -37,11 +31,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         mRobotContainer.periodic();
 
-        try {
-            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
-        } catch(Throwable t) {
-            System.out.println(t);
-        }
+        mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
     }
 
     @Override
@@ -73,6 +63,7 @@ public class Robot extends TimedRobot {
         if (mAutonomousCommand != null) {
             mAutonomousCommand.cancel();
         }
+        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init); //TODO: Remove later
     }
 
     @Override

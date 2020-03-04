@@ -7,15 +7,8 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.ControllerRumble;
-import frc.robot.Lidar;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
 /**
@@ -32,16 +25,16 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     private static ShooterSubsystem mInstance;
     
     private final CANSparkMax mShooter;
-    //private final WPI_TalonSRX mFeeder;
-    private final DoubleSolenoid mLoader;
-    private final Lidar mLidar;
+    //private final Lidar mLidar;
 
     private final CANEncoder mShooterEncoder;
     private final CANPIDController mShooterPid;
 
     private double mTargetRPM;
 
-    private int mRumbleDelayCounter, mTargetFalloutDelayCounter;
+    //private int mRumbleDelayCounter, mTargetFalloutDelayCounter;
+
+    public double kP, kI, kD, kIz, kFF;
 
     /**
      * Constructor for ShooterSubsystem Class
@@ -50,31 +43,59 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.restoreFactoryDefaults();
         mShooter.setMotorType(MotorType.kBrushless);
-        mShooter.setIdleMode(IdleMode.kCoast); //Brake mode might be really bad
-        mShooter.setInverted(false);
+        mShooter.setIdleMode(IdleMode.kCoast);
+        mShooter.setInverted(true);
         mShooter.burnFlash();
 
-        //mFeeder = new WPI_TalonSRX(ShooterConstants.kFeederMotorId);
-        mLoader = new DoubleSolenoid(Constants.kPcmId, ShooterConstants.kLoaderForwardId, ShooterConstants.kLoaderReverseId);
-
-        mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
+        //mLidar = new Lidar(new DigitalInput(ShooterConstants.kLidarId));
 
         mShooterEncoder = mShooter.getEncoder();
 
-        mShooterPid = new CANPIDController(mShooter);
-        mShooterPid.setP(ShooterConstants.kGains[0], ShooterConstants.kPidId);
-        mShooterPid.setI(ShooterConstants.kGains[1], ShooterConstants.kPidId);
-        mShooterPid.setD(ShooterConstants.kGains[2], ShooterConstants.kPidId);
-        mShooterPid.setIZone(ShooterConstants.kGains[3], ShooterConstants.kPidId);
-        mShooterPid.setFF(ShooterConstants.kGains[4], ShooterConstants.kPidId);
-        mShooterPid.setOutputRange(-1.0, 1.0);
+        mShooterPid = mShooter.getPIDController();
 
-        mRumbleDelayCounter = 0;
-        mTargetFalloutDelayCounter = 0;
+        //mRumbleDelayCounter = 0;
+        //mTargetFalloutDelayCounter = 0;
+
+        kP = 0.002;
+        kI = 0;
+        kD = 0;
+        kIz = 0;
+        kFF = 0.0002;
+
+        mShooterPid.setP(kP /*ShooterConstants.kGains[0]*/, ShooterConstants.kPidId);
+        mShooterPid.setI(kI /*ShooterConstants.kGains[1]*/, ShooterConstants.kPidId);
+        mShooterPid.setD(kD /*ShooterConstants.kGains[2]*/, ShooterConstants.kPidId);
+        mShooterPid.setFF(kFF /*ShooterConstants.kGains[3]*/, ShooterConstants.kPidId);
+        mShooterPid.setIZone(kIz /*ShooterConstants.kGains[4]*/, ShooterConstants.kPidId);
+        mShooterPid.setOutputRange(ShooterConstants.kMinOutput, ShooterConstants.kMaxOutput);
+        mShooterPid.setSmartMotionMaxVelocity(ShooterConstants.kMaxVelocity, ShooterConstants.kPidId);
+        mShooterPid.setSmartMotionMaxAccel(ShooterConstants.kLowAccelerationRPMPerSecond, ShooterConstants.kPidId);
+        mShooterPid.setSmartMotionAllowedClosedLoopError(ShooterConstants.kShooterSpeedEpsilon, ShooterConstants.kPidId);
     }
 
     @Override
     public void init() {
+        SmartDashboard.putNumber("P Gain", kP);
+        SmartDashboard.putNumber("I Gain", kI);
+        SmartDashboard.putNumber("D Gain", kD);
+        SmartDashboard.putNumber("I Zone", kIz);
+        SmartDashboard.putNumber("Feed Forward", kFF);
+    }
+
+    @Override
+    public void periodic() {
+        double p = SmartDashboard.getNumber("P Gain", 0);
+        double i = SmartDashboard.getNumber("I Gain", 0);
+        double d = SmartDashboard.getNumber("D Gain", 0);
+        double iz = SmartDashboard.getNumber("I Zone", 0);
+        double ff = SmartDashboard.getNumber("Feed Forward", 0);
+
+        // if PID coefficients on SmartDashboard have changed, write new values to controller
+        if((p != kP)) { mShooterPid.setP(p); kP = p;}
+        if((i != kI)) { mShooterPid.setI(i); kI = i;}
+        if((d != kD)) { mShooterPid.setD(d); kD = d;}
+        if((iz != kIz)) { mShooterPid.setIZone(iz); kIz = iz;}
+        if((ff != kFF)) { mShooterPid.setFF(ff); kFF = ff;}
     }
     
     /**
@@ -85,6 +106,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
      * If Target falls out of view for 2.5s, goes to median RPM in regression table
      */
     public void reachCalculatedTargetRPM() {
+        /*
         if(LimelightManagerSubsystem.getInstance().getShooterLimelight().isTarget()) {
             mTargetRPM = ShooterConstants.kShooterPolynomial.predict(mLidar.getDistanceIn() / 12.0);
             mTargetFalloutDelayCounter = 0;
@@ -94,13 +116,23 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
         } else {
             mTargetFalloutDelayCounter++;
         }
-        mShooterPid.setReference(mTargetRPM, ControlType.kVelocity, ShooterConstants.kPidId);
+        */
+        PowerSubsystem.getInstance().stopCompressor();
+        mTargetRPM = 4250;
+
+        if(mShooterEncoder.getVelocity() > ShooterConstants.kVelocityAccelShiftThresholdRPM) {
+            mShooterPid.setSmartMotionMaxAccel(ShooterConstants.kHighAccelerationRPMPerSecond, ShooterConstants.kPidId);
+        } else {
+            mShooterPid.setSmartMotionMaxAccel(ShooterConstants.kLowAccelerationRPMPerSecond, ShooterConstants.kPidId);
+        }
+        mShooterPid.setReference(mTargetRPM, ControlType.kSmartVelocity, ShooterConstants.kPidId);
     }
 
     /**
      * Stops Shooter Motor
      */
     public void stopShooter() {
+        PowerSubsystem.getInstance().startCompressor();
         mShooter.set(0.0);
     }
 
@@ -111,52 +143,30 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
      */
     public synchronized boolean isAtTargetRPM() {
         final boolean isAtTargetRPM = Math.abs(mShooterEncoder.getVelocity() - mTargetRPM) < ShooterConstants.kShooterSpeedEpsilon;
+        /*
         if(isAtTargetRPM) {
             if(mRumbleDelayCounter > 1000 / 20) {
-                (new ControllerRumble(RobotContainer.getInstance().getControllerSecondary(), 1)).start();
+               // (new ControllerRumble(RobotContainer.getInstance().getControllerSecondary(), 1)).start();
                 mRumbleDelayCounter = 0;
             }
             mRumbleDelayCounter++;
         }
+        */
         return isAtTargetRPM;
+        
     }
-
-    /**
-     * Loader Piston pushes Power Cell in Chamber to barrel
-     */
-    public void loadBall() {
-        mLoader.set(Value.kForward);
-    }
-    
-    /**
-     * Loader Piston opens to allow another ball to be pushed into the barrel
-     */
-    public void openBallLoader() {
-        mLoader.set(Value.kReverse);
-    }
-
-    //Reimplement when the Piston Loader is replaced by the feeder wheel
-    /*
-    public void startFeeder() {
-        mFeeder.set(ControlMode.PercentOutput, ShooterConstants.kFeederSpeed);
-    }
-
-    public void stopFeeder() {
-        mFeeder.set(ControlMode.PercentOutput, 0.0);
-    }
-    */
 
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
         SmartDashboard.putNumber("Shooter Velocity", mShooterEncoder.getVelocity());
         SmartDashboard.putNumber("Target Velocity", mTargetRPM);
-        SmartDashboard.putNumber("Lidar Distance Ft", mLidar.getDistanceIn() / 12.0);
-    }
+        SmartDashboard.putBoolean("Is at Target RPM", isAtTargetRPM());
+        //SmartDashboard.putNumber("Lidar Distance Ft", mLidar.getDistanceIn() / 12.0);
+    }   
 
     @Override
     public void runTest() {
-        // TODO Auto-generated method stub
     }
     
     /**

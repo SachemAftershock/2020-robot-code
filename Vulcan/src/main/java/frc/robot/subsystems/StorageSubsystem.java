@@ -3,14 +3,12 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-//import edu.wpi.first.wpilibj.DoubleSolenoid;
-//import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-//import frc.robot.Constants;
 import frc.robot.Lidar;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
@@ -23,28 +21,36 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     private static StorageSubsystem mInstance;
 
-    private final WPI_TalonSRX mBeltDriver;
-    private final WPI_VictorSPX mLowerBeltDriver;
-    //private final DigitalInput mChamberBallDetector, mPreChamberBallDetector, mIntakeBallDetector, mEntryBallDetector;
+    private final WPI_TalonSRX mBeltDriver, mLowerBeltDriver;
+    private final DigitalOutput mIntakeBallEmitter, mChamberBallEmitter;
+    private final DigitalInput mIntakeBallDetector, mChamberBallDetector;
     private final Lidar mLidar;
 
-    //private LatchedBoolean mNewBallInChamber, mNewBallInIntake, mNewBallEnteredMagazine;
+    private final MedianFilter mMedianFilter;
 
     /**
      * Constructor for StorageSubsystem Class
      */
     private StorageSubsystem() {
-        mLowerBeltDriver = new WPI_VictorSPX(StorageConstants.kBottomBeltDriverMotorId);
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
+        mBeltDriver.setInverted(false);
+        addChild("Belt Driver", mBeltDriver);
 
-        /*
-        mChamberBallDetector = new DigitalInput(StorageConstants.kChamberDetectorId);
-        mPreChamberBallDetector = new DigitalInput(StorageConstants.kPreChamberDetectorId);
+        mLowerBeltDriver = new WPI_TalonSRX(StorageConstants.kBottomBeltDriverMotorId);
+        mLowerBeltDriver.setNeutralMode(NeutralMode.Brake);
+        mBeltDriver.setInverted(false);
+        addChild("Lower Belt Driver", mLowerBeltDriver);
+
+        mIntakeBallEmitter = new DigitalOutput(StorageConstants.kIntakeEmitterId);
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
-        mEntryBallDetector = new DigitalInput(StorageConstants.kEntryDetectorId);
-        */
+
+        mChamberBallEmitter = new DigitalOutput(StorageConstants.kChamberEmitter);
+        mChamberBallDetector = new DigitalInput(StorageConstants.kChamberDetectorId);
+        
         mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
+
+        mMedianFilter = new MedianFilter(StorageConstants.kMedianFilterSize);
 
         //mNewBallInChamber = new LatchedBoolean();
         //mNewBallInIntake = new LatchedBoolean();
@@ -53,33 +59,38 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
 
     @Override
     public void init() {
+        mIntakeBallEmitter.set(true);
+        mChamberBallEmitter.set(true);
+        mLowerBeltDriver.set(0.0);
+        mBeltDriver.set(0.0);
     }
 
-    /**
-     * Gets if a New Power Cell has entered the Chamber
-     * 
-     * @return <i> true </i> if a Power Cell has entered the Chamber; <i> false </i> otherwise
-     */
-    public boolean isNewBallInChamber() {
-        return true;//mNewBallInChamber.update(isChamberLoaded());
+    @Override
+    public void periodic() {
     }
 
-    /**
-     * Gets if a New Power Cell has entered the Intake
-     * 
-     * @return <i> true </i> if a Power Cell has entered the Intake; <i> false </i> otherwise
-     */
-    public boolean isNewBallInIntake() {
-        return true;//mNewBallInIntake.update(isBallCaughtIntake());
+    public boolean isBallInIntake() {
+        return !mIntakeBallDetector.get();
     }
 
-    /**
-     * Gets if a New Power Cell has entered the Magazine
-     * 
-     * @return <i> true </i> if a Power Cell has entered the Magazine; <i> false </i> otherwise
-     */
-    public boolean isNewBallInMagazineEntry() {
-       return true;//mNewBallEnteredMagazine.update(isBallEnteredMagazine());
+    public boolean isBallInChamber() {
+        return !mChamberBallDetector.get();
+    }
+
+    public boolean isPositionA() {
+        return getFilteredDistanceIn() <= BallPosition.ePositionA.getLeadingEdge();
+    }
+
+    public boolean isPositionB() {
+        return getFilteredDistanceIn() <= BallPosition.ePositionB.getLeadingEdge();
+    }
+
+    public boolean isPositionC() {
+        return getFilteredDistanceIn() <= BallPosition.ePositionC.getLeadingEdge();
+    }
+
+    public boolean isPositionChamber() {
+        return getFilteredDistanceIn() <= BallPosition.ePositionChamber.getLeadingEdge();
     }
 
     /**
@@ -88,59 +99,23 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * @return <i> true </i> if LIDAR detects a ball in the storage; <i> false </i> otherwise
      */
     public boolean isEmpty() {
-        return mLidar.getDistanceIn() < StorageConstants.kMaxEmptyStorageDistanceInches;
-    }
-
-    /**
-     * Checks if Power Cell is loaded in Chamber
-     * 
-     * @return <i> true </i> if a Power Cell is inside the Chamber; <i> false </i> otherwise
-     */
-    public boolean isChamberLoaded() {
-        return false;//mChamberBallDetector.get();
-    }
-
-    /**
-     * Checks if Power Cell is at the back of the magazine, ready to be loaded into the chamber
-     * 
-     * @return <i> true </i> if a Power Cell is at the back of the magazine; <i> false </i> otherwise
-     */
-     public boolean isBackMagazineLoaded() {
-        return false;//mPreChamberBallDetector.get();
-    }
-
-    /**
-     * Checks if Power Cell has entered the Magazine
-     * 
-     * @return <i> true </i> if a Power Cell has entered the magazine; <i> false </i> otherwise
-     */
-    public boolean isBallEnteredMagazine() {
-        return false;//mEntryBallDetector.get();
-    }
-
-    /**
-     * Checks if Power Cell is detected by Intake Beam Breaker
-     * 
-     * @return <i> true </i> if a Power Cell is caught in the intake; <i> false </i> otherwise
-     */
-    public boolean isBallCaughtIntake() {
-        return false;//mIntakeBallDetector.get();
+        return getFilteredDistanceIn() >= BallPosition.eNone.getLeadingEdge();
     }
 
     /**
      * Runs storage belt at constant speed
      */
     public void runBelt() {
-        mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
-        mLowerBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
+        mBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
+        mLowerBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kLowerBeltSpeed);
     }
 
     /**
      * Runs storage belt in the opposite direction at constant speed
      */
     public void reverseBelt() {
-        mBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
-        mLowerBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kBeltSpeed);
+        mBeltDriver.set(ControlMode.PercentOutput, StorageConstants.kBeltSpeed);
+        mLowerBeltDriver.set(ControlMode.PercentOutput, -StorageConstants.kLowerBeltSpeed);
     }
 
     /**
@@ -151,21 +126,28 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mLowerBeltDriver.set(ControlMode.PercentOutput, 0.0);
     }
 
-    /**
-     * An iterative boolean latch.
-     * <p>
-     * Returns true once if and only if the value of newValue changes from false to true.
-     */
-    public class LatchedBoolean {
-        private boolean mLast = false;
+    public double getFilteredDistanceIn() {
+        return mMedianFilter.calculate(mLidar.getDistanceIn());
+    }
 
-        public boolean update(boolean newValue) {
-            boolean ret = false;
-            if (newValue && !mLast) {
-                ret = true;
-            }
-            mLast = newValue;
-            return ret;
+    public enum BallPosition {
+        eNone(StorageConstants.kBallInIntakeMaxIn), ePositionA(StorageConstants.kRangeToPositionALeadingEdgeIn),
+        ePositionB(StorageConstants.kRangeToPositionBLeadingEdgeIn), ePositionC(StorageConstants.kRangeToPositionCLeadingEdgeIn),
+        ePositionChamber(StorageConstants.kRangeToPositionChamberLeadingEdgeIn);
+
+        private final double leadingEdge;
+
+        private BallPosition(double leadingEdge) {
+            this.leadingEdge = leadingEdge;
+        }
+
+        public double getLeadingEdge() {
+            return this.leadingEdge;
+        }
+
+        @Override
+        public String toString() {
+            return this.name();
         }
     }
 
@@ -173,12 +155,13 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
         //SmartDashboard.putBoolean("Ball in Intake", isBallCaughtIntake());
-        //SmartDashboard.putBoolean("Ball in Magazine Entry", isBallEnteredMagazine());
-        //SmartDashboard.putBoolean("Ball before Chamber", isBackMagazineLoaded());
-        //SmartDashboard.putBoolean("Chamber Loaded", isChamberLoaded());
         SmartDashboard.putBoolean("Belt Running", mBeltDriver.get() != 0);
-        SmartDashboard.putNumber("Storage Lidar", mLidar.getDistanceIn());
+        SmartDashboard.putNumber("Storage Lidar", getFilteredDistanceIn());
         SmartDashboard.putBoolean("Is Storage Empty", isEmpty());
+        SmartDashboard.putBoolean("Is Ball in Intake", isBallInIntake());
+        SmartDashboard.putBoolean("Is Ball in Chamber", isBallInChamber());
+        SmartDashboard.putData(mBeltDriver);
+        SmartDashboard.putData(mLowerBeltDriver);
     }
 
     @Override

@@ -1,25 +1,14 @@
 package frc.robot.subsystems;
 
-import java.util.Map;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.Sendable;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.commands.climber.LowerElevatorLevelCommand;
-import frc.robot.commands.climber.RaiseElevatorLevelCommand;
-import frc.robot.commands.climber.RunClimber;
+
 
 /**
  * Climber Subsystem
@@ -52,11 +41,10 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 		mElevator.config_IntegralZone(ClimberConstants.kElevatorPidId, ClimberConstants.kIntegralZone, 0);
 		mElevator.configClosedloopRamp(0, ClimberConstants.kTimeout);
         mElevator.configAllowableClosedloopError(ClimberConstants.kElevatorPidId, ClimberConstants.kEpsilon, 0);
+        addChild("Climb Elevator", mElevator);
 
         mLifter = new WPI_TalonSRX(ClimberConstants.kLifterId);
-        
-        mCurrentPosition = ClimbElevatorPosition.eLow;
-        mDesiredPosition = ClimbElevatorPosition.eLow;
+        addChild("Winch", mLifter);
 
         mHasLifterRun = false;
     }
@@ -65,20 +53,25 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     public void init() {
         mHasLifterRun = false;
         mElevator.setSelectedSensorPosition(0); //Stowed Position
+
+        mCurrentPosition = ClimbElevatorPosition.eLow;
+        mDesiredPosition = ClimbElevatorPosition.eLow;
     }
 
     /**
      * Raises Elevator Level by one level
      * <p>
-     * Does nothing if at highest point
+     * Does nothing if at highest point (eHigh)
      * 
      * @see frc.robot.commands.climber.RaiseElevatorLevelCommand
      */
     public void raiseElevatorLevel() {
         switch(mCurrentPosition) {
-            case eLow:
+            case eStart:
                 mDesiredPosition = ClimbElevatorPosition.eMid;
                 mElevator.set(ControlMode.MotionMagic, mCurrentPosition.getEncoderCount());
+                break;
+            case eLow:
                 break;
             case eMid:
                 mDesiredPosition = ClimbElevatorPosition.eHigh;
@@ -92,7 +85,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     /**
      * Lowers Elevator by one level
      * <p>
-     * Does nothing if at lowest point
+     * Does nothing if at lowest point (eLow)
      * 
      * @see frc.robot.commands.climber.LowerElevatorLevelCommand
      */
@@ -109,6 +102,18 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
             case eLow:
             default:
         }
+    }
+
+    public void forwardElevator() {
+        mElevator.set(ControlMode.PercentOutput, 1.0);
+    }
+
+    public void reverseElevator() {
+        mElevator.set(ControlMode.PercentOutput, -0.75);
+    }
+
+    public void stopElevator() {
+        mElevator.set(ControlMode.PercentOutput, 0.0);
     }
 
     /**
@@ -148,28 +153,29 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
      * 
      * @author Shreyas Prasad
      */
-    public enum ClimbElevatorPosition implements Sendable {
-        eLow(ClimberConstants.kElevataorLevelEncoderValues[0]),
-        eMid(ClimberConstants.kElevataorLevelEncoderValues[1]),
-        eHigh(ClimberConstants.kElevataorLevelEncoderValues[2]); 
+    public enum ClimbElevatorPosition {
+        eStart(ClimberConstants.kElevataorLevelEncoderValues[0]),
+        eLow(ClimberConstants.kElevataorLevelEncoderValues[1]),
+        eMid(ClimberConstants.kElevataorLevelEncoderValues[2]),
+        eHigh(ClimberConstants.kElevataorLevelEncoderValues[3]); 
 
-        private final int mEncoderCount;
+        private final double mEncoderCount;
 
-        private ClimbElevatorPosition(int encoderCount) {
+        private ClimbElevatorPosition(double encoderCount) {
             mEncoderCount = encoderCount;
-        }
-
-        @Override
-        public void initSendable(SendableBuilder builder) {
-            //Not sure anything is needed here
         }
 
         /**
          * Get required encoder count for the elevator level
          * @return CTRE Mag Encoder Counts for the elevator level
          */
-        public int getEncoderCount() {
+        public double getEncoderCount() {
             return mEncoderCount;
+        }
+
+        @Override
+        public String toString() {
+            return this.name();
         }
     }
 
@@ -200,18 +206,12 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
         SmartDashboard.putNumber("Current Encoder Count", mElevator.getSelectedSensorPosition());
-        SmartDashboard.putData("Current Position", mCurrentPosition);
-        SmartDashboard.putData("Desired Position", mDesiredPosition);
+        SmartDashboard.putString("Current Position", mCurrentPosition.toString());
+        SmartDashboard.putString("Desired Position", mDesiredPosition.toString());
     }
 
     @Override
     public void runTest() {
-        final ShuffleboardTab tab = Shuffleboard.getTab("Climber");
-        NetworkTableEntry elevatorSpeed = tab.add("Elevator Speed", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -1.0, "max", 1)).getEntry();
-        SmartDashboard.putData("Run Elevator", new InstantCommand(() -> mElevator.set(ControlMode.PercentOutput, elevatorSpeed.getDouble(0.0))));
-        SmartDashboard.putData("Lower Elevator Level", new LowerElevatorLevelCommand(getInstance()));
-        SmartDashboard.putData("Raise Elevator Level", new RaiseElevatorLevelCommand(getInstance()));
-        SmartDashboard.putData("Run Climber", new RunClimber(getInstance()));
     }
 
     /**

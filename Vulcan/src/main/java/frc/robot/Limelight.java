@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Wrapper class for getting and setting Limelight NetworkTable values.
@@ -15,7 +16,7 @@ public class Limelight {
 
 	private final String mTableName;
 
-	public final static double kDefaultTx = 9999.9;
+	public final static double kDefaultValue = Double.MAX_VALUE;
 
 	/**
 	 * Creates a new Limelight Object
@@ -49,7 +50,7 @@ public class Limelight {
 	 * @return true if a target is detected, false otherwise.
 	 */
 	public boolean isTarget() {
-		return getValue("tv").getDouble(0) == 1;
+		return getValue("tv").getDouble(kDefaultValue) == 1;
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class Limelight {
 	 * @return tx as reported by the Limelight.
 	 */
 	public double getTx() {
-		return getValue("tx").getDouble(kDefaultTx);
+		return getValue("tx").getDouble(kDefaultValue);
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class Limelight {
 	 * @return ty as reported by the Limelight.
 	 */
 	public double getTy() {
-		return getValue("ty").getDouble(0.00);
+		return getValue("ty").getDouble(kDefaultValue);
 	}
 
 	/**
@@ -76,7 +77,7 @@ public class Limelight {
 	 * @return Area of target.
 	 */
 	public double getTa() {
-		return getValue("ta").getDouble(0.00);
+		return getValue("ta").getDouble(kDefaultValue);
 	}
 
 	/**
@@ -85,7 +86,7 @@ public class Limelight {
 	 * @return Target skew.
 	 */
 	public double getTs() {
-		return getValue("ts").getDouble(0.00);
+		return getValue("ts").getDouble(kDefaultValue);
 	}
 
 	/**
@@ -94,7 +95,7 @@ public class Limelight {
 	 * @return Target latency.
 	 */
 	public double getTl() {
-		return getValue("tl").getDouble(0.00);
+		return getValue("tl").getDouble(kDefaultValue);
 	}
 
 	/**
@@ -140,5 +141,10 @@ public class Limelight {
 		}
 
 		return table.getTable(mTableName).getEntry(key);
+	}
+
+	public void outputTelemetry() {
+		SmartDashboard.putNumber(mTableName + " tx", getTx());
+		SmartDashboard.putNumber(mTableName + " ty", getTy());
 	}
 }

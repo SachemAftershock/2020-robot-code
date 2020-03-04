@@ -77,11 +77,11 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
+        mLimelightList.forEach(limelight -> limelight.outputTelemetry());
     }
 
     @Override
     public void runTest() {
-        // TODO Auto-generated method stub
     }
 
     /**

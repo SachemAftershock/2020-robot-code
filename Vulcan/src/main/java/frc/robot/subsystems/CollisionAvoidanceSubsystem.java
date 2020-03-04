@@ -1,12 +1,8 @@
 package frc.robot.subsystems;
 
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
@@ -140,9 +136,6 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
 
     @Override
     public void runTest() {
-        BooleanSupplier collisionAvoidanceEnabled = () -> mCollisionEnabled;
-        SmartDashboard.putData("Toggle Collision Avoidance", 
-        new ConditionalCommand((new InstantCommand(() -> mCollisionEnabled = false)), (new InstantCommand(() -> mCollisionEnabled = true)), collisionAvoidanceEnabled));
     }
 
     /**

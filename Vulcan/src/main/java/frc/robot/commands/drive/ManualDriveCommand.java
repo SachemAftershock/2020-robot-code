@@ -3,8 +3,8 @@ package frc.robot.commands.drive;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.Util;
+import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
 /**
@@ -32,10 +32,10 @@ public class ManualDriveCommand extends CommandBase {
     
     @Override
     public void execute() {
-        final double pow = Util.deadband(mController.getY(Hand.kLeft), Constants.kJoystickDeadbandTolerance);
-        final double rot = Util.deadband(mController.getX(Hand.kRight), Constants.kJoystickDeadbandTolerance);
-        final boolean leftTriggerPressed = mController.getTriggerAxis(Hand.kLeft) >= 0.5;
-        final boolean rightTriggerPressed = mController.getTriggerAxis(Hand.kRight) >= 0.5;
+        final double pow = Util.deadband(mController.getY(Hand.kLeft), ControllerConstants.kJoystickDeadbandTolerance);
+        final double rot = Util.deadband(mController.getX(Hand.kRight), ControllerConstants.kJoystickDeadbandTolerance);
+        final boolean leftTriggerPressed = mController.getTriggerAxis(Hand.kLeft) >= ControllerConstants.kTriggerDeadbandTolerance;
+        final boolean rightTriggerPressed = mController.getTriggerAxis(Hand.kRight) >= ControllerConstants.kTriggerDeadbandTolerance;
         final boolean wantDeccelerate = leftTriggerPressed || rightTriggerPressed;
         mDrive.manualDrive(pow, rot, wantDeccelerate);
     }

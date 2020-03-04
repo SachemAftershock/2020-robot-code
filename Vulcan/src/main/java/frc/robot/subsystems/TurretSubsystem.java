@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Limelight;
 import frc.robot.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
@@ -75,7 +74,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
             final boolean isLimelightAimedDownfield = ((robotAziumth + turretAzimuth) > -90.0) && ((robotAziumth + turretAzimuth) < 90.0);
 
-            if ((tx >= Limelight.kDefaultTx) || !isLimelightAimedDownfield) {
+            if ((tx >= TurretConstants.kMaxTx) || !isLimelightAimedDownfield) {
                 // No tape in field of view of limelight, or we're seeing the wrong target,
                 // so make decisions based on robot orientation to field.
                 turretSetpointInDegrees = -robotAziumth;

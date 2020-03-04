@@ -1,19 +1,16 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Sendable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.groups.StartAutoFireSequence;
+import frc.robot.LatchedBoolean;
 import frc.robot.Limelight;
-import frc.robot.Constants.SuperstructureConstants;
-import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 import frc.robot.commands.drive.RotateDriveCommand;
 import frc.robot.commands.groups.StartArmedSequence;
 import frc.robot.commands.groups.StartFeedSequence;
 import frc.robot.commands.groups.StartIdleSequence;
+import frc.robot.subsystems.StorageSubsystem.BallPosition;
 
 /**
  * Superstucture consisting of {@link ShooterSubsystem}, {@link TurretSubsystem}, {@link StorageSubsystem}, & {@link IntakeSubsystem}
@@ -37,7 +34,13 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
     private SuperstructureMode mSystemMode;
     private ShootingMode mShootingMode;
 
-    private boolean mAuthorizedToShoot, mNewAutomaticMagazine;
+    private boolean mAuthorizedToShoot;
+
+    private BallPosition mBallPosition;
+
+    private SemiAutoStage mSemiAutoStage;
+
+    private LatchedBoolean mNewlyPressedAuthorizedToShoot = new LatchedBoolean();
 
     /**
      * Constructor for SuperstructureSubsystem Class
@@ -54,10 +57,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         mShooterLimelight = mLimelightManager.getShooterLimelight();
 
         mSystemMode = SuperstructureMode.eIdle;
-        mShootingMode = ShootingMode.eSemiAuto; //TODO: Cannot run Automatic Firing as the Feeder wheel has been taken out, change when fixed
-
+        mShootingMode = ShootingMode.eFullAuto;
+        
         mAuthorizedToShoot = false;
-        mNewAutomaticMagazine = true;
     }
 
     @Override
@@ -69,50 +71,79 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      */
     @Override
     public void periodic() {
+        if(mStorage.isPositionChamber()) {
+            mBallPosition = BallPosition.ePositionChamber;
+        } else if(mStorage.isPositionC()) {
+            mBallPosition = BallPosition.ePositionC;
+        } else if(mStorage.isPositionB()) {
+            mBallPosition = BallPosition.ePositionB;
+        } else if(mStorage.isPositionA()) {
+            mBallPosition = BallPosition.ePositionA;
+        } else if(mStorage.isEmpty()) {
+            mBallPosition = BallPosition.eNone;
+        } else {
+            mBallPosition = BallPosition.eNone;
+            DriverStation.reportWarning("WARNING: BALL POSITION NOT FOUND", false);
+        }
+
         switch(mSystemMode) {
             case eFeed:
-                if (mStorage.isNewBallInChamber()) {
-                    //setMode(SuperstructureMode.eArmed); //TODO: Change when Turret Implemented
-                } else {
-                    if(mStorage.isNewBallInIntake()) {
+                if(mBallPosition == BallPosition.ePositionC) {
+                    setMode(SuperstructureMode.eIdle);
+                } else if(mBallPosition == BallPosition.ePositionB || mBallPosition == BallPosition.ePositionA) {
+                    if(mStorage.isBallInIntake()) {
                         mStorage.runBelt();
-                    } 
-                    if(mStorage.isNewBallInMagazineEntry()) {
+                    } else {
+                        mStorage.stopBelt();
+                    }
+                } else if(mBallPosition == BallPosition.eNone) {
+                    if(mStorage.isBallInIntake()) {
+                        mStorage.runBelt();
+                    } else {
                         mStorage.stopBelt();
                     }
                 }
                 break;
+
             case eArmed:
-                //Copied bc I didnt want to mess with the original block of code
                 mShooter.reachCalculatedTargetRPM();
                 final boolean atTargetRPM = mShooter.isAtTargetRPM();
                 if(isAimedAtTarget()) {
                     if(atTargetRPM) {
-                        if(mShootingMode == ShootingMode.eAuto) {
-                            if(mNewAutomaticMagazine) {
-                                CommandScheduler.getInstance().schedule(new StartAutoFireSequence(mShooter, mStorage));
-                                mNewAutomaticMagazine = false;
-                            } else if(mStorage.isEmpty()) {
-                                setMode(SuperstructureMode.eIdle);
-                                break;
-                            }
-                        } else if(mShootingMode == ShootingMode.eSemiAuto) {
-                            if(!mStorage.isChamberLoaded()) {
+                        if(mShootingMode == ShootingMode.eFullAuto && mAuthorizedToShoot) {
+                            if(mBallPosition != BallPosition.eNone || mStorage.isBallInChamber()) {
                                 mStorage.runBelt();
                             } else {
-                                mStorage.stopBelt();
-
-                                if(atTargetRPM) {
-                                    //mShooter.startFeeder();
-                                    mShooter.loadBall();
-                                } else {
-                                // mShooter.stopFeeder();
-                                mShooter.openBallLoader();
-                                }
+                                setMode(SuperstructureMode.eIdle);
+                            }
+                        } else if(mShootingMode == ShootingMode.eSemiAuto) {
+                            if(mNewlyPressedAuthorizedToShoot.update(mAuthorizedToShoot)) {
+                                mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
+                            }
+                            switch(mSemiAutoStage) {
+                                case eLoadBallChamber:
+                                    if(mBallPosition != BallPosition.ePositionChamber) {
+                                        mStorage.runBelt();
+                                    }
+                                    mSemiAutoStage = SemiAutoStage.eFireBall;
+                                    break;
+                                case eFireBall:
+                                    if(mBallPosition != BallPosition.ePositionChamber) {
+                                        mStorage.stopBelt();
+                                        if(!mStorage.isEmpty()) {
+                                            mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
+                                        } else {
+                                            mSemiAutoStage = SemiAutoStage.eEndSequence;
+                                        }
+                                    }
+                                    break;
+                                case eEndSequence:
+                                    setMode(SuperstructureMode.eIdle);
+                                default:
                             }
                         }
                     } else {
-                        DriverStation.reportError("ERROR: SHOOTING MODE NOT FOUND", false);
+                        mStorage.stopBelt();
                     }
                 } else {
                     if(!mDrive.isAutoRotateRunning()) {
@@ -120,43 +151,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                         CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, theta));
                     }
                 }
-                /* //TODO: Change when Turret Implemented
-                final boolean aimedAtTarget = mTurret.isAimedAtTarget();
-                final boolean atTargetRPM = mShooter.isAtTargetRPM();
-                mShooter.reachCalculatedTargetRPM();
-                if(aimedAtTarget && atTargetRPM) {
-                }
-                if(mAuthorizedToShoot && aimedAtTarget) {
-                    if(mShootingMode == ShootingMode.eAuto) {
-                        if(mIsNewAutomaticMagazine) {
-                            CommandScheduler.getInstance().schedule(new StartAutoFireSequence(mShooter, mStorage));
-                            mIsNewAutomaticMagazine = false;
-                        } else if(mStorage.isEmpty()) {
-                            setMode(SuperstructureMode.eIdle);
-                            break;
-                        }
-                    } else if(mShootingMode == ShootingMode.eSemiAuto) {
-                        if(!mStorage.isChamberLoaded()) {
-                            mStorage.openChamberValve();
-                            mStorage.runBelt();
-                        } else {
-                            mStorage.closeChamberValve();
-                            mStorage.stopBelt();
-
-                            if(atTargetRPM) {
-                                //mShooter.startFeeder();
-                                mShooter.loadBall();
-                            } else {
-                               // mShooter.stopFeeder();
-                               mShooter.openBallLoader();
-                            }
-                        }
-                    } else {
-                        DriverStation.reportError("ERROR: SHOOTING MODE NOT FOUND", false);
-                    }
-                }
-                */
                 break;
+                
             case eIdle:
             default:
         }
@@ -174,7 +170,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
                 break;
             case eArmed:
                 CommandScheduler.getInstance().schedule(new StartArmedSequence(mIntake, mShooter, mStorage));
-                mNewAutomaticMagazine = true;
                 break;
             case eIdle:
                 CommandScheduler.getInstance().schedule(new StartIdleSequence(mIntake, mStorage, mShooter));
@@ -199,7 +194,6 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      */
     public void deauthorizeShot() {
         mAuthorizedToShoot = false;
-        mNewAutomaticMagazine = true;
     }
 
     /**
@@ -229,13 +223,15 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      * 
      * <li> Idle Mode: Default Mode, does nothing
      */
-    public enum SuperstructureMode implements Sendable {
+    public enum SuperstructureMode {
         eFeed(), eArmed(), eIdle();
 
         private SuperstructureMode() {}
 
         @Override
-        public void initSendable(SendableBuilder builder) {}
+        public String toString() {
+            return this.name();
+        }
     }
 
     /**
@@ -244,20 +240,27 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      * <li> Automatic Fire
      * <li> Semi-Automatic (Single Fire)
      */
-    public enum ShootingMode implements Sendable {
-        eSemiAuto(), eAuto();
+    public enum ShootingMode {
+        eSemiAuto(), eFullAuto();
 
         private ShootingMode() {}
 
         @Override
-        public void initSendable(SendableBuilder builder) {}
+        public String toString() {
+            return this.name();
+        }
+    }
+
+    private enum SemiAutoStage {
+        eLoadBallChamber, eFireBall, eEndSequence;
     }
 
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
-        SmartDashboard.putData("Current System Mode", mSystemMode);
-        SmartDashboard.putData("Current Shooting Mode", mShootingMode);
+        SmartDashboard.putString("Current System Mode", mSystemMode.toString());
+        SmartDashboard.putString("Current Shooting Mode", mShootingMode.toString());
+        SmartDashboard.putString("Current Ball Pos", mBallPosition.toString());
         SmartDashboard.putBoolean("Is Authorized to Shoot", mAuthorizedToShoot);
     }
 
@@ -283,8 +286,10 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      * @return whether to take the shot
      */
     public synchronized boolean isAimedAtTarget() {
-        double tx = mShooterLimelight.getTx();
+        return true; //TODO: Remove
+        /*double tx = mShooterLimelight.getTx();
         return Math.abs(tx) < SuperstructureConstants.kDrivebaseTargetingEpsilon 
                 && TurretConstants.kTargetWidth[TurretSubsystem.ShootingTarget.eHighTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
+                */
     }
 }
