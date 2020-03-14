@@ -81,7 +81,8 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

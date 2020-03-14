@@ -44,22 +44,20 @@ public class PowerSubsystem extends SubsystemBase implements SubsystemInterface 
 
     @Override
     public void outputTelemetry() {
-        //SmartDashboard.putData(getInstance());
-        //SmartDashboard.putNumber("Input Voltage", mPdp.getVoltage());
-        //SmartDashboard.putNumber("Temperature", mPdp.getTemperature());
-        //SmartDashboard.putNumber("Total Current", mPdp.getTotalCurrent());
-        //SmartDashboard.putNumber("Total Energy", mPdp.getTotalEnergy());
-        //SmartDashboard.putNumber("Total Power", mPdp.getTotalPower());
-        /*
+        SmartDashboard.putData(getInstance());
+        SmartDashboard.putNumber("Input Voltage", mPdp.getVoltage());
+        SmartDashboard.putNumber("Temperature", mPdp.getTemperature());
+        SmartDashboard.putNumber("Total Current", mPdp.getTotalCurrent());
+        SmartDashboard.putNumber("Total Energy", mPdp.getTotalEnergy());
+        SmartDashboard.putNumber("Total Power", mPdp.getTotalPower());
         for(int i=0;i<16;i++) {
             SmartDashboard.putNumber("Channel " +  i + " Current", mPdp.getCurrent(i));
         }
-        */
-        SmartDashboard.putNumber("Channel 3 Current", mPdp.getCurrent(3));
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LatchedBoolean;
 import frc.robot.Limelight;
-import frc.robot.commands.drive.RotateDriveCommand;
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.commands.groups.StartArmedSequence;
 import frc.robot.commands.groups.StartFeedSequence;
 import frc.robot.commands.groups.StartIdleSequence;
@@ -64,6 +64,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
     @Override
     public void init() {
+        setMode(SuperstructureMode.eIdle);
     }
 
     /**
@@ -71,7 +72,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      */
     @Override
     public void periodic() {
-        if(mStorage.isPositionChamber()) {
+        if(mStorage.isPositionChamber()) { //TODO: Test if top "if" statement works
             mBallPosition = BallPosition.ePositionChamber;
         } else if(mStorage.isPositionC()) {
             mBallPosition = BallPosition.ePositionC;
@@ -88,9 +89,9 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
 
         switch(mSystemMode) {
             case eFeed:
-                if(mBallPosition == BallPosition.ePositionC) {
+                if(mBallPosition == BallPosition.ePositionChamber) {
                     setMode(SuperstructureMode.eIdle);
-                } else if(mBallPosition == BallPosition.ePositionB || mBallPosition == BallPosition.ePositionA) {
+                } else if(mBallPosition == BallPosition.ePositionC || mBallPosition == BallPosition.ePositionB || mBallPosition == BallPosition.ePositionA) {
                     if(mStorage.isBallInIntake()) {
                         mStorage.runBelt();
                     } else {
@@ -108,52 +109,67 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
             case eArmed:
                 mShooter.reachCalculatedTargetRPM();
                 final boolean atTargetRPM = mShooter.isAtTargetRPM();
+                if(mBallPosition != BallPosition.eNone && !mStorage.isBallInChamber()) {
+                    mStorage.runBelt();
+                } else {
+                    mStorage.stopBelt();
+                }
                 if(isAimedAtTarget()) {
                     if(atTargetRPM) {
                         if(mShootingMode == ShootingMode.eFullAuto && mAuthorizedToShoot) {
-                            if(mBallPosition != BallPosition.eNone || mStorage.isBallInChamber()) {
-                                mStorage.runBelt();
+                            if(mBallPosition != BallPosition.eNone || mStorage.isBallInIntake()) {
+                            	mStorage.runBelt();
                             } else {
                                 setMode(SuperstructureMode.eIdle);
                             }
                         } else if(mShootingMode == ShootingMode.eSemiAuto) {
-                            if(mNewlyPressedAuthorizedToShoot.update(mAuthorizedToShoot)) {
-                                mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
-                            }
-                            switch(mSemiAutoStage) {
-                                case eLoadBallChamber:
-                                    if(mBallPosition != BallPosition.ePositionChamber) {
-                                        mStorage.runBelt();
-                                    }
-                                    mSemiAutoStage = SemiAutoStage.eFireBall;
-                                    break;
-                                case eFireBall:
-                                    if(mBallPosition != BallPosition.ePositionChamber) {
-                                        mStorage.stopBelt();
-                                        if(!mStorage.isEmpty()) {
-                                            mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
-                                        } else {
-                                            mSemiAutoStage = SemiAutoStage.eEndSequence;
-                                        }
-                                    }
-                                    break;
-                                case eEndSequence:
-                                    setMode(SuperstructureMode.eIdle);
-                                default:
-                            }
+                            processSemiAutoFireSequence();
                         }
                     } else {
-                        mStorage.stopBelt();
+                        //mStorage.stopBelt();
                     }
                 } else {
                     if(!mDrive.isAutoRotateRunning()) {
-                        double theta = mDrive.getHeading() - mShooterLimelight.getTx(); 
-                        CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, theta));
+                        //double theta = mDrive.getHeading() - mShooterLimelight.getTx(); //TODO: Check if works
+                        //CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, theta));
                     }
                 }
                 break;
                 
             case eIdle:
+                if(mShooterLimelight.isTarget()) { //TODO: Test
+                    //mShooter.setTargetRPM(ShooterConstants.kDistanceInToRpmLUT[ShooterConstants.kMinRPMCellIndex][ShooterConstants.kRPMIndex]);
+                } else {
+                    //mShooter.stopShooter();
+                }
+                break;
+            default:
+        }
+    }
+
+    public void processSemiAutoFireSequence() {
+        if(mNewlyPressedAuthorizedToShoot.update(mAuthorizedToShoot)) {
+            mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
+        }
+        switch(mSemiAutoStage) {
+            case eLoadBallChamber:
+                if(mBallPosition != BallPosition.ePositionChamber) {
+                    mStorage.runBelt();
+                }
+                mSemiAutoStage = SemiAutoStage.eFireBall;
+                break;
+            case eFireBall:
+                if(mBallPosition != BallPosition.ePositionChamber) {
+                    mStorage.stopBelt();
+                    if(!mStorage.isEmpty()) {
+                        mSemiAutoStage = SemiAutoStage.eLoadBallChamber;
+                    } else {
+                        mSemiAutoStage = SemiAutoStage.eEndSequence;
+                    }
+                }
+                break;
+            case eEndSequence:
+                setMode(SuperstructureMode.eIdle);
             default:
         }
     }
@@ -214,6 +230,18 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         return mSystemMode;
     }
 
+    //TODO: Change when Turret Implemented
+    /**
+     * Is Drivebase Aimed at Target AND does the ball have clearance with this angle
+     * 
+     * @return whether to take the shot
+     */
+    public synchronized boolean isAimedAtTarget() {
+        double tx = mShooterLimelight.getTx();
+        return Math.abs(tx) - 3.5 < SuperstructureConstants.kDrivebaseTargetingEpsilon; 
+                //&& TurretConstants.kHighTargetWidthInches * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
+    }
+
     /**
      * System Mode of the Superstructure
      * <ul>
@@ -262,11 +290,12 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
         SmartDashboard.putString("Current Shooting Mode", mShootingMode.toString());
         SmartDashboard.putString("Current Ball Pos", mBallPosition.toString());
         SmartDashboard.putBoolean("Is Authorized to Shoot", mAuthorizedToShoot);
+        SmartDashboard.putBoolean("Is Aimed At Target", isAimedAtTarget());
     }
 
     @Override
-    public void runTest() {
-        // TODO Auto-generated method stub
+    public boolean checkSystem() {
+		return true;
     }
 
     /**
@@ -277,19 +306,5 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
             mInstance = new SuperstructureSubsystem();
         }
         return mInstance;
-    }
-
-    //TODO: Change when Turret Implemented
-    /**
-     * Is Turret Aimed at Target AND does the ball have clearance with this angle
-     * 
-     * @return whether to take the shot
-     */
-    public synchronized boolean isAimedAtTarget() {
-        return true; //TODO: Remove
-        /*double tx = mShooterLimelight.getTx();
-        return Math.abs(tx) < SuperstructureConstants.kDrivebaseTargetingEpsilon 
-                && TurretConstants.kTargetWidth[TurretSubsystem.ShootingTarget.eHighTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
-                */
     }
 }

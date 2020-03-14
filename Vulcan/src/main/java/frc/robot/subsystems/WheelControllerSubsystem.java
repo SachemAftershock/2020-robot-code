@@ -29,7 +29,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     private String mTargetColorString;
     private ColorLUT mFieldRelativeTargetColor, mRobotRelativeTargetColor, mCurrentDetectedColor, mStartColor;
     private int mTimesPositionedToStartColor, mNumberOfWedgesCrossed, mWedgesRequiredToRotate;
-    private boolean mPreviousExists;
+    private boolean mPreviousExists, mCommandRunning;
     private final CircularColorArray mColors;
 
     /**
@@ -57,11 +57,14 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
         mPreviousExists = false;
 
         mTargetColorString = "";
+
+        mCommandRunning = false;
     }
 
     @Override
     public void init() {
         mExtender.set(Value.kReverse);
+        mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
     }
 
     /**
@@ -115,6 +118,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      * Starts Automatic Rotational Control (Spins Control Panel 3.5 Times)
      */
     public void startRotationControl() {
+        mCommandRunning = true;
         mPreviousExists = false;
         mStartColor = mCurrentDetectedColor;
         mTimesPositionedToStartColor = 0;
@@ -137,6 +141,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      */
     public void endRotationControl() {
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
+        mCommandRunning = false;
     }
 
     /**
@@ -152,6 +157,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      * Begins Color Targeting
      */
     public void startColorTargeting() {
+        mCommandRunning = true;
         mPreviousExists = false;
         CalculatedSpin calculatedSpin = calculateSpinDirection();
         mWedgesRequiredToRotate = calculatedSpin.getWedgesToRotate();
@@ -173,6 +179,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      */
     public void stopColorTargeting() {
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
+        mCommandRunning = false;
     }
 
     /**
@@ -189,7 +196,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     }
 
     public void retractExtender() {
-        mExtender.set(Value.kReverse);
+        if(CollisionAvoidanceSubsystem.getInstance().getUltrasonicDistanceInches() >= WheelControllerConstants.kWheelExtenderLimitMaxDistanceIn) {
+            mExtender.set(Value.kReverse);
+        }
     }
 
     public boolean isExtended() {
@@ -284,6 +293,15 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      */
     public boolean isTargetColorKnown() {
         return mFieldRelativeTargetColor != null;
+    }
+
+    public void manualControl(double pow) {
+        pow *= WheelControllerConstants.kManualWheelProportion;
+        mWheelSpinner.set(ControlMode.PercentOutput, pow);
+    }
+
+    public boolean isCommandRunning() {
+        return mCommandRunning;
     }
 
     /**
@@ -439,9 +457,8 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     }
 
     @Override
-    public void runTest() {
-        // TODO Auto-generated method stub
-        
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

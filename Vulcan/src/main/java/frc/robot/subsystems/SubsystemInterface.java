@@ -21,7 +21,9 @@ public interface SubsystemInterface {
     public void outputTelemetry();
 
     /**
-     * Creates Shuffleboard Buttons to be used in Test Mode
+     * Checks Subsystem
+     * 
+     * @return <i> true </i> if subsystem has no errors; <i> false </i> otherwise
      */
-    public void runTest();
+    public boolean checkSystem();
 }

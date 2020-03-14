@@ -51,6 +51,9 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
 
     @Override
     public void init() {
+        mLifter.set(ControlMode.PercentOutput, 0.0);
+        mElevator.set(ControlMode.PercentOutput, 0.0);
+        
         mHasLifterRun = false;
         mElevator.setSelectedSensorPosition(0); //Stowed Position
 
@@ -109,7 +112,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     public void reverseElevator() {
-        mElevator.set(ControlMode.PercentOutput, -0.75);
+        mElevator.set(ControlMode.PercentOutput, -0.90);
     }
 
     public void stopElevator() {
@@ -211,7 +214,8 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

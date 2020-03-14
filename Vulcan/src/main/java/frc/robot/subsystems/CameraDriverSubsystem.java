@@ -35,7 +35,8 @@ public class CameraDriverSubsystem extends SubsystemBase implements SubsystemInt
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     public synchronized static CameraDriverSubsystem getInstance() {

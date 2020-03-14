@@ -27,7 +27,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	 */
     private LEDSubsystem() {
 		mTimer = new Timer();
-        mI2c = new I2C(I2C.Port.kOnboard, LEDConstants.kArduinoI2CAddress);
+        mI2c = new I2C(I2C.Port.kMXP, LEDConstants.kArduinoI2CAddress);
 
 		mCurrentMode = SystemState.eIdle;
 		mDesiredMode = SystemState.eIdle;
@@ -78,7 +78,6 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 			} else {
 				mDesiredMode = SystemState.eIdle;
 			}
-			//TODO: After driving a bit, determine if we should have two lists for two arduinos for two seperate LED Strips
 		}
 		
 		if(mCurrentMode.getLEDMode() != mDesiredMode.getLEDMode()) {
@@ -214,7 +213,8 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	}
 	
 	@Override
-	public void runTest() {
+	public boolean checkSystem() {
+		return true;
 	}
 
 	/**

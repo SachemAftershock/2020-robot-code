@@ -43,6 +43,7 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
 
     @Override
     public void init() {
+        mIntakeMotor.set(ControlMode.PercentOutput, 0.0);
         mIntakeExtender.set(Value.kReverse);
     }
 
@@ -99,7 +100,8 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

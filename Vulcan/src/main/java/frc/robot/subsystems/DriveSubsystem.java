@@ -79,7 +79,6 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mDriveMotorPortB.setIdleMode(IdleMode.kBrake);
         mDriveMotorPortB.setInverted(false);
         mDriveMotorPortB.burnFlash();
-
                 
         mDriveMotorPortC = new CANSparkMax(DriveConstants.kDriveMotorPortCId, MotorType.kBrushless);
         mDriveMotorPortC.restoreFactoryDefaults();
@@ -99,7 +98,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
         mDriveMotorStarboardA.setIdleMode(IdleMode.kBrake);
         mDriveMotorStarboardA.setInverted(false);
         mDriveMotorStarboardA.burnFlash();
-                
+        
         mDriveMotorStarboardB = new CANSparkMax(DriveConstants.kDriveMotorStarboardBId, MotorType.kBrushless);
         mDriveMotorStarboardB.restoreFactoryDefaults();
         mDriveMotorStarboardB.setMotorType(MotorType.kBrushless);
@@ -160,10 +159,13 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
     @Override
     public void init() {
+        mDifferentialDrive.tankDrive(0.0, 0.0);
+        mManualDriveInverted = false;
+        
         resetEncoders();
         mNavx.zeroYaw();
         mOdometry.resetPosition(new Pose2d(), new Rotation2d(getHeading()));
-        mGearShifter.set(Value.kReverse); //TODO: Find out which side corresponds to which gearing, needs to start in Low Gear
+        shiftLowGear();
         
         mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
@@ -189,10 +191,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      */
     public void manualDrive(double pow, double rot, boolean wantDeccelerate) {
         rot = -rot;
+        rot *= DriveConstants.kManualDriveRotationScaleFactor;
 
         if(mManualDriveInverted) {
             pow = -pow;
-            rot = -rot;
         }
 
         if(wantDeccelerate) { 
@@ -233,13 +235,13 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     /**
      * Set target destination for Autonomous Linear Drive
      * 
-     * @param setpoint target destination to drive forward to
+     * @param setpoint target destination to drive forward to in inches
      * 
      * @see frc.robot.commands.drive.LinearDriveCommand
      */
     public void startAutoDrive(double setpoint) {
-        mLeftTarget = mPortEncoder.getPosition() + getRotations(setpoint);
-        mRightTarget = mStarboardEncoder.getPosition() + getRotations(setpoint);
+        mLeftTarget = getPortRotations() + inchesToRotations(setpoint);
+        mRightTarget = getStarboardRotations() + inchesToRotations(setpoint);
         mPortPid.start(DriveConstants.kLinearGains);
         mStarboardPid.start(DriveConstants.kLinearGains);
     }
@@ -280,7 +282,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * 
      * @see frc.robot.commands.drive.LinearDriveCommand
      */
-    public boolean linearDriveTargetReached() {
+    public boolean isLinearDriveTargetReached() {
         return Math.abs(mPortPid.getError()) <= DriveConstants.kDriveEpsilon &&
              Math.abs(mStarboardPid.getError()) <= DriveConstants.kDriveEpsilon;
     }
@@ -322,6 +324,10 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
             mAutoRotateRunning = false;
         }
         return targetReached;
+    }
+
+    public void stop() {
+        mDifferentialDrive.tankDrive(0, 0);
     }
 
     /**
@@ -375,7 +381,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * @return <i> true </i> when Gear Solenoid is Forward, i.e in High Gear; <i> false </i> otherwise
      */
     public synchronized boolean isHighGear() {
-        return mGearShifter.get() == Value.kForward; //TODO: Find out if this is actually high
+        return mGearShifter.get() == Value.kForward;
     }
 
     /**
@@ -413,11 +419,13 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
 
     /**
      * Gets Number of Wheel Rotations on the Starboard Side
+     * <p>
+     * Negated as Starboard Side is inverted
      * 
      * @return Number of Starboard Side Wheel Rotations
      */
     private double getStarboardRotations() {
-        return mStarboardEncoder.getPosition();
+        return -mStarboardEncoder.getPosition();
     }
 
     /**
@@ -452,11 +460,11 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * 
      * @return the number of rotations to travel the distance
      */
-    private double getRotations(double distanceInches) {
+    private double inchesToRotations(double distanceInches) {
         if(isHighGear()) {
-            return distanceInches / DriveConstants.kWheelCircumferenceInches * DriveConstants.kHighGearRatio;
+            return (distanceInches / DriveConstants.kWheelCircumferenceInches) * DriveConstants.kHighGearRatio;
         }
-        return distanceInches / DriveConstants.kWheelCircumferenceInches  * DriveConstants.kLowGearRatio;
+        return (distanceInches / DriveConstants.kWheelCircumferenceInches)  * DriveConstants.kLowGearRatio;
     }
 
     /**
@@ -538,12 +546,21 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
-        SmartDashboard.putBoolean("Is High Gear", mGearShifter.get() == Value.kForward); //TODO: Find out if foward or reverse is high gear
+        SmartDashboard.putBoolean("Is High Gear", isHighGear()); 
         SmartDashboard.putBoolean("Precision Mode Enabled", mInPrecisionMode);
+        SmartDashboard.putNumber("Heading", getHeading());
+        //SmartDashboard.putNumber("Port Speed", getPortSpeed());
+        //SmartDashboard.putNumber("Starboard Speed", getStarboardSpeed());
+        SmartDashboard.putNumber("Port Rotations", getPortRotations());
+        SmartDashboard.putNumber("Starboard Rotations", getStarboardRotations());
+        SmartDashboard.putNumber("Port Target", mLeftTarget);
+        SmartDashboard.putNumber("Starboard Target", mRightTarget);
+        SmartDashboard.putBoolean("Linear Drive Target Reached", isLinearDriveTargetReached());
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

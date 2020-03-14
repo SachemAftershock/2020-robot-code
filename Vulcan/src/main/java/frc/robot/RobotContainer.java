@@ -22,12 +22,12 @@ import frc.robot.commands.superstructure.StopManualDriveCommand;
 import frc.robot.commands.wheelcontroller.ToggleWheelExtenderCommand;
 import frc.robot.commands.wheelcontroller.WheelColorControlCommand;
 import frc.robot.commands.wheelcontroller.WheelRotateControlCommand;
-import frc.robot.subsystems.AbsoluteFieldPositionDeviceSubsystem;
 import frc.robot.subsystems.CameraDriverSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CollisionAvoidanceSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightManagerSubsystem;
 import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -35,6 +35,7 @@ import frc.robot.subsystems.StorageSubsystem;
 import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
+import frc.robot.subsystems.LEDSubsystem.SystemState;
 import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
 
 /**
@@ -51,7 +52,6 @@ public class RobotContainer {
     private final XboxController mControllerPrimary = new XboxController(ControllerConstants.kControllerPrimaryId);
     private final XboxController mControllerSecondary = new XboxController(ControllerConstants.kControllerSecondaryId);
 
-    private final AbsoluteFieldPositionDeviceSubsystem mAbsoluteFieldPosition = AbsoluteFieldPositionDeviceSubsystem.getInstance();
     private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
     private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
     private final ClimberSubsystem mClimber = ClimberSubsystem.getInstance();
@@ -63,7 +63,7 @@ public class RobotContainer {
     private final StorageSubsystem mStorage = StorageSubsystem.getInstance();
     //private final TurretSubsystem mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
-    //private final LEDSubsystem mLED = LEDSubsystem.getInstance(); //TODO: Change when LEDs Implemented
+    private final LEDSubsystem mLED = LEDSubsystem.getInstance();
     private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
     private final ArrayList<SubsystemInterface> mSubsystems;
 
@@ -94,13 +94,12 @@ public class RobotContainer {
      */
     private RobotContainer() {
         mSubsystems = new ArrayList<SubsystemInterface>();
-        mSubsystems.add(mAbsoluteFieldPosition);
         mSubsystems.add(mDriverCamera);
         mSubsystems.add(mClimber);
         mSubsystems.add(mCollisionAvoidance);
         mSubsystems.add(mDrive);
         mSubsystems.add(mIntake);
-        //mSubsystems.add(mLED); //TODO: Change when LEDs Implemented
+        mSubsystems.add(mLED);
         mSubsystems.add(mLimelightManager);
         mSubsystems.add(mPower);
         mSubsystems.add(mShooter);
@@ -124,11 +123,11 @@ public class RobotContainer {
         bTogglePrecisionDrive = new JoystickButton(mControllerPrimary, XboxController.Button.kX.value);
         bTogglePrecisionDrive.whenPressed(new TogglePrecisionDrivingCommand(mDrive));
 
-        bToggleDriveInversion = new JoystickButton(mControllerPrimary, XboxController.Button.kBack.value);
+        bToggleDriveInversion = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
         bToggleDriveInversion.whenPressed(new ToggleManualDriveInversionCommand(mDrive));
 
 
-        bToggleCollisionAvoidance = new JoystickButton(mControllerPrimary, XboxController.Button.kB.value);
+        bToggleCollisionAvoidance = new JoystickButton(mControllerPrimary, XboxController.Button.kBack.value);
         bToggleCollisionAvoidance.whenPressed(new ToggleCollisionAvoidanceCommand(mCollisionAvoidance, mControllerPrimary));
 
         bClearCommandQueuePrimary = new JoystickButton(mControllerPrimary, XboxController.Button.kStart.value);
@@ -178,12 +177,12 @@ public class RobotContainer {
      * RobotContainer Initialization, Runs at Robot Powered On
      */
     public void init() {
-        //mLED.forceSystemState(SystemState.eInit); //TODO: Change when LEDs Implemented
+        mLED.forceSystemState(SystemState.eInit);
     }
 
 
     /**
-     * Runs Periodically in robotPeriodic
+     * Runs Periodically
      */
     public void periodic() {
         final int primaryPOV = mControllerPrimary.getPOV();
@@ -207,16 +206,15 @@ public class RobotContainer {
             mSuperstructure.deauthorizeShot();
         }
 
+        final double rightXAxisSecondary = Util.deadband(mControllerSecondary.getX(Hand.kRight), ControllerConstants.kJoystickDeadbandTolerance);
+        if(!mColorWheelController.isCommandRunning()) {
+            mColorWheelController.manualControl(rightXAxisSecondary);
+        }
+
         //TODO: Change when Turret Implemented
         /*
         final double leftXAxisSecondary = mControllerSecondary.getX(Hand.kLeft);
         mTurret.manualControl(Util.deadband(leftXAxisSecondary, Constants.kJoystickDeadbandTolerance));
-        final int povSecondary = mControllerSecondary.getPOV();
-        if(povSecondary == POVDirection.eUp.getAngle()) {
-            mTurret.setTarget(ShootingTarget.eHighTarget);
-        } else if(povSecondary == POVDirection.eDown.getAngle()) {
-            mTurret.setTarget(ShootingTarget.eLowTarget);
-        }
         */
     }
     

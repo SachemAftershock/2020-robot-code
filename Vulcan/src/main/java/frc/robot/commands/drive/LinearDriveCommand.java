@@ -38,6 +38,11 @@ public class LinearDriveCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return mDrive.linearDriveTargetReached();
+        return mDrive.isLinearDriveTargetReached();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        mDrive.stop();
     }
 }

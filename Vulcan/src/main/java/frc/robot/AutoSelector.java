@@ -63,7 +63,7 @@ public class AutoSelector {
     public Command getSelectedAutoCommand() {
         switch(mSelectedAutoScenario) {
             case eStraight:
-                return new LinearDriveCommand(DriveSubsystem.getInstance(), 10);
+                return new LinearDriveCommand(DriveSubsystem.getInstance(), 194);
             case eStraightThenTurn:
                 return new StraightThenRotateAutoPath();
             case eComplexPath:

@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         mRobotContainer.periodic();
 
-        mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
+        //mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
     }
 
     @Override
@@ -76,10 +76,5 @@ public class Robot extends TimedRobot {
   
     @Override
     public void testPeriodic() { 
-        try {
-            mRobotContainer.getSubsystemList().forEach(SubsystemInterface::runTest);
-        } catch(Throwable t) {
-            System.out.println(t);
-        }
     }
 }

@@ -28,13 +28,14 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
      * Constructor for CollisionAvoidanceSubsystem Class
      */
     private CollisionAvoidanceSubsystem() {
-        mCollisionEnabled = true;
+        mCollisionEnabled = false;
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }
 
     @Override
     public void init() {
+        mCollisionEnabled = false;
     }
 
     @Override
@@ -124,7 +125,7 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
      * Gets distance from the ultrasonic filtered with a median filter to reduce noise
      * @return Distance in Inches from ultrasonic after filtering
      */
-    private double getUltrasonicDistanceInches() {
+    public double getUltrasonicDistanceInches() {
         return mMedianFilter.calculate(mUltrasonic.getValue() * CollisionAvoidanceConstants.kUltrasonicValueToInches);
     }
 
@@ -132,10 +133,12 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
     public void outputTelemetry() {
         SmartDashboard.putData(mInstance);
         SmartDashboard.putBoolean("Collision Avoidance Enabled: ", mCollisionEnabled);
+        SmartDashboard.putNumber("Ultrasonic", getUltrasonicDistanceInches());
     }
 
     @Override
-    public void runTest() {
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

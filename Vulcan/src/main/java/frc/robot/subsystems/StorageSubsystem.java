@@ -61,6 +61,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     public void init() {
         mIntakeBallEmitter.set(true);
         mChamberBallEmitter.set(true);
+        
         mLowerBeltDriver.set(0.0);
         mBeltDriver.set(0.0);
     }
@@ -90,7 +91,7 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     public boolean isPositionChamber() {
-        return getFilteredDistanceIn() <= BallPosition.ePositionChamber.getLeadingEdge();
+        return getFilteredDistanceIn() <= BallPosition.ePositionChamber.getLeadingEdge() || isBallInChamber();
     }
 
     /**
@@ -165,8 +166,8 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     @Override
-    public void runTest() {
-        // TODO Auto-generated method stub
+    public boolean checkSystem() {
+        return true;
     }
 
     /**

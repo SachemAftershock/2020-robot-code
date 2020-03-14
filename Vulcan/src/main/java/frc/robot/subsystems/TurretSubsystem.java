@@ -6,8 +6,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Sendable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PID;
@@ -32,7 +30,6 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     private PID mPid;
 
     private boolean mAutoTargetingEnabled;
-    private ShootingTarget mSelectedTarget;
 
     /**
      * Constructor for TurretSubsystem Class
@@ -50,7 +47,6 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
 
         mAutoTargetingEnabled = true;
 
-        mSelectedTarget = ShootingTarget.eHighTarget;
     }
 
     @Override
@@ -122,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     public synchronized boolean isAimedAtTarget() {
         double tx = LimelightManagerSubsystem.getInstance().getShooterLimelight().getTx();
         return Math.abs(tx) < TurretConstants.kTurretEpsilon 
-                && TurretConstants.kTargetWidth[mSelectedTarget.ordinal()] * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
+                && TurretConstants.kHighTargetWidthInches * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + getTurretAngle() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
     }
 
     /**
@@ -154,40 +150,17 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
         }
     }
 
-    /**
-     * Sets the Target of the shooter to either the High or Low Target
-     * 
-     * @param target the target for the Shooter to target
-     */
-    public void setTarget(ShootingTarget target) {
-        mSelectedTarget = target;
-    }
-
-    /**
-     * The Target Options of the Shooter
-     */
-    public enum ShootingTarget implements Sendable {
-        eHighTarget(), eLowTarget();
-
-        private ShootingTarget() {}
-
-        @Override
-        public void initSendable(SendableBuilder builder) {}
-    }
-
     @Override
     public void outputTelemetry() {
         SmartDashboard.putData(getInstance());
-        SmartDashboard.putData("Shooting Target", mSelectedTarget);
         SmartDashboard.putNumber("Turret Angle", getTurretAngle());
         SmartDashboard.putBoolean("Aimed at Target", isAimedAtTarget());
         SmartDashboard.putBoolean("Auto Targeting Enabled", mAutoTargetingEnabled);
     }
 
     @Override
-    public void runTest() {
-        // TODO Auto-generated method stub
-        
+    public boolean checkSystem() {
+        return true;
     }
 
     /**
