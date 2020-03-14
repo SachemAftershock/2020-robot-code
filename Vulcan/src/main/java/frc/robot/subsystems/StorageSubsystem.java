@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Lidar;
+import frc.lib.AftershockSubsystem;
+import frc.lib.Lidar;
 import frc.robot.Constants.SuperstructureConstants.StorageConstants;
 
 /**
@@ -17,7 +17,7 @@ import frc.robot.Constants.SuperstructureConstants.StorageConstants;
  * 
  * @author Shreyas Prasad
  */
-public class StorageSubsystem extends SubsystemBase implements SubsystemInterface {
+public class StorageSubsystem extends AftershockSubsystem {
 
     private static StorageSubsystem mInstance;
 
@@ -32,6 +32,8 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
      * Constructor for StorageSubsystem Class
      */
     private StorageSubsystem() {
+        super();
+        
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
         mBeltDriver.setInverted(false);
@@ -51,14 +53,10 @@ public class StorageSubsystem extends SubsystemBase implements SubsystemInterfac
         mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));
 
         mMedianFilter = new MedianFilter(StorageConstants.kMedianFilterSize);
-
-        //mNewBallInChamber = new LatchedBoolean();
-        //mNewBallInIntake = new LatchedBoolean();
-        //mNewBallEnteredMagazine = new LatchedBoolean();
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mIntakeBallEmitter.set(true);
         mChamberBallEmitter.set(true);
         

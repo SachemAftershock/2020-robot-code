@@ -3,18 +3,18 @@ package frc.robot.subsystems;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Limelight;
+import frc.lib.AftershockSubsystem;
+import frc.lib.Limelight;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.Limelight.CameraMode;
-import frc.robot.Limelight.LightMode;
+import frc.lib.Limelight.CameraMode;
+import frc.lib.Limelight.LightMode;
 
 /**
  * Container class for holding multiple Limelights
  * 
  * @author Shreyas Prasad
  */
-public class LimelightManagerSubsystem extends SubsystemBase implements SubsystemInterface {
+public class LimelightManagerSubsystem extends AftershockSubsystem {
 
     private static LimelightManagerSubsystem mInstance;
 
@@ -26,6 +26,8 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
      * Constructor for LimelightManager Class
      */
     private LimelightManagerSubsystem() {
+        super();
+        
         mShooterLimelight = new Limelight(LimelightConstants.kShooterTableName);
         mIntakeLimelight = new Limelight(LimelightConstants.kIntakeTableName);
 
@@ -33,7 +35,7 @@ public class LimelightManagerSubsystem extends SubsystemBase implements Subsyste
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         setAllLightMode(LightMode.eOn);
         setAllCameraMode(CameraMode.eVision);
     }

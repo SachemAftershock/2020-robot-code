@@ -1,6 +1,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.util.Units;
+import frc.lib.PolynomialRegression;
 
 public final class Constants {
     /*
@@ -18,9 +19,6 @@ public final class Constants {
     public static final class ControllerConstants {
         public static final int kControllerPrimaryId = 0;
         public static final int kControllerSecondaryId = 1;
-
-        public static final double kJoystickDeadbandTolerance = 0.15;
-        public static final double kTriggerDeadbandTolerance = 0.25;
     }
     
     public static final class PneumaticConstants {

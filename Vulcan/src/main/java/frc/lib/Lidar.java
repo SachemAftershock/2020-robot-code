@@ -1,11 +1,11 @@
-package frc.robot;
+package frc.lib;
 
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalSource;
 
 /**
- * Class to Instantiate LIDAR Lite v3 Objects
- */
+* Class to Instantiate LIDAR Lite v3 Objects
+*/
 public class Lidar {
     
     private Counter mCounter;

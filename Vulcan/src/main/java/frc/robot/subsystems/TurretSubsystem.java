@@ -7,8 +7,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.PID;
+import frc.lib.AftershockSubsystem;
+import frc.lib.PID;
 import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
 /**
@@ -21,7 +21,7 @@ import frc.robot.Constants.SuperstructureConstants.TurretConstants;
  * @see ShooterSubsystem
  * 
  */
-public class TurretSubsystem extends SubsystemBase implements SubsystemInterface {
+public class TurretSubsystem extends AftershockSubsystem {
 
     private static TurretSubsystem mInstance;
 
@@ -35,6 +35,8 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
      * Constructor for TurretSubsystem Class
      */
     private TurretSubsystem() {
+        super();
+        
         mTurret = new WPI_TalonSRX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 
@@ -50,7 +52,7 @@ public class TurretSubsystem extends SubsystemBase implements SubsystemInterface
     }
 
     @Override
-    public void init() {
+    public void initialize() {
     }
 
     /**

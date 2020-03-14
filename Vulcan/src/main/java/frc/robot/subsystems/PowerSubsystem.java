@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * @author Shreyas Prasad
  */
-public class PowerSubsystem extends SubsystemBase implements SubsystemInterface {
+public class PowerSubsystem extends AftershockSubsystem {
 
     private static PowerSubsystem mInstance;
 
@@ -22,6 +22,8 @@ public class PowerSubsystem extends SubsystemBase implements SubsystemInterface 
      * Constructor for PowerSubsystem Class
      */
     private PowerSubsystem() {
+        super();
+        
         mPdp = new PowerDistributionPanel(0);
         addChild("PowerDistributionPanel",mPdp);
 
@@ -29,7 +31,7 @@ public class PowerSubsystem extends SubsystemBase implements SubsystemInterface 
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mCompressor.setClosedLoopControl(true);
         mCompressor.start();
     }

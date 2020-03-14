@@ -6,7 +6,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import frc.robot.Constants.ClimberConstants;
 
 
@@ -15,7 +15,7 @@ import frc.robot.Constants.ClimberConstants;
  * 
  * @author Shreyas Prasad
  */
-public class ClimberSubsystem extends SubsystemBase implements SubsystemInterface {
+public class ClimberSubsystem extends AftershockSubsystem {
 
     private static ClimberSubsystem mInstance;
 
@@ -29,6 +29,8 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
      * Constructor for ClimberSubsystem Class
      */
     private ClimberSubsystem() {
+        super();
+        
         mElevator = new WPI_TalonSRX(ClimberConstants.kElevatorId);
         mElevator.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, ClimberConstants.kElevatorPidId, 0);
         mElevator.setInverted(InvertType.None);
@@ -50,7 +52,7 @@ public class ClimberSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mLifter.set(ControlMode.PercentOutput, 0.0);
         mElevator.set(ControlMode.PercentOutput, 0.0);
         

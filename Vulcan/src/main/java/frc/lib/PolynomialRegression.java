@@ -1,8 +1,8 @@
 // NOTE: This file is available at http://algs4.cs.princeton.edu/14analysis/PolynomialRegression.java.html
-package frc.robot;
+package frc.lib;
 
-import frc.robot.JamaMath.Matrix;
-import frc.robot.JamaMath.QRDecomposition;
+import frc.lib.JamaMath.Matrix;
+import frc.lib.JamaMath.QRDecomposition;
 
 /**
  * The {@code PolynomialRegression} class performs a polynomial regression on an

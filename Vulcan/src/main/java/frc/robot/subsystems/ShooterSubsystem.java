@@ -9,10 +9,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.ControllerRumble;
-import frc.robot.Lidar;
-import frc.robot.Limelight;
+import frc.lib.AftershockSubsystem;
+import frc.lib.ControllerRumble;
+import frc.lib.Lidar;
+import frc.lib.Limelight;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
 
@@ -25,7 +25,7 @@ import frc.robot.Constants.SuperstructureConstants.ShooterConstants;
  * 
  * @see TurretSubsystem
  */
-public class ShooterSubsystem extends SubsystemBase implements SubsystemInterface {
+public class ShooterSubsystem extends AftershockSubsystem {
 
     private static ShooterSubsystem mInstance;
 
@@ -45,6 +45,8 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
      * Constructor for ShooterSubsystem Class
      */
     private ShooterSubsystem() {
+        super();
+        
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.restoreFactoryDefaults();
         mShooter.setMotorType(MotorType.kBrushless);
@@ -73,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase implements SubsystemInterfac
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mShooter.set(0.0);
         mPid.setSmartMotionMaxAccel(ShooterConstants.kLowAccelerationRPMPerSecond, ShooterConstants.kPidId);
     }

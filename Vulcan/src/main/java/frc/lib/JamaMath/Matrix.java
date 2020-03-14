@@ -1,4 +1,4 @@
-package frc.robot.JamaMath;
+package frc.lib.JamaMath;
 
 import java.text.NumberFormat;
 import java.text.DecimalFormat;

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import frc.robot.Constants.LEDConstants;
 import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
 
@@ -13,7 +13,7 @@ import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
  * 
  * @author Shreyas Prasad
  */
-public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
+public class LEDSubsystem extends AftershockSubsystem {
 
     private static LEDSubsystem mInstance;
 
@@ -26,6 +26,8 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
 	 * Constructor for LEDSubsystem Class
 	 */
     private LEDSubsystem() {
+		super();
+		
 		mTimer = new Timer();
         mI2c = new I2C(I2C.Port.kMXP, LEDConstants.kArduinoI2CAddress);
 
@@ -37,7 +39,7 @@ public class LEDSubsystem extends SubsystemBase implements SubsystemInterface {
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         
     }
 

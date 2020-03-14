@@ -17,11 +17,11 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PneumaticConstants;
-import frc.robot.PID;
-import frc.robot.Util;
+import frc.lib.AftershockSubsystem;
+import frc.lib.PID;
+import frc.lib.Util;
 
 /**
  * Drivebase Subsystem for a Two Speed Transmission, 6 Wheel, West Coast Drive
@@ -30,7 +30,7 @@ import frc.robot.Util;
  * 
  * @author Shreyas Prasad
  */
-public class DriveSubsystem extends SubsystemBase implements SubsystemInterface {
+public class DriveSubsystem extends AftershockSubsystem {
 
     private static DriveSubsystem mInstance;
 
@@ -62,6 +62,8 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
      * Constructor for DriveSubsystem Class
      */
     private DriveSubsystem() {
+        super();
+        
         //I'm only this thorough with Spark initialization because I saw a thread on Chief Delphi 
         //that Spark MAXs reset to the settings burned into the flash memory if they lose power
         mDriveMotorPortA = new CANSparkMax(DriveConstants.kDriveMotorPortAId, MotorType.kBrushless);
@@ -158,7 +160,7 @@ public class DriveSubsystem extends SubsystemBase implements SubsystemInterface 
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mDifferentialDrive.tankDrive(0.0, 0.0);
         mManualDriveInverted = false;
         

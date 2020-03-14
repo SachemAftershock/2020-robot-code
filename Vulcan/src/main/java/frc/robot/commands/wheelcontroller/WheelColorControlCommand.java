@@ -19,7 +19,7 @@ public class WheelColorControlCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        mWheelController.stopColorTargeting();
+        mWheelController.stopComand();
     }
 
     @Override

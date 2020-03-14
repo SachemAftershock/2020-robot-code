@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import frc.robot.Constants.PneumaticConstants;
 import frc.robot.Constants.WheelControllerConstants;
 
@@ -19,7 +19,7 @@ import frc.robot.Constants.WheelControllerConstants;
  * 
  * @author Shreyas Prasad
  */
-public class WheelControllerSubsystem extends SubsystemBase implements SubsystemInterface {
+public class WheelControllerSubsystem extends AftershockSubsystem {
 
     private static WheelControllerSubsystem mInstance;
 
@@ -36,7 +36,8 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
      * Constructor for WheelControllerSubsystem Class
      */
     private WheelControllerSubsystem() {
-
+        super();
+        
         mWheelSpinner = new WPI_VictorSPX(WheelControllerConstants.kWheelControllerId);
         addChild("Wheel Spinner", mWheelSpinner);
 
@@ -62,7 +63,7 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mExtender.set(Value.kReverse);
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
     }
@@ -137,14 +138,6 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     }
 
     /**
-     * Stops Wheel Controller Motor to end Rotational Control
-     */
-    public void endRotationControl() {
-        mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
-        mCommandRunning = false;
-    }
-
-    /**
      * Gets if the Automatic Rotational Process should end
      * 
      * @return <i> true </i> if Control Panel has rotated 3.5 times; <i> false </i> otherwise
@@ -175,9 +168,9 @@ public class WheelControllerSubsystem extends SubsystemBase implements Subsystem
     }
 
     /**
-     * Stops Wheel Controller Motor to end Color Targeting
+     * Stops Wheel Controller Motor to end Rotation or Color Targeting
      */
-    public void stopColorTargeting() {
+    public void stopComand() {
         mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
         mCommandRunning = false;
     }

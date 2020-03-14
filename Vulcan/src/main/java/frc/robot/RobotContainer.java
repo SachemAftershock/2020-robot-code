@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.lib.AftershockSubsystem;
+import frc.lib.AftershockXboxController;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.drive.ManualDriveCommand;
 import frc.robot.commands.drive.RotateDriveCommand;
@@ -32,7 +34,6 @@ import frc.robot.subsystems.LimelightManagerSubsystem;
 import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.StorageSubsystem;
-import frc.robot.subsystems.SubsystemInterface;
 import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
 import frc.robot.subsystems.LEDSubsystem.SystemState;
@@ -49,8 +50,8 @@ public class RobotContainer {
 
     private static RobotContainer mInstance;
 
-    private final XboxController mControllerPrimary = new XboxController(ControllerConstants.kControllerPrimaryId);
-    private final XboxController mControllerSecondary = new XboxController(ControllerConstants.kControllerSecondaryId);
+    private final AftershockXboxController mControllerPrimary = new AftershockXboxController(ControllerConstants.kControllerPrimaryId);
+    private final AftershockXboxController mControllerSecondary = new AftershockXboxController(ControllerConstants.kControllerSecondaryId);
 
     private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
     private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
@@ -65,7 +66,8 @@ public class RobotContainer {
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
     private final LEDSubsystem mLED = LEDSubsystem.getInstance();
     private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
-    private final ArrayList<SubsystemInterface> mSubsystems;
+    private final ArrayList<AftershockSubsystem> mAllSubsystems;
+    private final SubsystemManager mSubsystemManager;
 
     // Primary Controller
     private JoystickButton bToggleDriveGear;
@@ -87,26 +89,25 @@ public class RobotContainer {
     private JoystickButton bEjectIntakeAndStorage;
     private JoystickButton bIngestIntakeAndStorage;
 
-    private LatchedBoolean mSecondaryTriggerNewlyPressed = new LatchedBoolean();
-
     /**
      * Constructor for RobotCotainer Class
      */
     private RobotContainer() {
-        mSubsystems = new ArrayList<SubsystemInterface>();
-        mSubsystems.add(mDriverCamera);
-        mSubsystems.add(mClimber);
-        mSubsystems.add(mCollisionAvoidance);
-        mSubsystems.add(mDrive);
-        mSubsystems.add(mIntake);
-        mSubsystems.add(mLED);
-        mSubsystems.add(mLimelightManager);
-        mSubsystems.add(mPower);
-        mSubsystems.add(mShooter);
-        mSubsystems.add(mStorage);
-        mSubsystems.add(mSuperstructure);
+        mAllSubsystems = new ArrayList<AftershockSubsystem>();
+        mAllSubsystems.add(mDriverCamera);
+        mAllSubsystems.add(mClimber);
+        mAllSubsystems.add(mCollisionAvoidance);
+        mAllSubsystems.add(mDrive);
+        mAllSubsystems.add(mIntake);
+        mAllSubsystems.add(mLED);
+        mAllSubsystems.add(mLimelightManager);
+        mAllSubsystems.add(mPower);
+        mAllSubsystems.add(mShooter);
+        mAllSubsystems.add(mStorage);
+        mAllSubsystems.add(mSuperstructure);
         //mSubsystems.add(mTurret); //TODO: Change when Turret Implemented
-        mSubsystems.add(mColorWheelController);
+        mAllSubsystems.add(mColorWheelController);
+        mSubsystemManager = new SubsystemManager(mAllSubsystems);
 
         configureButtonBindings();
         CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mControllerPrimary));
@@ -176,7 +177,7 @@ public class RobotContainer {
     /**
      * RobotContainer Initialization, Runs at Robot Powered On
      */
-    public void init() {
+    public void initialize() {
         mLED.forceSystemState(SystemState.eInit);
     }
 
@@ -185,37 +186,30 @@ public class RobotContainer {
      * Runs Periodically
      */
     public void periodic() {
-        final int primaryPOV = mControllerPrimary.getPOV();
-        if(primaryPOV != -1 && !mDrive.isAutoRotateRunning()) {
-            CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, primaryPOV));
+        if(mControllerPrimary.getDPadActive() && !mDrive.isAutoRotateRunning()) {
+            CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, mControllerPrimary.getPOV()));
         }
 
-        final boolean secondaryLeftTriggerPressed = Util.deadband(mControllerSecondary.getTriggerAxis(Hand.kLeft), ControllerConstants.kTriggerDeadbandTolerance) != 0;
-        final boolean secondaryRightTriggerPressed = Util.deadband(mControllerSecondary.getTriggerAxis(Hand.kRight), ControllerConstants.kTriggerDeadbandTolerance) != 0;
-        if(mSecondaryTriggerNewlyPressed.update(secondaryLeftTriggerPressed)) {
+        if(mControllerSecondary.getTriggerPressed(Hand.kLeft)) {
             mSuperstructure.setMode(SuperstructureMode.eArmed);
         } else {
-            if(mSuperstructure.getCurrentMode() == SuperstructureMode.eArmed && !secondaryLeftTriggerPressed) {
+            if(mSuperstructure.getCurrentMode() == SuperstructureMode.eArmed && !mControllerSecondary.getTriggerHeld(Hand.kLeft)) {
                 mSuperstructure.setMode(SuperstructureMode.eIdle);
             }
         }
 
-        if(secondaryRightTriggerPressed) {
+        if(mControllerSecondary.getTriggerHeld(Hand.kRight)) {
             mSuperstructure.authorizeShot();
         } else {
             mSuperstructure.deauthorizeShot();
         }
 
-        final double rightXAxisSecondary = Util.deadband(mControllerSecondary.getX(Hand.kRight), ControllerConstants.kJoystickDeadbandTolerance);
         if(!mColorWheelController.isCommandRunning()) {
-            mColorWheelController.manualControl(rightXAxisSecondary);
+            mColorWheelController.manualControl(mControllerSecondary.getDeadbandX(Hand.kRight));
         }
 
         //TODO: Change when Turret Implemented
-        /*
-        final double leftXAxisSecondary = mControllerSecondary.getX(Hand.kLeft);
-        mTurret.manualControl(Util.deadband(leftXAxisSecondary, Constants.kJoystickDeadbandTolerance));
-        */
+        //mTurret.manualControl(mControllerSecondary.getDeadbandX(Hand.kLeft));
     }
     
     /**
@@ -223,7 +217,7 @@ public class RobotContainer {
      * 
      * @return Primary Xbox Controller
      */
-    public XboxController getControllerPrimary() {
+    public AftershockXboxController getControllerPrimary() {
         return mControllerPrimary;
     }
 
@@ -232,42 +226,12 @@ public class RobotContainer {
      * 
      * @return Secondary Xbox Controller
      */
-    public XboxController getControllerSecondary() {
+    public AftershockXboxController getControllerSecondary() {
         return mControllerSecondary;
     }
 
-    /**
-     * Lookup Table for matching direction of D-Pad on Xbox Controller pressed to an angle measure
-     * 
-     * @author Shreyas Prasad
-     */
-    private enum POVDirection {
-        eUp(0), eUpRight(45), eRight(90), eRightDown(135), eDown(180),
-        eLeftDown(225), eLeft(270), eLeftUp(315);
-
-        private final int angle;
-
-        private POVDirection(int angle) {
-            this.angle = angle;
-        }
-
-        /**
-         * Gets angle for D-Pad Direction Pressed
-         * 
-         * @return angle [0,360) corresponding to the appropriate 45deg interval on the D-Pad
-         */
-        private int getAngle() {
-            return this.angle;
-        }
-    }
-
-    /**
-     * Gets List of all Subsystems
-     * 
-     * @return ArrayList containing All Subsystems
-     */
-    public ArrayList<SubsystemInterface> getSubsystemList() {
-        return mSubsystems;
+    public SubsystemManager getSubsystemManager() {
+        return mSubsystemManager;
     }
 
     /**

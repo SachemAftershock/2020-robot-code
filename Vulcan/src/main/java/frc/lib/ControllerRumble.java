@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.lib;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
  * @author Dan Waxman
  * @since 02-14-2016
  * @version 1.1
- */
+*/
 public class ControllerRumble extends Thread {
 	public static boolean exists;
 	private double duration;

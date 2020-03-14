@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.lib;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
  * 
  * @author Rohan Bapat
  * @author Shreyas Prasad
- */
+*/
 public class PID {
 
     private boolean mPaused;

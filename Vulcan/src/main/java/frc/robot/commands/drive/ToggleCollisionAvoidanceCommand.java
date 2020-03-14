@@ -2,7 +2,7 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.ControllerRumble;
+import frc.lib.ControllerRumble;
 import frc.robot.subsystems.CollisionAvoidanceSubsystem;
 
 /**

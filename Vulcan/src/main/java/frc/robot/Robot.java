@@ -3,24 +3,24 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Limelight.LightMode;
+import frc.lib.Limelight.LightMode;
 import frc.robot.subsystems.LimelightManagerSubsystem;
-import frc.robot.subsystems.SubsystemInterface;
 
 public class Robot extends TimedRobot {
 
     private Command mAutonomousCommand;
+
     private RobotContainer mRobotContainer;
+    private SubsystemManager mSubsystemManager;
 
     private AutoSelector mAutoSelector;
-
 
     @Override
     public void robotInit() {
         mRobotContainer = RobotContainer.getInstance();
-        mRobotContainer.init();
-
-        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
+        mSubsystemManager = mRobotContainer.getSubsystemManager();
+        mRobotContainer.initialize();
+        mSubsystemManager.initialize();
 
         mAutoSelector = new AutoSelector();
         mAutoSelector.selectAuto();
@@ -30,8 +30,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         mRobotContainer.periodic();
-
-        //mRobotContainer.getSubsystemList().forEach(SubsystemInterface::outputTelemetry);
     }
 
     @Override
@@ -46,7 +44,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init);
+        mSubsystemManager.initialize();
 
         mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
         if (mAutonomousCommand != null) {
@@ -63,7 +61,7 @@ public class Robot extends TimedRobot {
         if (mAutonomousCommand != null) {
             mAutonomousCommand.cancel();
         }
-        RobotContainer.getInstance().getSubsystemList().forEach(SubsystemInterface::init); //TODO: Remove later
+        mSubsystemManager.initialize(); //TODO: Remove before comp
     }
 
     @Override

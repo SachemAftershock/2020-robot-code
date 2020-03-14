@@ -1,4 +1,4 @@
-package frc.robot.JamaMath;
+package frc.lib.JamaMath;
 
 /** Eigenvalues and eigenvectors of a real matrix. 
 <P>

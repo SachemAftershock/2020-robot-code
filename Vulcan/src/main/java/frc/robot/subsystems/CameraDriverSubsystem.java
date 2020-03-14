@@ -2,14 +2,14 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.cameraserver.CameraServer;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 
 /**
  * Class to enable USB Camera directly through the RoboRIO
  * 
  * @author Shreyas Prasad
  */
-public class CameraDriverSubsystem extends SubsystemBase implements SubsystemInterface {
+public class CameraDriverSubsystem extends AftershockSubsystem {
 
     private boolean mUSBCameraEnabled;
 
@@ -17,12 +17,13 @@ public class CameraDriverSubsystem extends SubsystemBase implements SubsystemInt
     //Cameras are currently run by Python script in CameraStreamer Folder
     //If needed to plug camera directly into RoboRIO, use this Subsystem
     private CameraDriverSubsystem() {
+        super();
         setName("Camera Driver Subsystem");
         mUSBCameraEnabled = false;
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         if(mUSBCameraEnabled) {
             CameraServer.getInstance().startAutomaticCapture();
         }

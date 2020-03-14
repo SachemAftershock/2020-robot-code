@@ -3,9 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LatchedBoolean;
-import frc.robot.Limelight;
+import frc.lib.AftershockSubsystem;
+import frc.lib.LatchedBoolean;
+import frc.lib.Limelight;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.commands.groups.StartArmedSequence;
 import frc.robot.commands.groups.StartFeedSequence;
@@ -17,7 +17,7 @@ import frc.robot.subsystems.StorageSubsystem.BallPosition;
  * 
  * @author Shreyas Prasad
  */
-public class SuperstructureSubsystem extends SubsystemBase implements SubsystemInterface {
+public class SuperstructureSubsystem extends AftershockSubsystem {
 
     private static SuperstructureSubsystem mInstance;
 
@@ -46,6 +46,8 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
      * Constructor for SuperstructureSubsystem Class
      */
     private SuperstructureSubsystem() {
+        super();
+        
         mShooter = ShooterSubsystem.getInstance();
         //mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
         mIntake = IntakeSubsystem.getInstance();
@@ -63,7 +65,7 @@ public class SuperstructureSubsystem extends SubsystemBase implements SubsystemI
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         setMode(SuperstructureMode.eIdle);
     }
 

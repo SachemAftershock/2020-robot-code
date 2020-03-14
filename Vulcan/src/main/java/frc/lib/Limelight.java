@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.lib;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * @author Dan Waxman
  * @author Shreyas Prasad
- */
+*/
 public class Limelight {
 	
 	private NetworkTableInstance table = null;
@@ -144,7 +144,11 @@ public class Limelight {
 	}
 
 	public void outputTelemetry() {
+		SmartDashboard.putBoolean(mTableName + " is Target", isTarget());
 		SmartDashboard.putNumber(mTableName + " tx", getTx());
 		SmartDashboard.putNumber(mTableName + " ty", getTy());
+		SmartDashboard.putNumber(mTableName + " ta", getTa());
+		SmartDashboard.putNumber(mTableName + " ts", getTs());
+		SmartDashboard.putNumber(mTableName + " tl", getTl());
 	}
 }

@@ -1,10 +1,8 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Util;
-import frc.robot.Constants.ControllerConstants;
+import frc.lib.AftershockXboxController;
 import frc.robot.subsystems.DriveSubsystem;
 
 /**
@@ -15,7 +13,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class ManualDriveCommand extends CommandBase {
  
     private DriveSubsystem mDrive;
-    private XboxController mController;
+    private AftershockXboxController mController;
 
     /**
      * Constructor for ManualDriveCommand Class
@@ -24,7 +22,7 @@ public class ManualDriveCommand extends CommandBase {
      * 
      * @param controller Primary Xbox Controller
      */
-    public ManualDriveCommand(DriveSubsystem drive, XboxController controller) {
+    public ManualDriveCommand(DriveSubsystem drive, AftershockXboxController controller) {
         mDrive = drive;
         mController = controller;
         addRequirements(mDrive);
@@ -32,10 +30,10 @@ public class ManualDriveCommand extends CommandBase {
     
     @Override
     public void execute() {
-        final double pow = Util.deadband(mController.getY(Hand.kLeft), ControllerConstants.kJoystickDeadbandTolerance);
-        final double rot = Util.deadband(mController.getX(Hand.kRight), ControllerConstants.kJoystickDeadbandTolerance);
-        final boolean leftTriggerPressed = mController.getTriggerAxis(Hand.kLeft) >= ControllerConstants.kTriggerDeadbandTolerance;
-        final boolean rightTriggerPressed = mController.getTriggerAxis(Hand.kRight) >= ControllerConstants.kTriggerDeadbandTolerance;
+        final double pow = mController.getDeadbandY(Hand.kLeft);
+        final double rot = mController.getDeadbandX(Hand.kRight);
+        final boolean leftTriggerPressed = mController.getTriggerHeld(Hand.kLeft);
+        final boolean rightTriggerPressed = mController.getTriggerHeld(Hand.kRight);
         final boolean wantDeccelerate = leftTriggerPressed || rightTriggerPressed;
         mDrive.manualDrive(pow, rot, wantDeccelerate);
     }

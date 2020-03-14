@@ -3,7 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import frc.robot.Constants.CollisionAvoidanceConstants;
 
 /**
@@ -13,7 +13,7 @@ import frc.robot.Constants.CollisionAvoidanceConstants;
  * 
  * @see DriveSubsystem
  */
-public class CollisionAvoidanceSubsystem extends SubsystemBase implements SubsystemInterface {
+public class CollisionAvoidanceSubsystem extends AftershockSubsystem {
 
     private static CollisionAvoidanceSubsystem mInstance;
 
@@ -28,13 +28,15 @@ public class CollisionAvoidanceSubsystem extends SubsystemBase implements Subsys
      * Constructor for CollisionAvoidanceSubsystem Class
      */
     private CollisionAvoidanceSubsystem() {
+        super();
+        
         mCollisionEnabled = false;
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mCollisionEnabled = false;
     }
 

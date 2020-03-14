@@ -7,7 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.AftershockSubsystem;
 import frc.robot.Constants.PneumaticConstants;
 import frc.robot.Constants.SuperstructureConstants.IntakeConstants;
 
@@ -21,7 +21,7 @@ import frc.robot.Constants.SuperstructureConstants.IntakeConstants;
  * 
  * @see StorageSubsystem
  */
-public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface {
+public class IntakeSubsystem extends AftershockSubsystem {
 
     private static IntakeSubsystem mInstance;
 
@@ -32,6 +32,8 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
      * Constructor for the IntakeSubsystem Class
      */
     private IntakeSubsystem() {
+        super();
+        
         mIntakeExtender = new DoubleSolenoid(PneumaticConstants.kPcmId, IntakeConstants.kIntakeForwardId, IntakeConstants.kIntakeReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);
 
@@ -42,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase implements SubsystemInterface
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         mIntakeMotor.set(ControlMode.PercentOutput, 0.0);
         mIntakeExtender.set(Value.kReverse);
     }

@@ -25,7 +25,7 @@ public class WheelRotateControlCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         mTimer.stop();
-        mWheelController.endRotationControl();
+        mWheelController.stopComand();
     }
 
     @Override

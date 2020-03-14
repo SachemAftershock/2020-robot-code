@@ -1,4 +1,4 @@
-package frc.robot.JamaMath;
+package frc.lib.JamaMath;
 
 /** QR Decomposition.
 <P>
