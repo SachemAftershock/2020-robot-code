@@ -144,7 +144,7 @@ public final class Constants {
                 {208, 4100.0}
             };
 
-            //TODO: Consider Cubic Spline Interpolation if 2nd Degree Polynomial Regression isn't accurate enough
+            //Consider Cubic Spline Interpolation if 2nd Degree Polynomial Regression isn't accurate enough
             // http://mathworld.wolfram.com/CubicSpline.html
             public static final PolynomialRegression kShooterPolynomial = new PolynomialRegression(kDistanceInToRpmLUT, 2);
 
@@ -177,7 +177,7 @@ public final class Constants {
 
             public static final double kManualControlScaleFactor = 0.25;
             public static final double[] kGains = {0.0, 0.0, 0.0};
-            public static final double kTurretEpsilon = 2.0; //TODO: Find the right value
+            public static final double kTurretEpsilon = 2.0;
             public static final double kTurretDegreesPerEncoderRotation = 45.0; // 8 rot == 360 deg
 
             public static final double kMaxTx = 999.9;
@@ -187,7 +187,7 @@ public final class Constants {
 
             public static final double kHighTargetWidthInches = 39.25;
 
-            //TODO: Might further adjust turretSetpointInDegrees to a lower range than 180deg
+            //Might further adjust turretSetpointInDegrees to a lower range than 180deg, depends on physical limitations
             public static final double kPhysicalTurretRotationLimit = 180; 
         }
 

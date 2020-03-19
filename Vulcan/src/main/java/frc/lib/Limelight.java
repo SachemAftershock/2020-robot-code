@@ -16,7 +16,7 @@ public class Limelight {
 
 	private final String mTableName;
 
-	public final static double kDefaultValue = Double.MAX_VALUE;
+	public final static double kDefaultValue = 9999.9;
 
 	/**
 	 * Creates a new Limelight Object
@@ -46,6 +46,8 @@ public class Limelight {
 
 	/**
 	 * Gets whether a target is detected by the Limelight.
+	 * <p>
+	 * Default value is 9999.9
 	 * 
 	 * @return true if a target is detected, false otherwise.
 	 */
@@ -55,7 +57,9 @@ public class Limelight {
 
 	/**
 	 * Horizontal offset from crosshair to target (-27 degrees to 27 degrees).
+	 * <p>
 	 * Default value is 9999.9
+	 * 
 	 * @return tx as reported by the Limelight.
 	 */
 	public double getTx() {
@@ -64,6 +68,8 @@ public class Limelight {
 
 	/**
 	 * Vertical offset from crosshair to target (-20.5 degrees to 20.5 degrees).
+	 * <p>
+	 * Default value is 9999.9
 	 * 
 	 * @return ty as reported by the Limelight.
 	 */
@@ -73,6 +79,8 @@ public class Limelight {
 
 	/**
 	 * Area that the detected target takes up in total camera FOV (0% to 100%).
+	 * <p>
+	 * Default value is 9999.9
 	 * 
 	 * @return Area of target.
 	 */
@@ -82,6 +90,8 @@ public class Limelight {
 
 	/**
 	 * Gets target skew or rotation (-90 degrees to 0 degrees).
+	 * <p>
+	 * Default value is 9999.9
 	 * 
 	 * @return Target skew.
 	 */
@@ -91,6 +101,8 @@ public class Limelight {
 
 	/**
 	 * Gets target latency (ms).
+	 * <p>
+	 * Default value is 9999.9
 	 * 
 	 * @return Target latency.
 	 */

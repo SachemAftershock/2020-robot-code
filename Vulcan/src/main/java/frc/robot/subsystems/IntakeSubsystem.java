@@ -33,6 +33,7 @@ public class IntakeSubsystem extends AftershockSubsystem {
      */
     private IntakeSubsystem() {
         super();
+        setName("Intake Subsystem");
         
         mIntakeExtender = new DoubleSolenoid(PneumaticConstants.kPcmId, IntakeConstants.kIntakeForwardId, IntakeConstants.kIntakeReverseId);
         addChild("Ball Floor Harvestor Deployment Double Solenoid",mIntakeExtender);

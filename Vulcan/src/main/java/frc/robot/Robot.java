@@ -11,16 +11,13 @@ public class Robot extends TimedRobot {
     private Command mAutonomousCommand;
 
     private RobotContainer mRobotContainer;
-    private SubsystemManager mSubsystemManager;
 
     private AutoSelector mAutoSelector;
 
     @Override
     public void robotInit() {
         mRobotContainer = RobotContainer.getInstance();
-        mSubsystemManager = mRobotContainer.getSubsystemManager();
         mRobotContainer.initialize();
-        mSubsystemManager.initialize();
 
         mAutoSelector = new AutoSelector();
         mAutoSelector.selectAuto();
@@ -44,7 +41,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        mSubsystemManager.initialize();
+        mRobotContainer.initialize();
 
         mAutonomousCommand = mAutoSelector.getSelectedAutoCommand();
         if (mAutonomousCommand != null) {
@@ -61,7 +58,7 @@ public class Robot extends TimedRobot {
         if (mAutonomousCommand != null) {
             mAutonomousCommand.cancel();
         }
-        mSubsystemManager.initialize(); //TODO: Remove before comp
+        mRobotContainer.initialize(); //TODO: Remove before comp
     }
 
     @Override

@@ -63,6 +63,7 @@ public class DriveSubsystem extends AftershockSubsystem {
      */
     private DriveSubsystem() {
         super();
+        setName("Drive Subsystem");
         
         //I'm only this thorough with Spark initialization because I saw a thread on Chief Delphi 
         //that Spark MAXs reset to the settings burned into the flash memory if they lose power

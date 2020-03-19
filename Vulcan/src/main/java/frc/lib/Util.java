@@ -54,19 +54,4 @@ public class Util {
 
         return theta;
     }
-
-    /**
-     * Tests if input parameters are within the tolerance
-     * 
-     * @param a First Value
-     * 
-     * @param b Second Value
-     * 
-     * @param c Tolerance Value
-     * 
-     * @return If a and b are within the accepted tolerance c
-     */
-    public static boolean isWithinRange(double a, double b, double c) {
-        return Math.abs(a - b) <= c;
-    }
 }

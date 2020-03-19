@@ -22,7 +22,7 @@ public class SuperstructureSubsystem extends AftershockSubsystem {
     private static SuperstructureSubsystem mInstance;
 
     private final ShooterSubsystem mShooter;
-    //private final TurretSubsystem mTurret; //TODO: Change when Turret Implemented
+    //private final TurretSubsystem mTurret;
     private final IntakeSubsystem mIntake;
     private final StorageSubsystem mStorage;
 
@@ -47,9 +47,10 @@ public class SuperstructureSubsystem extends AftershockSubsystem {
      */
     private SuperstructureSubsystem() {
         super();
-        
+        setName("Superstructure Subsystem");
+
         mShooter = ShooterSubsystem.getInstance();
-        //mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
+        //mTurret = TurretSubsystem.getInstance();
         mIntake = IntakeSubsystem.getInstance();
         mStorage = StorageSubsystem.getInstance();
 
@@ -232,7 +233,6 @@ public class SuperstructureSubsystem extends AftershockSubsystem {
         return mSystemMode;
     }
 
-    //TODO: Change when Turret Implemented
     /**
      * Is Drivebase Aimed at Target AND does the ball have clearance with this angle
      * 
@@ -240,7 +240,7 @@ public class SuperstructureSubsystem extends AftershockSubsystem {
      */
     public synchronized boolean isAimedAtTarget() {
         double tx = mShooterLimelight.getTx();
-        return Math.abs(tx) - 3.5 < SuperstructureConstants.kDrivebaseTargetingEpsilon; 
+        return Math.abs(Math.abs(tx) - 3.5) < SuperstructureConstants.kDrivebaseTargetingEpsilon; 
                 //&& TurretConstants.kHighTargetWidthInches * Math.cos(Math.abs(DriveSubsystem.getInstance().getHeading() + tx)) - TurretConstants.kPowerCellClearance > TurretConstants.kPowerCellDiameterInches;
     }
 

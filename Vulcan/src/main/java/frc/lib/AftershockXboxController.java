@@ -32,7 +32,7 @@ public class AftershockXboxController extends XboxController {
      * @return X Axis Value of Selected Joystick with deadband applied
      */
     public double getDeadbandX(Hand hand) {
-        return deadband(this.getX(hand), kJoystickDeadbandTolerance);
+        return Util.deadband(this.getX(hand), kJoystickDeadbandTolerance);
     }
 
     /**
@@ -43,7 +43,7 @@ public class AftershockXboxController extends XboxController {
      * @return Y Axis Value of Selected Joystick with deadband applied
      */
     public double getDeadbandY(Hand hand) {
-        return deadband(this.getY(hand), kJoystickDeadbandTolerance);
+        return Util.deadband(this.getY(hand), kJoystickDeadbandTolerance);
     }
 
     /**
@@ -54,7 +54,7 @@ public class AftershockXboxController extends XboxController {
      * @return If the trigger value exceeds the deadband
      */
     public boolean getTriggerHeld(Hand hand) {
-        return deadband(this.getTriggerAxis(hand), kTriggerDeadbandTolerance) != 0;
+        return Util.deadband(this.getTriggerAxis(hand), kTriggerDeadbandTolerance) != 0;
     }
 
     /**
@@ -75,10 +75,19 @@ public class AftershockXboxController extends XboxController {
     /**
      * Gets if D-Pad is currently being pressed
      * 
-     * @return whether POV value is not -1
+     * @return whether D-Pad value is not -1
      */
-    public boolean getDPadActive() {
-        return this.getPOV() == -1;
+    public boolean getDPadPressed() {
+        return this.getPOV() != -1;
+    }
+
+    /**
+     * Gets the currently pressed angle on the D-Pad
+     * 
+     * @return degree measure of the D-Pad Button Pressed (-1 if not pressed)
+     */
+    public int getDPadAngle() {
+        return this.getPOV();
     }
 
     /**
@@ -87,7 +96,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 0deg
      */
     public boolean getDPadUp() {
-        return this.getPOV() == POVDirection.eUp.getAngle();
+        return this.getPOV() == DPadDirection.eUp.getAngle();
     }
 
     /**
@@ -96,7 +105,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 45deg
      */
     public boolean getDPadUpRight() {
-        return this.getPOV() == POVDirection.eUpRight.getAngle();
+        return this.getPOV() == DPadDirection.eUpRight.getAngle();
     }
 
     /**
@@ -105,7 +114,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 90deg
      */
     public boolean getDPadRight() {
-        return this.getPOV() == POVDirection.eRight.getAngle();
+        return this.getPOV() == DPadDirection.eRight.getAngle();
     }
 
     /**
@@ -114,7 +123,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 135deg
      */
     public boolean getDPadDownRight() {
-        return this.getPOV() == POVDirection.eDownRight.getAngle();
+        return this.getPOV() == DPadDirection.eDownRight.getAngle();
     }
 
     /**
@@ -123,7 +132,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 180deg
      */
     public boolean getDPadDown() {
-        return this.getPOV() == POVDirection.eDown.getAngle();
+        return this.getPOV() == DPadDirection.eDown.getAngle();
     }
 
     /**
@@ -132,7 +141,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 225deg
      */
     public boolean getDPadDownLeft() {
-        return this.getPOV() == POVDirection.eDownLeft.getAngle();
+        return this.getPOV() == DPadDirection.eDownLeft.getAngle();
     }
 
     /**
@@ -141,7 +150,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 270deg
      */
     public boolean getDPadLeft() {
-        return this.getPOV() == POVDirection.eLeft.getAngle();
+        return this.getPOV() == DPadDirection.eLeft.getAngle();
     }
 
     /**
@@ -150,21 +159,7 @@ public class AftershockXboxController extends XboxController {
      * @return whether the D-Pad angle is 315deg
      */
     public boolean getDPadUpLeft() {
-        return this.getPOV() == POVDirection.eUpLeft.getAngle();
-    }
-
-
-    /**
-     * Applies a deadband to the value with given tolerance
-     * 
-     * @param value the value to apply the deadband to
-     * 
-     * @param tolerance minimum value
-     * 
-     * @return <b> value </b> if greater than <b> tolerance </b>; 0.0 otherwise
-     */
-    private double deadband(double value, double tolerance) {
-        return Math.abs(value) >= tolerance ? value : 0.0;
+        return this.getPOV() == DPadDirection.eUpLeft.getAngle();
     }
 
     /**
@@ -172,13 +167,13 @@ public class AftershockXboxController extends XboxController {
      * 
      * @author Shreyas Prasad
      */
-    private enum POVDirection {
+    private enum DPadDirection {
         eUp(0), eUpRight(45), eRight(90), eDownRight(135), eDown(180),
         eDownLeft(225), eLeft(270), eUpLeft(315);
 
         private final int angle;
 
-        private POVDirection(int angle) {
+        private DPadDirection(int angle) {
             this.angle = angle;
         }
 

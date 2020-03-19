@@ -8,7 +8,7 @@ import frc.robot.subsystems.WheelControllerSubsystem;
 public class WheelRotateControlCommand extends CommandBase {
     private final WheelControllerSubsystem mWheelController;
     private final Timer mTimer;
-    private final double kTimeoutInSeconds = 30.0; //TODO: Time a good value for this
+    private final double kTimeoutInSeconds = 12.0; //TODO: Time a good value for this
 
     public WheelRotateControlCommand(WheelControllerSubsystem subsystem) {
         mWheelController = subsystem;

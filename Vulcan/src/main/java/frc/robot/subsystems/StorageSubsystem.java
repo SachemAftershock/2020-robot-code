@@ -33,7 +33,8 @@ public class StorageSubsystem extends AftershockSubsystem {
      */
     private StorageSubsystem() {
         super();
-        
+        setName("Storage Subsystem");
+
         mBeltDriver = new WPI_TalonSRX(StorageConstants.kBeltDriverMotorId);
         mBeltDriver.setNeutralMode(NeutralMode.Brake);
         mBeltDriver.setInverted(false);
@@ -45,9 +46,11 @@ public class StorageSubsystem extends AftershockSubsystem {
         addChild("Lower Belt Driver", mLowerBeltDriver);
 
         mIntakeBallEmitter = new DigitalOutput(StorageConstants.kIntakeEmitterId);
+        mIntakeBallEmitter.set(true);
         mIntakeBallDetector = new DigitalInput(StorageConstants.kIntakeDetectorId);
 
         mChamberBallEmitter = new DigitalOutput(StorageConstants.kChamberEmitter);
+        mChamberBallEmitter.set(true);
         mChamberBallDetector = new DigitalInput(StorageConstants.kChamberDetectorId);
         
         mLidar = new Lidar(new DigitalInput(StorageConstants.kLidarId));

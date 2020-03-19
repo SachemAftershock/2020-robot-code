@@ -29,8 +29,9 @@ public class CollisionAvoidanceSubsystem extends AftershockSubsystem {
      */
     private CollisionAvoidanceSubsystem() {
         super();
+        setName("Collision Avoidance Subsystem");
         
-        mCollisionEnabled = false;
+        mCollisionEnabled = false; //Ultrasonic not working properly, so default disable
         mUltrasonic = new AnalogInput(CollisionAvoidanceConstants.kCollisionUltrasonicId);
         mSelectedStandoffSlowdown = CollisionAvoidanceConstants.kCollisionStandoffSlowdownInches;
     }

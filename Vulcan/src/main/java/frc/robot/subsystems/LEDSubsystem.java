@@ -27,6 +27,7 @@ public class LEDSubsystem extends AftershockSubsystem {
 	 */
     private LEDSubsystem() {
 		super();
+		setName("LED Subsystem");
 		
 		mTimer = new Timer();
         mI2c = new I2C(I2C.Port.kMXP, LEDConstants.kArduinoI2CAddress);

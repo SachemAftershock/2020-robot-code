@@ -13,7 +13,7 @@ All constants are as specified, unless stated otherwise:
 ## Variable Naming Convention:
  - k Final Constants
  - m Private Instance Variables
- - b Joystick Buttons
+ - b Xbox Controller Buttons
  - e Enums
 
 

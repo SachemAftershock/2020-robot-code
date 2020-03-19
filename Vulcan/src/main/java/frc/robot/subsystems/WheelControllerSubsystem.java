@@ -37,7 +37,8 @@ public class WheelControllerSubsystem extends AftershockSubsystem {
      */
     private WheelControllerSubsystem() {
         super();
-        
+        setName("Wheel Controller Subsystem");
+
         mWheelSpinner = new WPI_VictorSPX(WheelControllerConstants.kWheelControllerId);
         addChild("Wheel Spinner", mWheelSpinner);
 
@@ -156,9 +157,9 @@ public class WheelControllerSubsystem extends AftershockSubsystem {
         mWedgesRequiredToRotate = calculatedSpin.getWedgesToRotate();
         mStartColor = mCurrentDetectedColor;
         mNumberOfWedgesCrossed = 0;
-        if(calculatedSpin.getTargetDirection() == Direction.FORWARD) {
+        if(calculatedSpin.getTargetDirection() == Direction.eForward) {
             mWheelSpinner.set(ControlMode.PercentOutput, WheelControllerConstants.kWheelSpinSpeed);
-        } else if(calculatedSpin.getTargetDirection() == Direction.REVERSE) {
+        } else if(calculatedSpin.getTargetDirection() == Direction.eReverse) {
             mWheelSpinner.set(ControlMode.PercentOutput, -WheelControllerConstants.kWheelSpinSpeed);
         } else {
             mWheelSpinner.set(ControlMode.PercentOutput, 0.0);
@@ -210,21 +211,21 @@ public class WheelControllerSubsystem extends AftershockSubsystem {
         switch(colorVariance) {
             case 3:
             case -1:
-                targetDirection = Direction.FORWARD;
+                targetDirection = Direction.eForward;
                 wedgesToRotate = 1;
                 break;
             case -3:
             case 1:
-                targetDirection = Direction.REVERSE;
+                targetDirection = Direction.eReverse;
                 wedgesToRotate = 1;
                 break;
             case -2:
             case 2:
-                targetDirection = Direction.FORWARD;
+                targetDirection = Direction.eForward;
                 wedgesToRotate = 2;
                 break;
             default:
-                targetDirection = Direction.NONE; //If below is changed, must change direction
+                targetDirection = Direction.eNone; //If below is changed, must change direction
                 wedgesToRotate = 0; //TODO: Find out if we need to rotate wheel if target color == current color, if so set this to 4
                 break;
         }
@@ -333,7 +334,7 @@ public class WheelControllerSubsystem extends AftershockSubsystem {
      * Direction to Spin Control Panel
      */
     private enum Direction {
-        FORWARD, REVERSE, NONE;
+        eForward, eReverse, eNone;
     }
 
     /**

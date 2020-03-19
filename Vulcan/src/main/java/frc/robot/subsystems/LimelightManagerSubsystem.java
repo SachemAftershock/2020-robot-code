@@ -27,7 +27,8 @@ public class LimelightManagerSubsystem extends AftershockSubsystem {
      */
     private LimelightManagerSubsystem() {
         super();
-        
+        setName("Limelight Manager Subsystem");
+
         mShooterLimelight = new Limelight(LimelightConstants.kShooterTableName);
         mIntakeLimelight = new Limelight(LimelightConstants.kIntakeTableName);
 

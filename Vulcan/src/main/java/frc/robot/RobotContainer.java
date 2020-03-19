@@ -1,13 +1,11 @@
 package frc.robot;
 
-import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.lib.AftershockSubsystem;
 import frc.lib.AftershockXboxController;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.commands.drive.ManualDriveCommand;
@@ -38,6 +36,7 @@ import frc.robot.subsystems.SuperstructureSubsystem;
 import frc.robot.subsystems.WheelControllerSubsystem;
 import frc.robot.subsystems.LEDSubsystem.SystemState;
 import frc.robot.subsystems.SuperstructureSubsystem.SuperstructureMode;
+import frc.lib.SubsystemManager;
 
 /**
  * Class to instantiate the structure of the Robot
@@ -53,20 +52,20 @@ public class RobotContainer {
     private final AftershockXboxController mControllerPrimary = new AftershockXboxController(ControllerConstants.kControllerPrimaryId);
     private final AftershockXboxController mControllerSecondary = new AftershockXboxController(ControllerConstants.kControllerSecondaryId);
 
-    private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
-    private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
     private final ClimberSubsystem mClimber = ClimberSubsystem.getInstance();
     private final CollisionAvoidanceSubsystem mCollisionAvoidance = CollisionAvoidanceSubsystem.getInstance();
     private final WheelControllerSubsystem mColorWheelController = WheelControllerSubsystem.getInstance();
     private final DriveSubsystem mDrive = DriveSubsystem.getInstance();
+    private final CameraDriverSubsystem mDriverCamera = CameraDriverSubsystem.getInstance();
+    private final IntakeSubsystem mIntake = IntakeSubsystem.getInstance();
+    private final LEDSubsystem mLED = LEDSubsystem.getInstance();
+    private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
     private final PowerSubsystem mPower = PowerSubsystem.getInstance();
     private final ShooterSubsystem mShooter = ShooterSubsystem.getInstance();
     private final StorageSubsystem mStorage = StorageSubsystem.getInstance();
-    //private final TurretSubsystem mTurret = TurretSubsystem.getInstance(); //TODO: Change when Turret Implemented
     private final SuperstructureSubsystem mSuperstructure = SuperstructureSubsystem.getInstance();
-    private final LEDSubsystem mLED = LEDSubsystem.getInstance();
-    private final LimelightManagerSubsystem mLimelightManager = LimelightManagerSubsystem.getInstance();
-    private final ArrayList<AftershockSubsystem> mAllSubsystems;
+    //private final TurretSubsystem mTurret = TurretSubsystem.getInstance();
+
     private final SubsystemManager mSubsystemManager;
 
     // Primary Controller
@@ -80,7 +79,7 @@ public class RobotContainer {
     private JoystickButton bClearCommandQueuePrimary;
 
     // Secondary Controller
-    //private JoystickButton bToggleTurretAutoTargeting; //TODO: Change when Turret Implemented
+    //private JoystickButton bToggleTurretAutoTargeting;
     private JoystickButton bStartWheelPositionControl;
     private JoystickButton bStartWheelColorTargeting;
     private JoystickButton bDeployWheelController;
@@ -93,21 +92,22 @@ public class RobotContainer {
      * Constructor for RobotCotainer Class
      */
     private RobotContainer() {
-        mAllSubsystems = new ArrayList<AftershockSubsystem>();
-        mAllSubsystems.add(mDriverCamera);
-        mAllSubsystems.add(mClimber);
-        mAllSubsystems.add(mCollisionAvoidance);
-        mAllSubsystems.add(mDrive);
-        mAllSubsystems.add(mIntake);
-        mAllSubsystems.add(mLED);
-        mAllSubsystems.add(mLimelightManager);
-        mAllSubsystems.add(mPower);
-        mAllSubsystems.add(mShooter);
-        mAllSubsystems.add(mStorage);
-        mAllSubsystems.add(mSuperstructure);
-        //mSubsystems.add(mTurret); //TODO: Change when Turret Implemented
-        mAllSubsystems.add(mColorWheelController);
-        mSubsystemManager = new SubsystemManager(mAllSubsystems);
+        mSubsystemManager = SubsystemManager.getInstance();
+        mSubsystemManager.setSubsystems(
+            //mTurret,
+            mClimber,
+            mCollisionAvoidance,
+            mColorWheelController,
+            mDrive,
+            mDriverCamera,
+            mIntake,
+            mLED,
+            mLimelightManager,
+            mPower,
+            mShooter,
+            mStorage,
+            mSuperstructure
+        );
 
         configureButtonBindings();
         CommandScheduler.getInstance().setDefaultCommand(mDrive, new ManualDriveCommand(mDrive, mControllerPrimary));
@@ -159,7 +159,7 @@ public class RobotContainer {
         bDeployWheelController = new JoystickButton(mControllerSecondary, XboxController.Button.kB.value);
         bDeployWheelController.whenPressed(new ToggleWheelExtenderCommand(mColorWheelController, mCollisionAvoidance));
 
-        //bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kBack.value); //TODO: Change when Turret Implemented
+        //bToggleTurretAutoTargeting = new JoystickButton(mControllerSecondary, XboxController.Button.kBack.value);
         //bToggleTurretAutoTargeting.whenPressed(new InstantCommand(() -> mTurret.toggleAutoTargetingEnabled()));
 
         bClearCommandQueueSecondary = new JoystickButton(mControllerSecondary, XboxController.Button.kStart.value);
@@ -179,15 +179,18 @@ public class RobotContainer {
      */
     public void initialize() {
         mLED.forceSystemState(SystemState.eInit);
+        mSubsystemManager.initialize();
     }
 
 
     /**
-     * Runs Periodically
+     * Checks Button Status Periodically to execute Commands
+     * <p>
+     * Used for non-traditional buttons (D-Pad,Triggers)
      */
     public void periodic() {
-        if(mControllerPrimary.getDPadActive() && !mDrive.isAutoRotateRunning()) {
-            CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, mControllerPrimary.getPOV()));
+        if(mControllerPrimary.getDPadPressed() && !mDrive.isAutoRotateRunning()) {
+            CommandScheduler.getInstance().schedule(new RotateDriveCommand(mDrive, mControllerPrimary.getDPadAngle()));
         }
 
         if(mControllerSecondary.getTriggerPressed(Hand.kLeft)) {
@@ -208,7 +211,6 @@ public class RobotContainer {
             mColorWheelController.manualControl(mControllerSecondary.getDeadbandX(Hand.kRight));
         }
 
-        //TODO: Change when Turret Implemented
         //mTurret.manualControl(mControllerSecondary.getDeadbandX(Hand.kLeft));
     }
     
@@ -228,10 +230,6 @@ public class RobotContainer {
      */
     public AftershockXboxController getControllerSecondary() {
         return mControllerSecondary;
-    }
-
-    public SubsystemManager getSubsystemManager() {
-        return mSubsystemManager;
     }
 
     /**

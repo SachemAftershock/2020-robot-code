@@ -30,6 +30,7 @@ public class ClimberSubsystem extends AftershockSubsystem {
      */
     private ClimberSubsystem() {
         super();
+        setName("Climber Subsystem");
         
         mElevator = new WPI_TalonSRX(ClimberConstants.kElevatorId);
         mElevator.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, ClimberConstants.kElevatorPidId, 0);
@@ -109,14 +110,23 @@ public class ClimberSubsystem extends AftershockSubsystem {
         }
     }
 
+    /**
+     * Manually Drives Elevator Up
+     */
     public void forwardElevator() {
         mElevator.set(ControlMode.PercentOutput, 1.0);
     }
 
+    /**
+     * Manually Drives Elevator Down
+     */
     public void reverseElevator() {
         mElevator.set(ControlMode.PercentOutput, -0.90);
     }
 
+    /**
+     * Stops Elevator
+     */
     public void stopElevator() {
         mElevator.set(ControlMode.PercentOutput, 0.0);
     }

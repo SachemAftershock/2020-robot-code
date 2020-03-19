@@ -23,7 +23,8 @@ public class PowerSubsystem extends AftershockSubsystem {
      */
     private PowerSubsystem() {
         super();
-        
+        setName("Power Subsystem");
+
         mPdp = new PowerDistributionPanel(0);
         addChild("PowerDistributionPanel",mPdp);
 

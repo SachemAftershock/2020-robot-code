@@ -13,6 +13,8 @@ import frc.robot.Constants.SuperstructureConstants.TurretConstants;
 
 /**
  * Turret Subsystem
+ * <p>
+ * Never Tested or Implemented due to physical limitations in a turret
  * 
  * @author Shreyas Prasad
  * 
@@ -36,7 +38,8 @@ public class TurretSubsystem extends AftershockSubsystem {
      */
     private TurretSubsystem() {
         super();
-        
+        setName("Turret Subsystem");
+
         mTurret = new WPI_TalonSRX(TurretConstants.kTurretMotorId);
         mTurret.setNeutralMode(NeutralMode.Brake);
 

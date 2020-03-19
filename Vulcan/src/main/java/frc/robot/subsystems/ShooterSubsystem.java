@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.lib.AftershockSubsystem;
 import frc.lib.ControllerRumble;
@@ -39,14 +40,15 @@ public class ShooterSubsystem extends AftershockSubsystem {
 
     private double mTargetRPM, mCurrentPredictedDistance;
 
-    private int mTargetFalloutDelayCounter;
+    private double mTargetFalloutDelayStartTime;
 
     /**
      * Constructor for ShooterSubsystem Class
      */
     private ShooterSubsystem() {
         super();
-        
+        setName("Shooter Subsystem");
+
         mShooter = new CANSparkMax(ShooterConstants.kLauncherMotorId, MotorType.kBrushless);
         mShooter.restoreFactoryDefaults();
         mShooter.setMotorType(MotorType.kBrushless);
@@ -94,16 +96,15 @@ public class ShooterSubsystem extends AftershockSubsystem {
     public void reachCalculatedTargetRPM() {
         if(mLimelight.isTarget() || isLowLidarCorrect()) {
             mTargetRPM = getTargetRPM();
-            mTargetFalloutDelayCounter = 0;
-        } else if(mTargetFalloutDelayCounter > 2500 / 20) {
+            mTargetFalloutDelayStartTime = Timer.getFPGATimestamp();
+        } else if(Timer.getFPGATimestamp() - mTargetFalloutDelayStartTime > 2500 / 20) {
             mTargetRPM = ShooterConstants.kDistanceInToRpmLUT[ShooterConstants.kMinRPMCellIndex][ShooterConstants.kRPMIndex];
-            mTargetFalloutDelayCounter = 0;
-        } else {
-            mTargetFalloutDelayCounter++;
+            mTargetFalloutDelayStartTime = 0;
         }
 
         if(mTargetRPM < 1.0) {
             (new ControllerRumble(RobotContainer.getInstance().getControllerPrimary(), 1)).start();
+            PowerSubsystem.getInstance().startCompressor();
             return;
         }
         
@@ -145,6 +146,17 @@ public class ShooterSubsystem extends AftershockSubsystem {
         
     }
 
+    /**
+     * Calculates Target RPM from Linear Interpolation from Distance to RPM Table
+     * <p>
+     * Calculates Distance from ty to Distance Regression if Limelight Target is found
+     * <p>
+     * If no target is found, checks Low Lidar
+     * <p>
+     * Returns 0.0 if shot is impossible or no Limelight Target found and Low Lidar readings invalid
+     * 
+     * @return calculated RPM needed to take the shot from the current calculated distance (Returns 0 if shot cannot be made or distance is not found)
+     */
     private double getTargetRPM() {
         if(mLimelight.isTarget()) {
             mCurrentPredictedDistance = ShooterConstants.kTyDistanceRegression.predict(mLimelight.getTy());
@@ -154,19 +166,19 @@ public class ShooterSubsystem extends AftershockSubsystem {
             return 0.0;
         }
 
-        if(mCurrentPredictedDistance <= ShooterConstants.kDistanceInToRpmLUT[0][0]) { 
+        if(mCurrentPredictedDistance <= ShooterConstants.kDistanceInToRpmLUT[0][ShooterConstants.kDistanceIndex]) { 
             return 0.0; //Current Range is below min range
         }
 
         for(int i = 1; i < ShooterConstants.kDistanceInToRpmLUT.length; i++) {
-            if(mCurrentPredictedDistance < ShooterConstants.kDistanceInToRpmLUT[i][0]) {
+            if(mCurrentPredictedDistance < ShooterConstants.kDistanceInToRpmLUT[i][ShooterConstants.kDistanceIndex]) {
                 double y1 = ShooterConstants.kDistanceInToRpmLUT[i][ShooterConstants.kRPMIndex];
                 double y0 = ShooterConstants.kDistanceInToRpmLUT[i-1][ShooterConstants.kRPMIndex];
 
                 double x1 = ShooterConstants.kDistanceInToRpmLUT[i][ShooterConstants.kDistanceIndex];
                 double x0 = ShooterConstants.kDistanceInToRpmLUT[i-1][ShooterConstants.kDistanceIndex];
 
-                mTargetRPM = (y1 - y0) / (x1 - x0) * (mCurrentPredictedDistance - x0) + y0;
+                mTargetRPM = (y1 - y0) / (x1 - x0) * (mCurrentPredictedDistance - x0) + y0; //Linear Interpolation Eq
                 return mTargetRPM;
             }
         }
