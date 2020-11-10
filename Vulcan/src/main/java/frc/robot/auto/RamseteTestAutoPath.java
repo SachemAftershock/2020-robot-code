@@ -46,11 +46,11 @@ public class RamseteTestAutoPath extends CommandBase {
 
         mRamseteCommand = new RamseteCommand(
             testTrajectory,
-            mDrive::getPose, 
+            mDrive::getPoseMeters, 
             new RamseteController(DriveConstants.kRamseteB, DriveConstants.kRamseteZeta),
             new SimpleMotorFeedforward(DriveConstants.ksVolts, DriveConstants.kvVoltSecondsPerMeter, DriveConstants.kaVoltSecondsSquaredPerMeter),
             mDrive.getKinematics(),
-            mDrive::getWheelSpeeds,
+            mDrive::getWheelSpeedsMetersPerSecond,
             new PIDController(DriveConstants.kPDriveVel, 0, 0), 
             new PIDController(DriveConstants.kPDriveVel, 0, 0), 
             mDrive::tankDriveVolts,

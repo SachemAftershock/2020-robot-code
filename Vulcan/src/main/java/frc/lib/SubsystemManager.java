@@ -25,7 +25,7 @@ public class SubsystemManager {
     /**
      * Sets List of Subsystems to Manage
      * 
-     * @param allSubsystems List of all Subsystme to Manage
+     * @param allSubsystems List of all Subsystems to Manage
      */
     public void setSubsystems(AftershockSubsystem... allSubsystems) {
         mAllSubsystems = Arrays.asList(allSubsystems);

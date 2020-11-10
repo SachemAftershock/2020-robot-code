@@ -56,13 +56,15 @@ public final class Constants {
 
         public static final double kManualDriveRotationScaleFactor = 0.8;
         
-        public static final double kWheelRadiusInches = 3.0;
-        public static final double kWheelDiameterInches = 6.0;
-        public static final double kWheelCircumferenceInches = kWheelDiameterInches * Math.PI;
-        public static final double kWheelDiameter = Units.inchesToMeters(kWheelDiameterInches);
+        public static final double kWheelRadius = 3.0;
+        private static final double kWheelDiameter = 6.0;
         public static final double kWheelCircumference = kWheelDiameter * Math.PI;
-        public static final double kWheelRadius = Units.inchesToMeters(3.0);
-        public static final double kTrackWidth = Units.inchesToMeters(19.125); //Distance in between wheels
+        public static final double kTrackWidth = 19.125; //Distance in between wheels
+
+        public static final double kWheelDiameterMeters = Units.inchesToMeters(kWheelDiameter);
+        public static final double kWheelCircumferenceMeters = kWheelDiameterMeters * Math.PI;
+        public static final double kWheelRadiusMeters = Units.inchesToMeters(kWheelRadius);
+        public static final double kTrackWidthMeters = Units.inchesToMeters(kTrackWidth);
 
         public static final double kLowGearRatio = 33.98; //number of motor rotations to a single drive wheel rotation
         public static final double kHighGearRatio = 9.05;

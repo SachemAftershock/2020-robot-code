@@ -13,10 +13,12 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.PneumaticConstants;
 import frc.lib.AftershockSubsystem;
@@ -133,10 +135,11 @@ public class DriveSubsystem extends AftershockSubsystem {
         mPortEncoder = mDriveMotorPortA.getEncoder();
         mStarboardEncoder = mDriveMotorStarboardA.getEncoder();
 
-        mKinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidth);
+        mKinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidthMeters);
 
-        mOdometry = new DifferentialDriveOdometry(new Rotation2d(getHeading()), new Pose2d(0, 0, new Rotation2d()));
-        //TODO: the auto I choose is gonna have to change the above x, y, and theta values
+        mOdometry = new DifferentialDriveOdometry(new Rotation2d(getHeadingRadians()), new Pose2d(0, 0, new Rotation2d()));
+        //TODO: Need some way to make the start position field-centric instead of robot-centric
+        //maybe lidars pointed against 2 walls?
                 
         mGearShifter = new DoubleSolenoid(PneumaticConstants.kPcmId, DriveConstants.kGearShiftForwardId, DriveConstants.kGearShiftReverseId);
         addChild("Gear Shift Double Solenoid", mGearShifter);    
@@ -167,16 +170,21 @@ public class DriveSubsystem extends AftershockSubsystem {
         
         resetEncoders();
         mNavx.zeroYaw();
+        //Need a way to find robot position on field, not just assume we start at 0,0
+        //See above todo next to mOdometry initializtion
         mOdometry.resetPosition(new Pose2d(), new Rotation2d(getHeading()));
         shiftLowGear();
-        
+
+        //If you're from the future looking at this code in reference, get an encoder at the output of the transmission
+        //Right now, I'm using math to account for the gears in the drive transmission
+        //This probably won't work accurately, especially for more complex autonomous paths
         mPortEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
         mStarboardEncoder.setVelocityConversionFactor((1/ 60) * 2 * Math.PI * DriveConstants.kLowGearRatio);
     }
 
     @Override
     public void periodic() {
-        mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistanceInches(), getStarboardEncoderDistanceInches());
+        mOdometry.update(Rotation2d.fromDegrees(getHeading()), getPortEncoderDistanceMeters(), getStarboardEncoderDistanceMeters());
     }
     
     /**
@@ -188,7 +196,7 @@ public class DriveSubsystem extends AftershockSubsystem {
      * 
      * @param rot Robot's Rotation Rate; Right Joystick X-Axis
      * 
-     * @param wantDeccelerate If the Operator requests the Robot to deccelerate; Left or Right Triggers
+     * @param wantDeccelerate If the Driver requests the Robot to deccelerate; Left or Right Triggers
      * 
      * @see frc.robot.commands.drive.ManualDriveCommand
      */
@@ -232,6 +240,9 @@ public class DriveSubsystem extends AftershockSubsystem {
         mPrevPow = pow;
         mPrevRot = rot;
 
+        //This actually shouldn't be a constant true for isQuickTurn, that somewhat invalidates
+        //the point of running curvature drive; try running without quick turn in the future
+        //(or with a button to control it)
         mDifferentialDrive.curvatureDrive(-pow, rot, true);
     }
 
@@ -432,28 +443,59 @@ public class DriveSubsystem extends AftershockSubsystem {
     }
 
     /**
-     * Converts Wheel Rotations to Linear Distance travelled
+     * Converts Wheel Rotations to Linear Distance travelled in Inches
      * 
      * @param rotations number of rotations
      * 
-     * @return linear distance travelled
+     * @return linear distance travelled in inches
      */
     private double rotationsToInches(double rotations) {
-        return rotations * DriveConstants.kWheelCircumferenceInches;
+        if(isHighGear()) {
+            return rotations / DriveConstants.kHighGearRatio * DriveConstants.kWheelCircumference;
+        }
+        return rotations / DriveConstants.kLowGearRatio * DriveConstants.kWheelCircumference;
     }
 
     /**
      * @return Port Side Distance Travelled in Inches
      */
-    private double getPortEncoderDistanceInches() {
+    public double getPortEncoderDistance() {
         return rotationsToInches(getPortRotations());
     }
 
     /**
      * @return Starboard Side Distance Travelled in Inches
      */
-    private double getStarboardEncoderDistanceInches() {
+    public double getStarboardEncoderDistance() {
         return rotationsToInches(getStarboardRotations());
+    }
+
+    /**
+     * Converts Wheel Rotations to Linear Distance travelled in Meters
+     * 
+     * @param rotations number of rotations
+     * 
+     * @return linear distance travelled in meters
+     */
+    private double rotationsToMeters(double rotations) {
+        if(isHighGear()) {
+            return (rotations / DriveConstants.kHighGearRatio) * DriveConstants.kWheelCircumferenceMeters;
+        }
+        return (rotations / DriveConstants.kLowGearRatio) * DriveConstants.kWheelCircumferenceMeters;
+    }
+
+    /**
+     * @return Port Side Distance Travelled in Meters
+     */
+    private double getPortEncoderDistanceMeters() {
+        return rotationsToMeters(getPortRotations());
+    }
+
+    /**
+     * @return Starboard Side Distance Travelled in Meters
+     */
+    private double getStarboardEncoderDistanceMeters() {
+        return rotationsToMeters(getStarboardRotations());
     }
 
     /**
@@ -465,9 +507,9 @@ public class DriveSubsystem extends AftershockSubsystem {
      */
     private double inchesToRotations(double distanceInches) {
         if(isHighGear()) {
-            return (distanceInches / DriveConstants.kWheelCircumferenceInches) * DriveConstants.kHighGearRatio;
+            return (distanceInches / DriveConstants.kWheelCircumference) * DriveConstants.kHighGearRatio;
         }
-        return (distanceInches / DriveConstants.kWheelCircumferenceInches)  * DriveConstants.kLowGearRatio;
+        return (distanceInches / DriveConstants.kWheelCircumference)  * DriveConstants.kLowGearRatio;
     }
 
     /**
@@ -476,6 +518,7 @@ public class DriveSubsystem extends AftershockSubsystem {
     private double getPortAngularVelocity() {
         return mPortEncoder.getVelocity();
     }
+
     /**
      * @return Starboard Side Angular Velocity in Rad/s
      */
@@ -484,7 +527,7 @@ public class DriveSubsystem extends AftershockSubsystem {
     }
 
     /**
-     * Gets Current Wheel Speeds
+     * Gets Current Wheel Speeds in Feet/second
      * 
      * @return DifferentialDriveWheelSpeeds object containing Port & Starboard side speeds
      */
@@ -493,17 +536,40 @@ public class DriveSubsystem extends AftershockSubsystem {
     }
 
     /**
-     * @return Port Side Linear Speed in Meters/second
+     * @return Port Side Linear Speed in Feet/second
      */
     private double getPortSpeed() {
         return getPortAngularVelocity() * DriveConstants.kWheelRadius;
     }
 
     /**
-     * @return Starboard Side Linear Speed in Meters/second
+     * @return Starboard Side Linear Speed in Feet/second
      */
     private double getStarboardSpeed() {
         return getStarboardAngularVelocity() * DriveConstants.kWheelRadius;
+    }
+
+    /**
+     * Gets Current Wheel Speeds in Meters/second
+     * 
+     * @return DifferentialDriveWheelSpeeds object containing Port & Starboard side speeds
+     */
+    public DifferentialDriveWheelSpeeds getWheelSpeedsMetersPerSecond() {
+        return new DifferentialDriveWheelSpeeds(getPortSpeedMetersPerSecond(), getStarboardSpeedMetersPerSecond());
+    }
+
+    /**
+     * @return Port Side Linear Speed in Meters/second
+     */
+    private double getPortSpeedMetersPerSecond() {
+        return getPortAngularVelocity() * DriveConstants.kWheelRadiusMeters;
+    }
+
+    /**
+     * @return Starboard Side Linear Speed in Meters/second
+     */
+    private double getStarboardSpeedMetersPerSecond() {
+        return getStarboardAngularVelocity() * DriveConstants.kWheelRadiusMeters;
     }
 
     /**
@@ -520,14 +586,40 @@ public class DriveSubsystem extends AftershockSubsystem {
      * @return the robot's heading in degrees, from [-180, 180]
      */
     public double getHeading() {
-        return -mNavx.getYaw();
+        final double heading = mNavx.getYaw();
+        if(heading == 0.0) {
+            return 0.0; //prevents a -0.0 reading
+        }
+        return -heading;
+    }
+
+    /**
+     * Uses Right Hand Rule: CW is negative, CCW is positive
+     * 
+     * @return the robot's heading in radians, from [-pi, pi]
+     */
+    public double getHeadingRadians() {
+        return Math.toRadians(getHeading());
     }
 
     /**
      * @return the robot's estimated pose
      */
-    public Pose2d getPose() {
+    public synchronized Pose2d getPoseMeters() {
         return mOdometry.getPoseMeters();
+    }
+
+    /**
+     * Returns Estimated Pose of the Robot with units in inches
+     * 
+     * @return estimated robot Pose2d in inches
+     */
+    public synchronized Pose2d getPoseInches() {
+        final Pose2d estimatedPoseMeters = getPoseMeters();
+        final Translation2d estimatedTranslation2dMeters = estimatedPoseMeters.getTranslation();
+        final double x = Units.metersToInches(estimatedTranslation2dMeters.getX());
+        final double y = Units.metersToInches(estimatedTranslation2dMeters.getY());
+        return new Pose2d(x, y, estimatedPoseMeters.getRotation());
     }
 
     /**
