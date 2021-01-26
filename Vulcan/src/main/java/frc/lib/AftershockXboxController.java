@@ -1,7 +1,6 @@
 package frc.lib;
 
 import edu.wpi.first.wpilibj.XboxController;
-
 /**
  * Wrapper for XboxControllers
  * 
@@ -22,6 +21,8 @@ public class AftershockXboxController extends XboxController {
      */
     public AftershockXboxController(final int port) {
         super(port);
+        mLeftTriggerPressed = new LatchedBoolean();
+        mRightTriggerPressed = new LatchedBoolean();
     }
 
     /**

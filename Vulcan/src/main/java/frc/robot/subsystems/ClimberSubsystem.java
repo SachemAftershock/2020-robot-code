@@ -64,6 +64,8 @@ public class ClimberSubsystem extends AftershockSubsystem {
         mDesiredPosition = ClimbElevatorPosition.eLow;
     }
 
+
+    //TODO: This method is unfinished and untested
     /**
      * Raises Elevator Level by one level
      * <p>
@@ -75,13 +77,13 @@ public class ClimberSubsystem extends AftershockSubsystem {
         switch(mCurrentPosition) {
             case eStart:
                 mDesiredPosition = ClimbElevatorPosition.eMid;
-                mElevator.set(ControlMode.MotionMagic, mCurrentPosition.getEncoderCount());
+                mElevator.set(ControlMode.MotionMagic, mDesiredPosition.getEncoderCount());
                 break;
             case eLow:
                 break;
             case eMid:
                 mDesiredPosition = ClimbElevatorPosition.eHigh;
-                mElevator.set(ControlMode.MotionMagic, mCurrentPosition.getEncoderCount());
+                mElevator.set(ControlMode.MotionMagic, mDesiredPosition.getEncoderCount());
                 break;
             case eHigh:
             default:
@@ -99,11 +101,11 @@ public class ClimberSubsystem extends AftershockSubsystem {
         switch(mCurrentPosition) {
             case eHigh:
                 mDesiredPosition = ClimbElevatorPosition.eMid;
-                mElevator.set(ControlMode.MotionMagic, mCurrentPosition.getEncoderCount());
+                mElevator.set(ControlMode.MotionMagic, mDesiredPosition.getEncoderCount());
                 break;
             case eMid:
                 mDesiredPosition = ClimbElevatorPosition.eLow;
-                mElevator.set(ControlMode.MotionMagic, mCurrentPosition.getEncoderCount());
+                mElevator.set(ControlMode.MotionMagic, mDesiredPosition.getEncoderCount());
                 break;
             case eLow:
             default:

@@ -97,7 +97,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
         if(mLimelight.isTarget() || isLowLidarCorrect()) {
             mTargetRPM = getTargetRPM();
             mTargetFalloutDelayStartTime = Timer.getFPGATimestamp();
-        } else if(Timer.getFPGATimestamp() - mTargetFalloutDelayStartTime > 2500 / 20) {
+        } else if(Timer.getFPGATimestamp() - mTargetFalloutDelayStartTime > 2.5) {
             mTargetRPM = ShooterConstants.kDistanceInToRpmLUT[ShooterConstants.kMinRPMCellIndex][ShooterConstants.kRPMIndex];
             mTargetFalloutDelayStartTime = 0;
         }
@@ -147,7 +147,7 @@ public class ShooterSubsystem extends AftershockSubsystem {
     }
 
     /**
-     * Calculates Target RPM from Linear Interpolation from Distance to RPM Table
+     * Calculates Target RPM from Polynomial Regression from Distance to RPM Table
      * <p>
      * Calculates Distance from ty to Distance Regression if Limelight Target is found
      * <p>
